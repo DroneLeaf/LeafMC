@@ -44,7 +44,6 @@ add_definitions(
 	-DQGC_ORG_DOMAIN="org.qgroundcontrol"
 	)
 
-include(Git)
 message(STATUS "QGroundControl version: ${APP_VERSION_STR}")
 
 #=============================================================================

@@ -25,10 +25,10 @@ ToolStripActionList {
         },
         PreFlightCheckListShowAction { onTriggered: displayPreFlightChecklist() },
         GuidedActionTakeoff { },
-        GuidedActionLand { },
-        GuidedActionRTL { },
-        GuidedActionPause { },
-        GuidedActionActionList { },
-        GuidedActionGripper { }
+        GuidedActionLand { }
+        // GuidedActionRTL { },
+        // GuidedActionPause { },
+        // GuidedActionActionList { },
+        // GuidedActionGripper { }
     ]
 }

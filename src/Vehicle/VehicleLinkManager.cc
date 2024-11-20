@@ -36,9 +36,11 @@ void VehicleLinkManager::mavlinkMessageReceived(LinkInterface* link, mavlink_mes
             _addLink(link);
         } else {
             LinkInfo_t& linkInfo = _rgLinkInfo[linkIndex];
-            linkInfo.heartbeatElapsedTimer.restart();
-            if (_rgLinkInfo[linkIndex].commLost) {
-                _commRegainedOnLink(link);
+            if(message.msgid == MAVLINK_MSG_ID_LEAF_MODE) {
+                linkInfo.heartbeatElapsedTimer.restart();
+                if (_rgLinkInfo[linkIndex].commLost) {
+                    _commRegainedOnLink(link);
+                }
             }
         }
     }

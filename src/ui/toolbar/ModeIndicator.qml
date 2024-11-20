@@ -21,8 +21,8 @@ import QGroundControl.Palette               1.0
 //-- Mode Indicator
 QGCComboBox {
     anchors.verticalCenter: parent.verticalCenter
-    alternateText:          _activeVehicle ? _activeVehicle.flightMode : ""
-    model:                  _flightModes
+    alternateText:          _activeVehicle ? _activeVehicle.leafMode : ""
+    model:                  _leafModes
     font.pointSize:         ScreenTools.mediumFontPointSize
     currentIndex:           -1
     sizeToContents:         true
@@ -30,10 +30,10 @@ QGCComboBox {
     property bool showIndicator: true
 
     property var _activeVehicle:    QGroundControl.multiVehicleManager.activeVehicle
-    property var _flightModes:      _activeVehicle ? _activeVehicle.flightModes : [ ]
+    property var _leafModes:        _activeVehicle ? _activeVehicle.leafModes : [ ]
 
     onActivated: {
-        _activeVehicle.flightMode = _flightModes[index]
+        _activeVehicle.leafMode = _leafModes[index]
         currentIndex = -1
     }
 }

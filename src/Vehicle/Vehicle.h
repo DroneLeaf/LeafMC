@@ -152,6 +152,11 @@ public:
     };
     Q_ENUM(MavlinkSysStatus)
 
+    enum QLEAF_PROP_VALUE {
+        LEAF_UNDEFINED_VALUE = INT_MAX
+    };
+    Q_ENUM(QLEAF_PROP_VALUE)
+
     enum CheckList {
         CheckListNotSetup = 0,
         CheckListPassed,
@@ -272,6 +277,11 @@ public:
     Q_PROPERTY(QString  gotoFlightMode          READ gotoFlightMode                                 CONSTANT)                   ///< Flight mode vehicle is in while performing goto
     Q_PROPERTY(bool     haveMRSpeedLimits       READ haveMRSpeedLimits                              NOTIFY haveMRSpeedLimChanged)
     Q_PROPERTY(bool     haveFWSpeedLimits       READ haveFWSpeedLimits                              NOTIFY haveFWSpeedLimChanged)
+
+    // DronLeaf STATUS
+    Q_PROPERTY(QString                 leafStatus                       READ leafStatus                                 NOTIFY leafStatusChanged)
+    Q_PROPERTY(QString                 leafMode                         READ leafMode         WRITE setLeafMode       NOTIFY leafModeChanged)
+    Q_PROPERTY(QStringList             leafModes                        READ leafModes                                  NOTIFY leafModesChanged)
 
     Q_PROPERTY(ParameterManager*        parameterManager    READ parameterManager   CONSTANT)
     Q_PROPERTY(VehicleLinkManager*      vehicleLinkManager  READ vehicleLinkManager CONSTANT)
@@ -527,8 +537,11 @@ public:
 
     bool flightModeSetAvailable             ();
     QStringList flightModes                 ();
+    QStringList leafModes                   ();
     QString flightMode                      () const;
     void setFlightMode                      (const QString& flightMode);
+
+    void setLeafMode                        (const QString& leafMode);
 
     bool airship() const;
 
@@ -651,7 +664,8 @@ public:
     bool            requiresGpsFix              () const { return static_cast<bool>(_onboardControlSensorsPresent & SysStatusSensorGPS); }
     bool            hilMode                     () const { return _base_mode & MAV_MODE_FLAG_HIL_ENABLED; }
     Actuators*      actuators                   () const { return _actuators; }
-
+    QString         leafStatus                  () const { return _leafStatus; }
+    QString         leafMode                    () const { return _leafMode; }
     /// Get the maximum MAVLink protocol version supported
     /// @return the maximum version
     unsigned        maxProtoVersion         () const { return _maxProtoVersion; }
@@ -977,6 +991,7 @@ signals:
     void telemetryRNoiseChanged         (int value);
     void autoDisarmChanged              ();
     void flightModesChanged             ();
+    void leafModesChanged               ();
     void sensorsPresentBitsChanged      (int sensorsPresentBits);
     void sensorsEnabledBitsChanged      (int sensorsEnabledBits);
     void sensorsHealthBitsChanged       (int sensorsHealthBits);
@@ -988,6 +1003,9 @@ signals:
     void requiresGpsFixChanged          ();
     void haveMRSpeedLimChanged          ();
     void haveFWSpeedLimChanged          ();
+
+    void leafStatusChanged                   (QString leafStatus);
+    void leafModeChanged                     (QString leafMode);
 
     void firmwareVersionChanged         ();
     void firmwareCustomVersionChanged   ();
@@ -1039,6 +1057,7 @@ private slots:
     void _remoteControlRSSIChanged          (uint8_t rssi);
     void _handleFlightModeChanged           (const QString& flightMode);
     void _announceArmedChanged              (bool armed);
+    void _announceLeafModeChanged           (QString mode);
     void _offlineCruiseSpeedSettingChanged  (QVariant value);
     void _offlineHoverSpeedSettingChanged   (QVariant value);
     void _handleTextMessage                 (int newCount);
@@ -1084,6 +1103,8 @@ private:
     void _handleGlobalPositionInt       (mavlink_message_t& message);
     void _handleAltitude                (mavlink_message_t& message);
     void _handleVfrHud                  (mavlink_message_t& message);
+    void _handleLeafStatus              (mavlink_message_t& message);
+    void _handleLeafMode                (mavlink_message_t& message);
     void _handleNavControllerOutput     (mavlink_message_t& message);
     void _handleHighLatency             (mavlink_message_t& message);
     void _handleHighLatency2            (mavlink_message_t& message);
@@ -1194,6 +1215,8 @@ private:
     bool            _readyToFlyAvailable                    = false;
     bool            _readyToFly                             = false;
     bool            _allSensorsHealthy                      = true;
+    QString         _leafStatus = "";
+    QString         _leafMode = "";
 
     SysStatusSensorInfo _sysStatusSensorInfo;
 
@@ -1445,6 +1468,8 @@ private:
     Actuators*                      _actuators                  = nullptr;
     RemoteIDManager*                _remoteIDManager            = nullptr;
     StandardModes*                  _standardModes              = nullptr;
+    QMap<LEAF_MODE, QString>*       _leafModeNames              = nullptr;
+    QMap<LEAF_STATUS, QString>*     _leafStatusTexts            = nullptr;
 
     static const char* _rollFactName;
     static const char* _pitchFactName;

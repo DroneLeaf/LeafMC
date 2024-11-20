@@ -28,6 +28,7 @@ RowLayout {
     property real   _margins:           ScreenTools.defaultFontPixelWidth
     property real   _spacing:           ScreenTools.defaultFontPixelWidth / 2
     property bool   _healthAndArmingChecksSupported: _activeVehicle ? _activeVehicle.healthAndArmingCheckReport.supported : false
+    property string    _leafStatus: _activeVehicle ? _activeVehicle.leafStatus : qsTr("Leaf Not Connected")
 
     QGCLabel {
         id:             mainStatusLabel
@@ -41,14 +42,25 @@ RowLayout {
         property string _armedText:         qsTr("Armed")
         property string _flyingText:        qsTr("Flying")
         property string _landingText:       qsTr("Landing")
+        property string _leafFCDisconnected:       qsTr("FC Disconnected")
 
         function mainStatusText() {
             var statusText
             if (_activeVehicle) {
                 if (_communicationLost) {
                     _mainStatusBGColor = "red"
-                    return mainStatusLabel._commLostText
+                    return mainStatusLabel._leafFCDisconnected
                 }
+
+                if(_activeVehicle.leafMode != "") {
+                    _mainStatusBGColor = "green"
+                    return _root._leafStatus
+                } else {
+                    _mainStatusBGColor = "red"
+                    return mainStatusLabel._leafFCDisconnected
+                }
+
+
                 if (_activeVehicle.armed) {
                     _mainStatusBGColor = "green"
 

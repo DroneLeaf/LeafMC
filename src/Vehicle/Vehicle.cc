@@ -200,6 +200,8 @@ Vehicle::Vehicle(LinkInterface*             link,
     connect(this, &Vehicle::flightModeChanged,          this, &Vehicle::_handleFlightModeChanged);
     connect(this, &Vehicle::armedChanged,               this, &Vehicle::_announceArmedChanged);
 
+    connect(this, &Vehicle::leafModeChanged,               this, &Vehicle::_announceLeafModeChanged);
+
     connect(_toolbox->multiVehicleManager(), &MultiVehicleManager::parameterReadyVehicleAvailableChanged, this, &Vehicle::_vehicleParamLoaded);
 
     _uas = new UAS(_mavlink, this, _firmwarePluginManager);
@@ -504,6 +506,27 @@ void Vehicle::_commonInit()
     _loadJoystickSettings();
 
     _gimbalController = new GimbalController(_mavlink, this);
+
+    // leafModeNames fill
+    _leafModeNames = new QMap<LEAF_MODE, QString>();
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_MANUAL, QString("MANUAL"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_RC_POSITION, QString("RC POSITION"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING, QString("LEARNING"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_ENUM_END, QString("Unknown"));
+
+    // leafStatusTexts
+    _leafStatusTexts = new QMap<LEAF_STATUS, QString>();
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_ARMED, QString("ARMED"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_DISARMED, QString("DISARMED"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_EMERGENCY, QString("EMERGENCY"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_HOVERING, QString("HOVERING"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_LANDED, QString("LANDED"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_LANDING, QString("LANDING"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_LEARNING, QString("LEARNING"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_NOT_READY, QString("NOT READY"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_READY_TO_FLY, QString("READY TO FLY"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_READY_TO_LEARN, QString("READY TO LEARN"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_ENUM_END, QString("Unknown"));
 }
 
 Vehicle::~Vehicle()
@@ -623,6 +646,7 @@ void Vehicle::resetCounters()
 
 void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t message)
 {
+
     // If the link is already running at Mavlink V2 set our max proto version to it.
     unsigned mavlinkVersion = _mavlink->getCurrentVersion();
     if (_maxProtoVersion != mavlinkVersion && mavlinkVersion >= 200) {
@@ -639,6 +663,7 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
 
     // We give the link manager first whack since it it reponsible for adding new links
     _vehicleLinkManager->mavlinkMessageReceived(link, message);
+
 
     //-- Check link status
     _messagesReceived++;
@@ -790,6 +815,12 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     case MAVLINK_MSG_ID_CURRENT_EVENT_SEQUENCE:
     case MAVLINK_MSG_ID_RESPONSE_EVENT_ERROR:
         _eventHandler(message.compid).handleEvents(message);
+        break;
+    case MAVLINK_MSG_ID_LEAF_STATUS:
+        _handleLeafStatus(message);
+        break;
+    case MAVLINK_MSG_ID_LEAF_MODE:
+        _handleLeafMode(message);
         break;
 
     case MAVLINK_MSG_ID_SERIAL_CONTROL:
@@ -1040,6 +1071,38 @@ void Vehicle::_handleStatusText(mavlink_message_t& message)
         _chunkedStatusTextCompleted(message.compid);
     }
 }
+
+
+void Vehicle::_handleLeafStatus(mavlink_message_t& message)
+{
+
+    mavlink_leaf_status_t leafStatus;
+    mavlink_msg_leaf_status_decode(&message, &leafStatus);
+
+
+    if(_leafStatusTexts->contains((LEAF_STATUS)leafStatus.status) &&
+        _leafStatus.compare(_leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value()) != 0
+        ) {
+        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
+        emit leafStatusChanged(_leafStatus);
+    }
+}
+
+void Vehicle::_handleLeafMode(mavlink_message_t& message)
+{
+
+    mavlink_leaf_mode_t leafMode;
+    mavlink_msg_leaf_mode_decode(&message, &leafMode);
+
+    if(_leafModeNames->contains(static_cast<LEAF_MODE>(leafMode.mode)) &&
+        _leafMode.compare(_leafModeNames->find(static_cast<LEAF_MODE>(leafMode.mode)).value()) != 0
+    ) {
+        _leafMode = _leafModeNames->find(static_cast<LEAF_MODE>(leafMode.mode)).value();
+        emit leafModeChanged(_leafMode);
+    }
+}
+
+
 
 void Vehicle::_handleVfrHud(mavlink_message_t& message)
 {
@@ -2259,6 +2322,16 @@ QStringList Vehicle::flightModes()
     return _firmwarePlugin->flightModes(this);
 }
 
+QStringList Vehicle::leafModes()
+{
+    QStringList ret;
+    for (int mode = LEAF_MODE::LEAF_MODE_MANUAL; mode != LEAF_MODE_ENUM_END; mode++ ) {
+        ret += _leafModeNames->find((LEAF_MODE)mode).value();
+    }
+    return ret;
+}
+
+
 QString Vehicle::flightMode() const
 {
     if (_standardModes->supported()) {
@@ -2314,6 +2387,38 @@ void Vehicle::setFlightMode(const QString& flightMode)
     } else {
         qCWarning(VehicleLog) << "FirmwarePlugin::setFlightMode failed, flightMode:" << flightMode;
     }
+}
+
+
+void Vehicle::setLeafMode(const QString& leafMode)
+{
+    LEAF_MODE     mode;
+
+    if(leafMode.compare("RC POSITION", Qt::CaseInsensitive) == 0) {
+        mode = LEAF_MODE_RC_POSITION;
+    } else if (leafMode.compare("MANUAL", Qt::CaseInsensitive) == 0) {
+        mode = LEAF_MODE_MANUAL;
+    } else if (leafMode.compare("LEARNING", Qt::CaseInsensitive) == 0) {
+        mode = LEAF_MODE_LEARNING;
+    } else {
+        mode = LEAF_MODE_ENUM_END;
+    }
+
+
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "setLeafMode: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t msg;
+    mavlink_msg_leaf_set_mode_pack_chan(_mavlink->getSystemId(),
+                                   _mavlink->getComponentId(),
+                                   sharedLink->mavlinkChannel(),
+                                   &msg,
+                                   id(),
+                                   mode);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
 }
 
 #if 0
@@ -2681,6 +2786,11 @@ void Vehicle::_announceArmedChanged(bool armed)
         _armedPosition = _coordinate;
         emit armedPositionChanged();
     }
+}
+
+void Vehicle::_announceLeafModeChanged(QString mode)
+{
+    _say(QString("%1 LEAF Mode is %2").arg(_vehicleIdSpeech()).arg(tr(mode.toStdString().c_str())));
 }
 
 void Vehicle::_setFlying(bool flying)

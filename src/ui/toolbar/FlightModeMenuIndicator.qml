@@ -51,13 +51,13 @@ Item {
                     spacing: ScreenTools.defaultFontPixelWidth / 2
 
                     Repeater {
-                        model: activeVehicle ? activeVehicle.flightModes : []
+                        model: activeVehicle ? activeVehicle.leafModes : []
 
                         QGCButton {
                             text: modelData
                             Layout.fillWidth: true
                             onClicked: {
-                                activeVehicle.flightMode = text
+                                activeVehicle.leafMode = text
                                 mainWindow.hideIndicatorPopup()
                             }
                         }
@@ -89,7 +89,7 @@ Item {
         }
 
         QGCLabel {
-            text:               activeVehicle ? activeVehicle.flightMode : qsTr("N/A", "No data to display")
+            text:               activeVehicle ? activeVehicle.leafMode : qsTr("N/A", "No data to display")
             font.pointSize:     fontPointSize
             Layout.alignment:   Qt.AlignVCenter
         }
