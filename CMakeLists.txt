@@ -198,7 +198,8 @@ endif()
 if(ANDROID)
 	add_library(QGroundControl SHARED ${QGC_RESOURCES})
 else()
-	add_executable(QGroundControl ${QGC_RESOURCES})
+        add_executable(QGroundControl ${QGC_RESOURCES}
+        )
 endif()
 
 target_link_libraries(QGroundControl PRIVATE qgc)

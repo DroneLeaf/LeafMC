@@ -2854,7 +2854,23 @@ void Vehicle::guidedModeLand()
         qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
         return;
     }
-    _firmwarePlugin->guidedModeLand(this);
+    // _firmwarePlugin->guidedModeLand(this);
+
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedModeLand: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t traj_msg;
+    std::string traj_id = "Polynomial/Line/land_1_5m_5s.json";
+    mavlink_msg_leaf_do_queue_traj_from_buffer_by_id_pack_chan(_mavlink->getSystemId(),
+                                                               _mavlink->getComponentId(),
+                                                               sharedLink->mavlinkChannel(),
+                                                               &traj_msg,
+                                                               0,
+                                                               traj_id.c_str());
+    sendMessageOnLinkThreadSafe(sharedLink.get(), traj_msg);
 }
 
 void Vehicle::guidedModeTakeoff(double altitudeRelative)
@@ -2863,7 +2879,42 @@ void Vehicle::guidedModeTakeoff(double altitudeRelative)
         qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
         return;
     }
-    _firmwarePlugin->guidedModeTakeoff(this, altitudeRelative);
+
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedModeTakeOff: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t arm_msg;
+    uint8_t arm = 1;
+    mavlink_msg_leaf_do_arm_pack_chan(_mavlink->getSystemId(),
+                                        _mavlink->getComponentId(),
+                                        sharedLink->mavlinkChannel(),
+                                        &arm_msg,
+                                        0,
+                                        arm);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), arm_msg);
+
+    mavlink_message_t reg_msg;
+    uint8_t reg = 1;
+    mavlink_msg_leaf_do_register_pos_offset_from_est_pos_pack_chan(_mavlink->getSystemId(),
+                                                                   _mavlink->getComponentId(),
+                                                                   sharedLink->mavlinkChannel(),
+                                                                   &reg_msg,
+                                                                   0,
+                                                                   reg);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), reg_msg);
+
+    mavlink_message_t traj_msg;
+    std::string traj_id = "Polynomial/Line/takeoff_1_5m_5s.json";
+    mavlink_msg_leaf_do_queue_traj_from_buffer_by_id_pack_chan(_mavlink->getSystemId(),
+                                                                   _mavlink->getComponentId(),
+                                                                   sharedLink->mavlinkChannel(),
+                                                                   &traj_msg,
+                                                                   0,
+                                                                   traj_id.c_str());
+    sendMessageOnLinkThreadSafe(sharedLink.get(), traj_msg);
 }
 
 double Vehicle::minimumTakeoffAltitude()

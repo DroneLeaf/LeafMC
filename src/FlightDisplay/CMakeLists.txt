@@ -26,6 +26,7 @@ add_custom_target(FligthDisplayQml
 		GuidedActionsController.qml
 		GuidedActionTakeoff.qml
 		GuidedActionGripper.qml
+                GuidedActionExecuteCircleTraj.qml
 		GripperMenu.qml
 		GuidedValueSlider.qml
 		GuidedToolStripAction.qml

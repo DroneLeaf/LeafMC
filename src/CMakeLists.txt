@@ -112,7 +112,7 @@ add_library(qgc
 	SHPFileHelper.h
 	stable_headers.h
 	TerrainTile.cc
-	TerrainTile.h
+        TerrainTile.h
 )
 
 set_source_files_properties(QGCApplication.cc PROPERTIES COMPILE_DEFINITIONS APP_VERSION_STR="${APP_VERSION_STR}")

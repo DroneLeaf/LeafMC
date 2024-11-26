@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/unittest">
+    <qresource prefix="/">
         <file alias="FactSystemTest.qml">src/FactSystem/FactSystemTest.qml</file>
     </qresource>
     <qresource prefix="/toolbar">
@@ -290,6 +290,7 @@
         <file alias="VTOLLandingPatternEditor.qml">src/PlanView/VTOLLandingPatternEditor.qml</file>
         <file alias="QGroundControl/Controls/MockLinkOptionsDlg.qml">src/comm/MockLinkOptionsDlg.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewInsetViewer.qml">src/FlightDisplay/FlyViewInsetViewer.qml</file>
+        <file alias="QGroundControl/FlightDisplay/GuidedActionExecuteCircleTraj.qml">src/FlightDisplay/GuidedActionExecuteCircleTraj.qml</file>
     </qresource>
     <qresource prefix="/FirstRunPromptDialogs">
         <file alias="UnitsFirstRunPrompt.qml">src/FirstRunPromptDialogs/UnitsFirstRunPrompt.qml</file>
