@@ -277,7 +277,7 @@ Item {
         z:                      QGroundControl.zOrderWidgets
         maxHeight:              parent.height - y - parentToolInsets.bottomEdgeLeftInset - _toolsMargin
         visible:                !QGroundControl.videoManager.fullScreen
-
+        width:                  ScreenTools.defaultFontPixelWidth * 10
         onDisplayPreFlightChecklist: preFlightChecklistPopup.createObject(mainWindow).open()
 
 

@@ -86,14 +86,14 @@ Item {
     }
 
 
-    FlyViewCustomLayer {
-        id:                 customOverlay
-        anchors.fill:       widgetLayer
-        z:                  _fullItemZorder + 2
-        parentToolInsets:   widgetLayer.totalToolInsets
-        mapControl:         _mapControl
-        visible:            !QGroundControl.videoManager.fullScreen
-    }
+//    FlyViewCustomLayer {
+//        id:                 customOverlay
+//        anchors.fill:       widgetLayer
+//        z:                  _fullItemZorder + 2
+//        parentToolInsets:   widgetLayer.totalToolInsets
+//        mapControl:         _mapControl
+//        visible:            !QGroundControl.videoManager.fullScreen
+//    }
 
     // Development tool for visualizing the insets for a paticular layer, enable if needed
     /*

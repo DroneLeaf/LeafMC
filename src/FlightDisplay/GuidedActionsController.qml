@@ -59,7 +59,20 @@ Item {
     readonly property string setHomeTitle:                  qsTr("Set Home")
     readonly property string actionListTitle:               qsTr("Action")
     readonly property string executeCircleTrajTitle:        qsTr("Circle")
-    readonly property string executeFig8TrajTitle:        qsTr("Figure 8")
+    readonly property string executeFig8TrajTitle:          qsTr("Figure 8")
+    readonly property string toggleMRFTPitchOnTitle:        qsTr("MRFT-P OFF")
+    readonly property string toggleMRFTPitchOffTitle:       qsTr("MRFT-P ON")
+    readonly property string toggleMRFTRollOnTitle:         qsTr("MRFT-R OFF")
+    readonly property string toggleMRFTRollOffTitle:        qsTr("MRFT-R ON")
+    readonly property string toggleMRFTAltOnTitle:          qsTr("MRFT-A OFF")
+    readonly property string toggleMRFTAltOffTitle:         qsTr("MRFT-A ON")
+    readonly property string toggleMRFTXOnTitle:            qsTr("MRFT-X OFF")
+    readonly property string toggleMRFTXOffTitle:           qsTr("MRFT-X ON")
+    readonly property string toggleMRFTYOnTitle:            qsTr("MRFT-Y OFF")
+    readonly property string toggleMRFTYOffTitle:           qsTr("MRFT-Y ON")
+    readonly property string armFCTitle:                    qsTr("Arm FC")
+    readonly property string disarmFCTitle:                 qsTr("Disarm FC")
+
 
     readonly property string armMessage:                        qsTr("Arm the vehicle.")
     readonly property string forceArmMessage:                   qsTr("WARNING: This will force arming of the vehicle bypassing any safety checks.")
@@ -87,6 +100,18 @@ Item {
     readonly property string setHomeMessage:                    qsTr("Set vehicle home as the specified location. This will affect Return to Home position")
     readonly property string executeCircleTrajMessage:          qsTr("Execute Circle Trajectory")
     readonly property string executeFig8TrajMessage:            qsTr("Execute Figure 8 Trajectory")
+    readonly property string toggleMRFTPitchOnMessage:          qsTr("Switch Pitch MRFT ON")
+    readonly property string toggleMRFTPitchOffMessage:         qsTr("Switch Pitch MRFT OFF")
+    readonly property string toggleMRFTRollOnMessage:           qsTr("Switch Roll MRFT ON")
+    readonly property string toggleMRFTRollOffMessage:          qsTr("Switch Roll MRFT OFF")
+    readonly property string toggleMRFTAltOnMessage:            qsTr("Switch Alt MRFT ON")
+    readonly property string toggleMRFTAltOffMessage:           qsTr("Switch Alt MRFT OFF")
+    readonly property string toggleMRFTXOnMessage:              qsTr("Switch X MRFT ON")
+    readonly property string toggleMRFTXOffMessage:             qsTr("Switch X MRFT OFF")
+    readonly property string toggleMRFTYOnMessage:              qsTr("Switch Y MRFT ON")
+    readonly property string toggleMRFTYOffMessage:             qsTr("Switch Y MRFT OFF")
+    readonly property string armFCMessage:                      qsTr("Arm FC")
+    readonly property string disarmFCMessage:                   qsTr("Disarm FC")
 
     readonly property int actionRTL:                        1
     readonly property int actionLand:                       2
@@ -117,6 +142,13 @@ Item {
     readonly property int actionSetHome:                    27
     readonly property int actionExecuteCircleTraj:          28
     readonly property int actionExecuteFig8Traj:            29
+    readonly property int actionMRFTPitchToggle:            30
+    readonly property int actionMRFTRollToggle:             31
+    readonly property int actionMRFTAltToggle:              32
+    readonly property int actionMRFTXToggle:                33
+    readonly property int actionMRFTYToggle:                34
+    readonly property int actionFCArm:                      35
+    readonly property int actionFCDisarm:                   36
 
     property var    _activeVehicle:             QGroundControl.multiVehicleManager.activeVehicle
     property bool   _useChecklist:              QGroundControl.settingsManager.appSettings.useChecklist.rawValue && QGroundControl.corePlugin.options.preFlightChecklistUrl.toString().length
@@ -186,6 +218,15 @@ Item {
     property bool __roiSupported:           _activeVehicle ? !_hideROI && _activeVehicle.roiModeSupported : false
     property bool __orbitSupported:         _activeVehicle ? !_hideOrbit && _activeVehicle.orbitModeSupported : false
     property bool __flightMode:             _flightMode
+
+    // FC relevant properties
+    property bool   _fcArmed:               false
+    property bool   _fcTookOff:             false
+    property bool   _fcMRFTPitchOn:         false
+    property bool   _fcMRFTRollOn:          false
+    property bool   _fcMRFTAltOn:           false
+    property bool   _fcMRFTXOn:             false
+    property bool   _fcMRFTYOn:             false
 
     function _outputState() {
         if (_corePlugin.guidedActionsControllerLogging()) {
@@ -525,6 +566,16 @@ Item {
             confirmDialog.message = setHomeMessage
             confirmDialog.hideTrigger = Qt.binding(function() { return !showSetHome })
             break
+        case actionFCArm:
+            confirmDialog.title = armFCTitle
+            confirmDialog.message = armFCMessage
+            confirmDialog.hideTrigger = true
+            break
+        case actionFCDisarm:
+            confirmDialog.title = disarmFCTitle
+            confirmDialog.message = disarmFCMessage
+            confirmDialog.hideTrigger = true
+            break
         case actionExecuteCircleTraj:
             confirmDialog.title = executeCircleTrajTitle
             confirmDialog.message = executeCircleTrajMessage
@@ -533,6 +584,31 @@ Item {
         case actionExecuteFig8Traj:
             confirmDialog.title = executeFig8TrajTitle
             confirmDialog.message = executeFig8TrajMessage
+            confirmDialog.hideTrigger = true
+            break
+        case actionMRFTPitchToggle:
+            confirmDialog.title = qsTr("Switch ") + (_fcMRFTPitchOn ? toggleMRFTPitchOnTitle : toggleMRFTPitchOffTitle)
+            confirmDialog.message = _fcMRFTPitchOn ? toggleMRFTPitchOffMessage : toggleMRFTPitchOnMessage
+            confirmDialog.hideTrigger = true
+            break
+        case actionMRFTRollToggle:
+            confirmDialog.title = qsTr("Switch ") + (_fcMRFTRollOn ? toggleMRFTRollOnTitle : toggleMRFTRollOffTitle)
+            confirmDialog.message = _fcMRFTRollOn ? toggleMRFTRollOffMessage : toggleMRFTRollOnMessage
+            confirmDialog.hideTrigger = true
+            break
+        case actionMRFTAltToggle:
+            confirmDialog.title = qsTr("Switch ") + (_fcMRFTAltOn ? toggleMRFTAltOnTitle : toggleMRFTAltOffTitle)
+            confirmDialog.message = _fcMRFTAltOn ? toggleMRFTAltOffMessage : toggleMRFTAltOnMessage
+            confirmDialog.hideTrigger = true
+            break
+        case actionMRFTXToggle:
+            confirmDialog.title = qsTr("Switch ") + (_fcMRFTXOn ? toggleMRFTXOnTitle : toggleMRFTXOffTitle)
+            confirmDialog.message = _fcMRFTXOn ? toggleMRFTXOffMessage : toggleMRFTXOnMessage
+            confirmDialog.hideTrigger = true
+            break
+        case actionMRFTYToggle:
+            confirmDialog.title = qsTr("Switch ") + (_fcMRFTYOn ? toggleMRFTYOnTitle : toggleMRFTYOffTitle)
+            confirmDialog.message = _fcMRFTYOn ? toggleMRFTYOffMessage : toggleMRFTYOnMessage
             confirmDialog.hideTrigger = true
             break
         default:
@@ -632,13 +708,40 @@ Item {
         case actionSetHome:
             _activeVehicle.doSetHome(actionData)
             break
+        case actionFCArm:
+            _fcArmed = true
+            _activeVehicle.leafArmFC()
+            break
+        case actionFCDisarm:
+            _fcArmed = false
+            _activeVehicle.leafDisarmFC()
+            break
         case actionExecuteCircleTraj:
             _activeVehicle.guidedModeExecuteCircleTraj()
             break
         case actionExecuteFig8Traj:
             _activeVehicle.guidedModeExecuteFig8Traj()
             break
-
+        case actionMRFTPitchToggle:
+            _fcMRFTPitchOn = !_fcMRFTPitchOn
+            _activeVehicle.leafMRFTPitchToggle(_fcMRFTPitchOn)
+            break
+        case actionMRFTRollToggle:
+            _fcMRFTRollOn = !_fcMRFTRollOn
+            _activeVehicle.leafMRFTRollToggle(_fcMRFTRollOn)
+            break
+        case actionMRFTAltToggle:
+            _fcMRFTAltOn = !_fcMRFTAltOn
+            _activeVehicle.leafMRFTAltToggle(_fcMRFTAltOn)
+            break
+        case actionMRFTXToggle:
+            _fcMRFTXOn = !_fcMRFTXOn
+            _activeVehicle.leafMRFTXToggle(_fcMRFTXOn)
+            break
+        case actionMRFTYToggle:
+            _fcMRFTYOn = !_fcMRFTYOn
+            _activeVehicle.leafMRFTYToggle(_fcMRFTYOn)
+            break
         default:
             console.warn(qsTr("Internal error: unknown actionCode"), actionCode)
             break

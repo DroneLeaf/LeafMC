@@ -2919,7 +2919,125 @@ void Vehicle::guidedModeTakeoff(double altitudeRelative)
     sendMessageOnLinkThreadSafe(sharedLink.get(), traj_msg);
 }
 
+void Vehicle::leafArmFC() {
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedModeTakeOff: primary link gone!";
+        return;
+    }
 
+    mavlink_message_t arm_msg;
+    uint8_t arm = 1;
+    mavlink_msg_leaf_do_arm_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &arm_msg,
+                                      0,
+                                      arm);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), arm_msg);
+}
+void Vehicle::leafDisarmFC() {
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedModeTakeOff: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t arm_msg;
+    uint8_t arm = 0;
+    mavlink_msg_leaf_do_arm_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &arm_msg,
+                                      0,
+                                      arm);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), arm_msg);
+}
+void Vehicle::leafMRFTPitchToggle(bool state) {
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedActionMRFTPitchToggle: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t mrft_pitch_switch_msg;
+    uint8_t enable = state;
+    mavlink_msg_leaf_do_switch_mrft_pitch_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &mrft_pitch_switch_msg,
+                                      0,
+                                      enable);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), mrft_pitch_switch_msg);
+}
+void Vehicle::leafMRFTRollToggle(bool state) {
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedActionMRFTRollToggle: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t mrft_roll_switch_msg;
+    uint8_t enable = state;
+    mavlink_msg_leaf_do_switch_mrft_roll_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &mrft_roll_switch_msg,
+                                      0,
+                                      enable);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), mrft_roll_switch_msg);
+}
+void Vehicle::leafMRFTAltToggle(bool state) {
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedActionMRFTAltToggle: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t mrft_alt_switch_msg;
+    uint8_t enable = state;
+    mavlink_msg_leaf_do_switch_mrft_alt_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &mrft_alt_switch_msg,
+                                      0,
+                                      enable);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), mrft_alt_switch_msg);
+}
+void Vehicle::leafMRFTXToggle(bool state) {
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedActionMRFTXToggle: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t mrft_x_switch_msg;
+    uint8_t enable = state;
+    mavlink_msg_leaf_do_switch_mrft_x_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &mrft_x_switch_msg,
+                                      0,
+                                      enable);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), mrft_x_switch_msg);
+}
+void Vehicle::leafMRFTYToggle(bool state) {
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedActionMRFTYToggle: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t mrft_y_switch_msg;
+    uint8_t enable = state;
+    mavlink_msg_leaf_do_switch_mrft_y_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &mrft_y_switch_msg,
+                                      0,
+                                      enable);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), mrft_y_switch_msg);
+}
 void Vehicle::guidedModeExecuteCircleTraj()
 {
     if (!guidedModeSupported()) {

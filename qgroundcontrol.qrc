@@ -292,6 +292,13 @@
         <file alias="QGroundControl/FlightDisplay/FlyViewInsetViewer.qml">src/FlightDisplay/FlyViewInsetViewer.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionExecuteCircleTraj.qml">src/FlightDisplay/GuidedActionExecuteCircleTraj.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionExecuteFig8Traj.qml">src/FlightDisplay/GuidedActionExecuteFig8Traj.qml</file>
+        <file alias="QGroundControl/FlightDisplay/GuidedActionFCArmToggle.qml">src/FlightDisplay/GuidedActionFCArmToggle.qml</file>
+        <file alias="QGroundControl/FlightDisplay/GuidedActionFCDisarmToggle.qml">src/FlightDisplay/GuidedActionFCDisarmToggle.qml</file>
+        <file alias="QGroundControl/FlightDisplay/GuidedActionToggleMRFTPitch.qml">src/FlightDisplay/GuidedActionToggleMRFTPitch.qml</file>
+        <file alias="QGroundControl/FlightDisplay/GuidedActionToggleMRFTRoll.qml">src/FlightDisplay/GuidedActionToggleMRFTRoll.qml</file>
+        <file alias="QGroundControl/FlightDisplay/GuidedActionToggleMRFTAlt.qml">src/FlightDisplay/GuidedActionToggleMRFTAlt.qml</file>
+        <file alias="QGroundControl/FlightDisplay/GuidedActionToggleMRFTX.qml">src/FlightDisplay/GuidedActionToggleMRFTX.qml</file>
+        <file alias="QGroundControl/FlightDisplay/GuidedActionToggleMRFTY.qml">src/FlightDisplay/GuidedActionToggleMRFTY.qml</file>
     </qresource>
     <qresource prefix="/FirstRunPromptDialogs">
         <file alias="UnitsFirstRunPrompt.qml">src/FirstRunPromptDialogs/UnitsFirstRunPrompt.qml</file>

@@ -372,6 +372,13 @@ public:
 
     Q_INVOKABLE void guidedModeExecuteCircleTraj();
     Q_INVOKABLE void guidedModeExecuteFig8Traj();
+    Q_INVOKABLE void leafArmFC();
+    Q_INVOKABLE void leafDisarmFC();
+    Q_INVOKABLE void leafMRFTPitchToggle(bool state);
+    Q_INVOKABLE void leafMRFTRollToggle(bool state);
+    Q_INVOKABLE void leafMRFTAltToggle(bool state);
+    Q_INVOKABLE void leafMRFTXToggle(bool state);
+    Q_INVOKABLE void leafMRFTYToggle(bool state);
 
     /// @return The minimum takeoff altitude (relative) for guided takeoff.
     Q_INVOKABLE double minimumTakeoffAltitude();
