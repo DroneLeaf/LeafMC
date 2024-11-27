@@ -2894,6 +2894,8 @@ void Vehicle::guidedModeTakeoff(double altitudeRelative)
                                         &arm_msg,
                                         0,
                                         arm);
+    // Two arms, one for pre-arm one for start actuating
+    sendMessageOnLinkThreadSafe(sharedLink.get(), arm_msg);
     sendMessageOnLinkThreadSafe(sharedLink.get(), arm_msg);
 
     mavlink_message_t reg_msg;
@@ -2914,6 +2916,57 @@ void Vehicle::guidedModeTakeoff(double altitudeRelative)
                                                                    &traj_msg,
                                                                    0,
                                                                    traj_id.c_str());
+    sendMessageOnLinkThreadSafe(sharedLink.get(), traj_msg);
+}
+
+
+void Vehicle::guidedModeExecuteCircleTraj()
+{
+    if (!guidedModeSupported()) {
+        qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
+        return;
+    }
+    // _firmwarePlugin->guidedModeLand(this);
+
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedModeLand: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t traj_msg;
+    std::string traj_id = "Circular/5m_5_times_2pi_s_5laps.json";
+    mavlink_msg_leaf_do_queue_traj_from_buffer_by_id_pack_chan(_mavlink->getSystemId(),
+                                                               _mavlink->getComponentId(),
+                                                               sharedLink->mavlinkChannel(),
+                                                               &traj_msg,
+                                                               0,
+                                                               traj_id.c_str());
+    sendMessageOnLinkThreadSafe(sharedLink.get(), traj_msg);
+}
+
+void Vehicle::guidedModeExecuteFig8Traj()
+{
+    if (!guidedModeSupported()) {
+        qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
+        return;
+    }
+    // _firmwarePlugin->guidedModeLand(this);
+
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedModeLand: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t traj_msg;
+    std::string traj_id = "FigureEight/5m_5_times_2pi_s_5laps.json";
+    mavlink_msg_leaf_do_queue_traj_from_buffer_by_id_pack_chan(_mavlink->getSystemId(),
+                                                               _mavlink->getComponentId(),
+                                                               sharedLink->mavlinkChannel(),
+                                                               &traj_msg,
+                                                               0,
+                                                               traj_id.c_str());
     sendMessageOnLinkThreadSafe(sharedLink.get(), traj_msg);
 }
 

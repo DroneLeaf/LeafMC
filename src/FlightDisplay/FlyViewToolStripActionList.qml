@@ -26,8 +26,8 @@ ToolStripActionList {
         PreFlightCheckListShowAction { onTriggered: displayPreFlightChecklist() },
         GuidedActionTakeoff { },
         GuidedActionLand { },
-        GuidedActionExecuteCircleTraj { }
-        // GuidedActionExecuteFig8Traj { },
+        GuidedActionExecuteCircleTraj { },
+        GuidedActionExecuteFig8Traj { }
         // GuidedActionAbort { },
         // GuidedActionEnableMRFTPitch { },
         // GuidedActionDisableMRFTPitch { },

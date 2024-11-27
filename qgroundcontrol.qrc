@@ -291,6 +291,7 @@
         <file alias="QGroundControl/Controls/MockLinkOptionsDlg.qml">src/comm/MockLinkOptionsDlg.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewInsetViewer.qml">src/FlightDisplay/FlyViewInsetViewer.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionExecuteCircleTraj.qml">src/FlightDisplay/GuidedActionExecuteCircleTraj.qml</file>
+        <file alias="QGroundControl/FlightDisplay/GuidedActionExecuteFig8Traj.qml">src/FlightDisplay/GuidedActionExecuteFig8Traj.qml</file>
     </qresource>
     <qresource prefix="/FirstRunPromptDialogs">
         <file alias="UnitsFirstRunPrompt.qml">src/FirstRunPromptDialogs/UnitsFirstRunPrompt.qml</file>

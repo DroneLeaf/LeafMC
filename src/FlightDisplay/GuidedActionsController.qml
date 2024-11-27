@@ -59,6 +59,7 @@ Item {
     readonly property string setHomeTitle:                  qsTr("Set Home")
     readonly property string actionListTitle:               qsTr("Action")
     readonly property string executeCircleTrajTitle:        qsTr("Circle")
+    readonly property string executeFig8TrajTitle:        qsTr("Figure 8")
 
     readonly property string armMessage:                        qsTr("Arm the vehicle.")
     readonly property string forceArmMessage:                   qsTr("WARNING: This will force arming of the vehicle bypassing any safety checks.")
@@ -85,6 +86,7 @@ Item {
     readonly property string roiMessage:                        qsTr("Make the specified location a Region Of Interest.")
     readonly property string setHomeMessage:                    qsTr("Set vehicle home as the specified location. This will affect Return to Home position")
     readonly property string executeCircleTrajMessage:          qsTr("Execute Circle Trajectory")
+    readonly property string executeFig8TrajMessage:            qsTr("Execute Figure 8 Trajectory")
 
     readonly property int actionRTL:                        1
     readonly property int actionLand:                       2
@@ -114,6 +116,7 @@ Item {
     readonly property int actionGripper:                    26
     readonly property int actionSetHome:                    27
     readonly property int actionExecuteCircleTraj:          28
+    readonly property int actionExecuteFig8Traj:            29
 
     property var    _activeVehicle:             QGroundControl.multiVehicleManager.activeVehicle
     property bool   _useChecklist:              QGroundControl.settingsManager.appSettings.useChecklist.rawValue && QGroundControl.corePlugin.options.preFlightChecklistUrl.toString().length
@@ -522,6 +525,16 @@ Item {
             confirmDialog.message = setHomeMessage
             confirmDialog.hideTrigger = Qt.binding(function() { return !showSetHome })
             break
+        case actionExecuteCircleTraj:
+            confirmDialog.title = executeCircleTrajTitle
+            confirmDialog.message = executeCircleTrajMessage
+            confirmDialog.hideTrigger = true
+            break
+        case actionExecuteFig8Traj:
+            confirmDialog.title = executeFig8TrajTitle
+            confirmDialog.message = executeFig8TrajMessage
+            confirmDialog.hideTrigger = true
+            break
         default:
             console.warn("Unknown actionCode", actionCode)
             return
@@ -583,7 +596,7 @@ Item {
             break
         case actionLandAbort:
             _activeVehicle.abortLanding(50)     // hardcoded value for climbOutAltitude that is currently ignored
-            break
+            breakactionExecuteCircleTraj
         case actionPause:
             _activeVehicle.guidedModeChangeAltitude(sliderOutputValue, true /* pauseVehicle */)
             break
@@ -619,6 +632,13 @@ Item {
         case actionSetHome:
             _activeVehicle.doSetHome(actionData)
             break
+        case actionExecuteCircleTraj:
+            _activeVehicle.guidedModeExecuteCircleTraj()
+            break
+        case actionExecuteFig8Traj:
+            _activeVehicle.guidedModeExecuteFig8Traj()
+            break
+
         default:
             console.warn(qsTr("Internal error: unknown actionCode"), actionCode)
             break
