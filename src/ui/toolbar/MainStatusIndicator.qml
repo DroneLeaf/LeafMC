@@ -35,13 +35,13 @@ RowLayout {
         text:           mainStatusText()
         font.pointSize: _vehicleInAir ? ScreenTools.defaultFontPointSize : ScreenTools.largeFontPointSize
 
-        property string _commLostText:      qsTr("Communication Lost")
-        property string _readyToFlyText:    qsTr("Ready To Fly")
-        property string _notReadyToFlyText: qsTr("Not Ready")
+        property string _commLostText:      qsTr("PX4 Communication Lost")
+        property string _readyToFlyText:    qsTr("PX4 Ready To Fly")
+        property string _notReadyToFlyText: qsTr("PX4 Not Ready")
         property string _disconnectedText:  qsTr("Disconnected")
-        property string _armedText:         qsTr("Armed")
-        property string _flyingText:        qsTr("Flying")
-        property string _landingText:       qsTr("Landing")
+        property string _armedText:         qsTr("PX4 Armed")
+        property string _flyingText:        qsTr("PX4 Flying")
+        property string _landingText:       qsTr("PX4 Landing")
         property string _leafFCDisconnected:       qsTr("FC Disconnected")
 
         function mainStatusText() {
@@ -52,16 +52,16 @@ RowLayout {
                     return mainStatusLabel._leafFCDisconnected
                 }
 
-                if(_activeVehicle.leafMode != "") {
-                    _mainStatusBGColor = "green"
-                    return _root._leafStatus
-                } else {
-                    _mainStatusBGColor = "red"
-                    return mainStatusLabel._leafFCDisconnected
-                }
-
 
                 if (_activeVehicle.armed) {
+                    if(_activeVehicle.leafMode != "") {
+                        _mainStatusBGColor = "green"
+                        return _root._leafStatus
+                    } else {
+                        _mainStatusBGColor = "red"
+                        return mainStatusLabel._leafFCDisconnected
+                    }
+
                     _mainStatusBGColor = "green"
 
                     if (_healthAndArmingChecksSupported) {
@@ -84,11 +84,17 @@ RowLayout {
                 } else {
                     if (_healthAndArmingChecksSupported) {
                         if (_activeVehicle.healthAndArmingCheckReport.canArm) {
+                            if(_activeVehicle.leafMode == "") {
+                                _mainStatusBGColor = "red"
+                                return mainStatusLabel._leafFCDisconnected
+                            }
+
                             if (_activeVehicle.healthAndArmingCheckReport.hasWarningsOrErrors) {
                                 _mainStatusBGColor = "yellow"
                             } else {
                                 _mainStatusBGColor = "green"
                             }
+
                             return mainStatusLabel._readyToFlyText
                         } else {
                             _mainStatusBGColor = "red"
@@ -96,6 +102,10 @@ RowLayout {
                         }
                     } else if (_activeVehicle.readyToFlyAvailable) {
                         if (_activeVehicle.readyToFly) {
+                            if(_activeVehicle.leafMode == "") {
+                                _mainStatusBGColor = "red"
+                                return mainStatusLabel._leafFCDisconnected
+                            }
                             _mainStatusBGColor = "green"
                             return mainStatusLabel._readyToFlyText
                         } else {
@@ -105,6 +115,10 @@ RowLayout {
                     } else {
                         // Best we can do is determine readiness based on AutoPilot component setup and health indicators from SYS_STATUS
                         if (_activeVehicle.allSensorsHealthy && _activeVehicle.autopilot.setupComplete) {
+                            if(_activeVehicle.leafMode == "") {
+                                _mainStatusBGColor = "red"
+                                return mainStatusLabel._leafFCDisconnected
+                            }
                             _mainStatusBGColor = "green"
                             return mainStatusLabel._readyToFlyText
                         } else {
