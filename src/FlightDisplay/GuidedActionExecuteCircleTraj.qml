@@ -11,7 +11,7 @@ import QGroundControl.FlightDisplay 1.0
 
 GuidedToolStripAction {
     text:       _guidedController.executeCircleTrajTitle
-    iconSource: "/res/action.svg"
+    iconSource: "/res/circle-arrows.svg"
     visible:    true
     enabled:    true
     actionID:   _guidedController.actionExecuteCircleTraj

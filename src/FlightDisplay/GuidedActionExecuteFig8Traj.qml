@@ -11,7 +11,7 @@ import QGroundControl.FlightDisplay 1.0
 
 GuidedToolStripAction {
     text:       _guidedController.executeFig8TrajTitle
-    iconSource: "/res/action.svg"
+    iconSource: "/res/infinite-outline.svg"
     visible:    true
     enabled:    true
     actionID:   _guidedController.actionExecuteFig8Traj

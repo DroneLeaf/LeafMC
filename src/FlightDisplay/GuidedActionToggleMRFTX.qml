@@ -11,7 +11,7 @@ import QGroundControl.FlightDisplay 1.0
 
 GuidedToolStripAction {
     text:       _guidedController._fcMRFTXOn ? _guidedController.toggleMRFTXOffTitle : _guidedController.toggleMRFTXOnTitle
-    iconSource: "/res/action.svg"
+    iconSource: "/res/left-right.svg"
     visible:    true
     enabled:    true
     actionID:   _guidedController.actionMRFTXToggle

@@ -11,7 +11,7 @@ import QGroundControl.FlightDisplay 1.0
 
 GuidedToolStripAction {
     text:       _guidedController._fcMRFTRollOn ? _guidedController.toggleMRFTRollOffTitle : _guidedController.toggleMRFTRollOnTitle
-    iconSource: "/res/action.svg"
+    iconSource: "/res/firmware/swing-arrow.png"
     visible:    true
     enabled:    true
     actionID:   _guidedController.actionMRFTRollToggle

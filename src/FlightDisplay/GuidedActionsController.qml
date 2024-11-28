@@ -60,16 +60,16 @@ Item {
     readonly property string actionListTitle:               qsTr("Action")
     readonly property string executeCircleTrajTitle:        qsTr("Circle")
     readonly property string executeFig8TrajTitle:          qsTr("Figure 8")
-    readonly property string toggleMRFTPitchOnTitle:        qsTr("MRFT-P OFF")
-    readonly property string toggleMRFTPitchOffTitle:       qsTr("MRFT-P ON")
-    readonly property string toggleMRFTRollOnTitle:         qsTr("MRFT-R OFF")
-    readonly property string toggleMRFTRollOffTitle:        qsTr("MRFT-R ON")
-    readonly property string toggleMRFTAltOnTitle:          qsTr("MRFT-A OFF")
-    readonly property string toggleMRFTAltOffTitle:         qsTr("MRFT-A ON")
-    readonly property string toggleMRFTXOnTitle:            qsTr("MRFT-X OFF")
-    readonly property string toggleMRFTXOffTitle:           qsTr("MRFT-X ON")
-    readonly property string toggleMRFTYOnTitle:            qsTr("MRFT-Y OFF")
-    readonly property string toggleMRFTYOffTitle:           qsTr("MRFT-Y ON")
+    readonly property string toggleMRFTPitchOnTitle:        qsTr("Learn-P OFF")
+    readonly property string toggleMRFTPitchOffTitle:       qsTr("Learn-P ON")
+    readonly property string toggleMRFTRollOnTitle:         qsTr("Learn-R OFF")
+    readonly property string toggleMRFTRollOffTitle:        qsTr("Learn-R ON")
+    readonly property string toggleMRFTAltOnTitle:          qsTr("Learn-A OFF")
+    readonly property string toggleMRFTAltOffTitle:         qsTr("Learn-A ON")
+    readonly property string toggleMRFTXOnTitle:            qsTr("Learn-X OFF")
+    readonly property string toggleMRFTXOffTitle:           qsTr("Learn-X ON")
+    readonly property string toggleMRFTYOnTitle:            qsTr("Learn-Y OFF")
+    readonly property string toggleMRFTYOffTitle:           qsTr("Learn-Y ON")
     readonly property string armFCTitle:                    qsTr("Arm FC")
     readonly property string disarmFCTitle:                 qsTr("Disarm FC")
 
@@ -100,16 +100,16 @@ Item {
     readonly property string setHomeMessage:                    qsTr("Set vehicle home as the specified location. This will affect Return to Home position")
     readonly property string executeCircleTrajMessage:          qsTr("Execute Circle Trajectory")
     readonly property string executeFig8TrajMessage:            qsTr("Execute Figure 8 Trajectory")
-    readonly property string toggleMRFTPitchOnMessage:          qsTr("Switch Pitch MRFT ON")
-    readonly property string toggleMRFTPitchOffMessage:         qsTr("Switch Pitch MRFT OFF")
-    readonly property string toggleMRFTRollOnMessage:           qsTr("Switch Roll MRFT ON")
-    readonly property string toggleMRFTRollOffMessage:          qsTr("Switch Roll MRFT OFF")
-    readonly property string toggleMRFTAltOnMessage:            qsTr("Switch Alt MRFT ON")
-    readonly property string toggleMRFTAltOffMessage:           qsTr("Switch Alt MRFT OFF")
-    readonly property string toggleMRFTXOnMessage:              qsTr("Switch X MRFT ON")
-    readonly property string toggleMRFTXOffMessage:             qsTr("Switch X MRFT OFF")
-    readonly property string toggleMRFTYOnMessage:              qsTr("Switch Y MRFT ON")
-    readonly property string toggleMRFTYOffMessage:             qsTr("Switch Y MRFT OFF")
+    readonly property string toggleMRFTPitchOnMessage:          qsTr("Switch Pitch Learning ON")
+    readonly property string toggleMRFTPitchOffMessage:         qsTr("Switch Pitch Learning OFF")
+    readonly property string toggleMRFTRollOnMessage:           qsTr("Switch Roll Learning ON")
+    readonly property string toggleMRFTRollOffMessage:          qsTr("Switch Roll Learning OFF")
+    readonly property string toggleMRFTAltOnMessage:            qsTr("Switch Alt Learning ON")
+    readonly property string toggleMRFTAltOffMessage:           qsTr("Switch Alt Learning OFF")
+    readonly property string toggleMRFTXOnMessage:              qsTr("Switch X Learning ON")
+    readonly property string toggleMRFTXOffMessage:             qsTr("Switch X Learning OFF")
+    readonly property string toggleMRFTYOnMessage:              qsTr("Switch Y Learning ON")
+    readonly property string toggleMRFTYOffMessage:             qsTr("Switch Y Learning OFF")
     readonly property string armFCMessage:                      qsTr("Arm FC")
     readonly property string disarmFCMessage:                   qsTr("Disarm FC")
 
@@ -587,26 +587,47 @@ Item {
             confirmDialog.hideTrigger = true
             break
         case actionMRFTPitchToggle:
+            if(_fcMRFTPitchOn) {
+                executeAction(actionCode, _actionData, 1, false)
+                return
+            }
             confirmDialog.title = qsTr("Switch ") + (_fcMRFTPitchOn ? toggleMRFTPitchOnTitle : toggleMRFTPitchOffTitle)
             confirmDialog.message = _fcMRFTPitchOn ? toggleMRFTPitchOffMessage : toggleMRFTPitchOnMessage
             confirmDialog.hideTrigger = true
             break
         case actionMRFTRollToggle:
+            if(_fcMRFTRollOn) {
+                executeAction(actionCode, _actionData, 1, false)
+                return
+            }
             confirmDialog.title = qsTr("Switch ") + (_fcMRFTRollOn ? toggleMRFTRollOnTitle : toggleMRFTRollOffTitle)
             confirmDialog.message = _fcMRFTRollOn ? toggleMRFTRollOffMessage : toggleMRFTRollOnMessage
             confirmDialog.hideTrigger = true
             break
         case actionMRFTAltToggle:
+            if(_fcMRFTAltOn) {
+                executeAction(actionCode, _actionData, 1, false)
+                return
+            }
             confirmDialog.title = qsTr("Switch ") + (_fcMRFTAltOn ? toggleMRFTAltOnTitle : toggleMRFTAltOffTitle)
             confirmDialog.message = _fcMRFTAltOn ? toggleMRFTAltOffMessage : toggleMRFTAltOnMessage
             confirmDialog.hideTrigger = true
             break
         case actionMRFTXToggle:
+            if(_fcMRFTXOn) {
+                executeAction(actionCode, _actionData, 1, false)
+                return
+            }
             confirmDialog.title = qsTr("Switch ") + (_fcMRFTXOn ? toggleMRFTXOnTitle : toggleMRFTXOffTitle)
             confirmDialog.message = _fcMRFTXOn ? toggleMRFTXOffMessage : toggleMRFTXOnMessage
             confirmDialog.hideTrigger = true
             break
         case actionMRFTYToggle:
+            if(_fcMRFTYOn) {
+                executeAction(actionCode, _actionData, 1, false)
+                return
+            }
+
             confirmDialog.title = qsTr("Switch ") + (_fcMRFTYOn ? toggleMRFTYOnTitle : toggleMRFTYOffTitle)
             confirmDialog.message = _fcMRFTYOn ? toggleMRFTYOffMessage : toggleMRFTYOnMessage
             confirmDialog.hideTrigger = true
@@ -627,9 +648,11 @@ Item {
             _activeVehicle.guidedModeRTL(optionChecked)
             break
         case actionLand:
+            _fcTookOff = false
             _activeVehicle.guidedModeLand()
             break
         case actionTakeoff:
+            _fcTookOff = true
             _activeVehicle.guidedModeTakeoff(sliderOutputValue)
             break
         case actionResumeMission:

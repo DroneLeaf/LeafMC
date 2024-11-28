@@ -13,6 +13,6 @@ GuidedToolStripAction {
     text:       _guidedController.takeoffTitle
     iconSource: "/res/takeoff.svg"
     visible:    true
-    enabled:    true
+    enabled:    !_guidedController._fcTookOff
     actionID:   _guidedController.actionTakeoff
 }
