@@ -508,24 +508,27 @@ void Vehicle::_commonInit()
     _gimbalController = new GimbalController(_mavlink, this);
 
     // leafModeNames fill
-    _leafModeNames = new QMap<LEAF_MODE, QString>();
-    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_MANUAL, QString("MANUAL"));
-    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_RC_POSITION, QString("RC POSITION"));
-    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING, QString("LEARNING"));
+    _leafModeNames = new QMap<int, QString>();
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_RC_POSITION, QString("RC_POSITION"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_WAYPOINT_MISSION, QString("WAYPOINT_MISSION"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_INNER, QString("LEARNING_INNER"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_OUTER, QString("LEARNING_OUTER"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_FULL, QString("LEARNING_FULL"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_ENUM_END, QString("Unknown"));
 
     // leafStatusTexts
     _leafStatusTexts = new QMap<LEAF_STATUS, QString>();
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_READY_TO_LEARN, QString("READY_TO_LEARN"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_LEARNING, QString("LEARNING"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_READY_TO_FLY, QString("READY_TO_FLY"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_TAKING_OFF, QString("TAKING_OFF"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_FLYING, QString("FLYING"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_LANDING, QString("LANDING"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_LANDED, QString("LANDED"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_ARMED_IDLE, QString("ARMED_IDLE"));
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_ARMED, QString("ARMED"));
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_DISARMED, QString("DISARMED"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_EMERGENCY, QString("EMERGENCY"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_HOVERING, QString("HOVERING"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_LANDED, QString("LANDED"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_LANDING, QString("LANDING"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_LEARNING, QString("LEARNING"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_NOT_READY, QString("NOT READY"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_READY_TO_FLY, QString("READY TO FLY"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_READY_TO_LEARN, QString("READY TO LEARN"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_NOT_READY, QString("NOT_READY"));
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_ENUM_END, QString("Unknown"));
 }
 
@@ -2325,8 +2328,8 @@ QStringList Vehicle::flightModes()
 QStringList Vehicle::leafModes()
 {
     QStringList ret;
-    for (int mode = LEAF_MODE::LEAF_MODE_MANUAL; mode != LEAF_MODE_ENUM_END; mode++ ) {
-        ret += _leafModeNames->find((LEAF_MODE)mode).value();
+    for(auto k : _leafModeNames->keys()) {
+        ret += (QString)_leafModeNames->value(k);
     }
     return ret;
 }
@@ -2394,14 +2397,22 @@ void Vehicle::setLeafMode(const QString& leafMode)
 {
     LEAF_MODE     mode;
 
+
     if(leafMode.compare("RC POSITION", Qt::CaseInsensitive) == 0) {
         mode = LEAF_MODE_RC_POSITION;
-    } else if (leafMode.compare("MANUAL", Qt::CaseInsensitive) == 0) {
-        mode = LEAF_MODE_MANUAL;
-    } else if (leafMode.compare("LEARNING", Qt::CaseInsensitive) == 0) {
-        mode = LEAF_MODE_LEARNING;
+    } else if(leafMode.compare("RC STABILIZED", Qt::CaseInsensitive) == 0) {
+        mode = LEAF_MODE_RC_Stabilized;
+    } else if(leafMode.compare("WAYPOINT MISSION", Qt::CaseInsensitive) == 0) {
+        mode = LEAF_MODE_WAYPOINT_MISSION;
+    } else if(leafMode.compare("LEARNING INNER", Qt::CaseInsensitive) == 0) {
+        mode = LEAF_MODE_LEARNING_INNER;
+    } else if(leafMode.compare("LEARNING OUTER", Qt::CaseInsensitive) == 0) {
+        mode = LEAF_MODE_LEARNING_OUTER;
+    } else if(leafMode.compare("LEARNING FULL", Qt::CaseInsensitive) == 0) {
+        mode = LEAF_MODE_LEARNING_FULL;
     } else {
-        mode = LEAF_MODE_ENUM_END;
+        qCWarning(VehicleLog) << "Unknown leaf mode:" << leafMode;
+        return;
     }
 
 
