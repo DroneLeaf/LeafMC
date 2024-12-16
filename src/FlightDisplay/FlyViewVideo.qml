@@ -18,6 +18,8 @@ Item {
     id:         _root
     visible:    QGroundControl.videoManager.hasVideo
 
+    property alias iconLeftMargin: siyiController.iconLeftMargin
+
     property int    _track_rec_x:       0
     property int    _track_rec_y:       0
 
@@ -256,5 +258,11 @@ Item {
     ObstacleDistanceOverlayVideo {
         id: obstacleDistance
         showText: pipState.state === pipState.fullState
+    }
+
+    FlyViewVideoSiYiController {
+        id: siyiController
+        anchors.fill: parent
+        visible: !_mainWindowIsMap
     }
 }

@@ -18,6 +18,9 @@ import QGroundControl.Palette               1.0
 import QGroundControl.MultiVehicleManager   1.0
 import QGroundControl.ScreenTools           1.0
 import QGroundControl.Controllers           1.0
+import QtGraphicalEffects 1.12
+
+import SiYi.Object 1.0
 
 Rectangle {
     id:     _root
@@ -38,6 +41,9 @@ Rectangle {
             indicatorLoader.item.dropMessageIndicatorTool();
         }
     }
+
+    property SiYiCamera camera: SiYi.camera
+    property SiYiTransmitter transmitter: SiYi.transmitter
 
     QGCPalette { id: qgcPal }
 
@@ -220,6 +226,95 @@ Rectangle {
         MouseArea {
             anchors.fill:   parent
             onClicked:      largeProgressBar._userHide = true
+        }
+    }
+
+    Row {
+        spacing: 10
+        anchors.right: parent.right
+        anchors.rightMargin: 32
+        anchors.verticalCenter: parent.verticalCenter
+        visible: false
+        Image {
+            id: emiterImage
+            source: "qrc:/resources/SiYi/Emiter.svg"
+            width: SiYi.isAndroid ? transmitterStateText.font.pixelSize : 32
+            height: width
+            anchors.verticalCenter: parent.verticalCenter
+            ColorOverlay {
+                anchors.fill: emiterImage
+                source: emiterImage
+                color: SiYi.isAndroid ? "green" : "white"
+            }
+        }
+        QGCLabel {
+            id: transmitterStateText
+            text: transmitter.isConnected ? qsTr("已连接") :  qsTr("未连接")
+            color: SiYi.isAndroid ? "green" : "white"
+            anchors.verticalCenter: parent.verticalCenter
+        }
+        Image {
+            id: photoImage
+            source: "qrc:/resources/SiYi/Photo.svg"
+            width: SiYi.isAndroid ? transmitterStateText.font.pixelSize : 32
+            height: width
+            anchors.verticalCenter: parent.verticalCenter
+            ColorOverlay {
+                anchors.fill: photoImage
+                source: photoImage
+                color: SiYi.isAndroid ? "green" : "white"
+            }
+        }
+        QGCLabel {
+            text: camera.isConnected ? qsTr("已连接") :  qsTr("未连接")
+            color: SiYi.isAndroid ? "green" : "white"
+            anchors.verticalCenter: parent.verticalCenter
+        }
+    }
+    Column {
+        anchors.right: brandingLogo.source ? brandingLogo.left : parent.right
+        anchors.rightMargin: 32
+        anchors.verticalCenter: parent.verticalCenter
+        visible: transmitter.isConnected
+        Row {
+            spacing: 10
+            Image {
+                id: emiterImage2
+                source: "qrc:/resources/SiYi/Emiter.svg"
+                sourceSize.width: SiYi.isAndroid ? transmitterStateText.font.pixelSize : 32
+                sourceSize.height: width
+                anchors.verticalCenter: parent.verticalCenter
+                ColorOverlay {
+                    anchors.fill: emiterImage2
+                    source: emiterImage2
+                    color: SiYi.isAndroid ? "black" : "white"
+                }
+            }
+            QGCLabel {
+                text: transmitter.isConnected ? transmitter.rssi + "dbm" : "--"
+                color: SiYi.isAndroid ? "black" : "white"
+                anchors.verticalCenter: parent.verticalCenter
+            }
+        }
+        Row {
+            spacing: 10
+            Image {
+                id: photoImage2
+                source: "qrc:/resources/SiYi/data.svg"
+                sourceSize.width: SiYi.isAndroid ? transmitterStateText.font.pixelSize : 32
+                sourceSize.height: width
+                anchors.verticalCenter: parent.verticalCenter
+                ColorOverlay {
+                    anchors.fill: photoImage2
+                    source: photoImage2
+                    color: SiYi.isAndroid ? "black" : "white"
+                }
+            }
+            QGCLabel {
+                text: transmitter.isConnected ? (transmitter.downStream/1024).toFixed(1) + "KB" : "--"
+                color: SiYi.isAndroid ? "black" : "white"
+                anchors.verticalCenter: parent.verticalCenter
+            }
         }
     }
 }

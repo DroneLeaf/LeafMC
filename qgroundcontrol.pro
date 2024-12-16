@@ -27,7 +27,7 @@ message(Qt version $$[QT_VERSION])
 
 include(QGCCommon.pri)
 
-TARGET   = QGroundControl
+TARGET   = LeafMC
 TEMPLATE = app
 QGCROOT  = $$PWD
 
@@ -60,7 +60,7 @@ WindowsBuild {
 # Branding
 #
 
-QGC_APP_NAME        = "QGroundControl"
+QGC_APP_NAME        = "LeafMC"
 QGC_ORG_NAME        = "QGroundControl.org"
 QGC_ORG_DOMAIN      = "org.qgroundcontrol"
 QGC_APP_DESCRIPTION = "Open source ground control app provided by QGroundControl dev team"
@@ -431,6 +431,11 @@ contains (DEFINES, QGC_ENABLE_PAIRING) {
 #
 
 HEADERS += \
+    src/SiYi/SiYi.h \
+    src/SiYi/SiYiCamera.h \
+    src/SiYi/SiYiCrcApi.h \
+    src/SiYi/SiYiTcpClient.h \
+    src/SiYi/SiYiTransmitter.h
     src/QmlControls/CustomAction.h \
     src/QmlControls/CustomActionManager.h \
     src/QmlControls/QmlUnitsConversion.h \
@@ -447,6 +452,11 @@ contains (DEFINES, QGC_ENABLE_PAIRING) {
 }
 
 SOURCES += \
+    src/SiYi/SiYi.cc \
+    src/SiYi/SiYiCamera.cc \
+    src/SiYi/SiYiCrcApi.cc \
+    src/SiYi/SiYiTcpClient.cc \
+    src/SiYi/SiYiTransmitter.cc \
     src/QmlControls/CustomActionManager.cc \
     src/Vehicle/VehicleEscStatusFactGroup.cc \
     src/api/QGCCorePlugin.cc \

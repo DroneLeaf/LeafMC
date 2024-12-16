@@ -28,6 +28,8 @@ import QGroundControl.Palette       1.0
 import QGroundControl.ScreenTools   1.0
 import QGroundControl.Vehicle       1.0
 
+import SiYi.Object 1.0
+
 // This is the ui overlay layer for the widgets/tools for Fly View
 Item {
     id: _root
@@ -47,6 +49,10 @@ Item {
     property rect   _centerViewport:        Qt.rect(0, 0, width, height)
     property real   _rightPanelWidth:       ScreenTools.defaultFontPixelWidth * 30
     property alias  _gripperMenu:           gripperOptions
+
+    property var siyi: SiYi
+    property SiYiCamera camera: siyi.camera
+    property int iconLeftMargin: toolStrip.width + toolStrip.anchors.leftMargin
 
     QGCToolInsets {
         id:                     _totalToolInsets
@@ -122,7 +128,7 @@ Item {
         anchors.right:              parent.right
         width:                      _rightPanelWidth
         spacing:                    _toolsMargin
-        visible:                    QGroundControl.corePlugin.options.flyView.showInstrumentPanel && multiVehiclePanelSelector.showSingleVehiclePanel
+        visible:                    SiYi.hideWidgets ? false : QGroundControl.corePlugin.options.flyView.showInstrumentPanel && multiVehiclePanelSelector.showSingleVehiclePanel
         availableHeight:            parent.height - y - _toolsMargin
 
         property real rightEdgeTopInset: visible ? parent.width - x : 0
@@ -134,6 +140,7 @@ Item {
         anchors.margins:        _toolsMargin
         anchors.right:          parent.right
         width:                  _rightPanelWidth
+        visible: !SiYi.hideWidgets
 
         property real rightEdgeCenterInset: visible ? parent.width - x : 0
 
@@ -160,11 +167,100 @@ Item {
         property bool _verticalCenter: !QGroundControl.settingsManager.flyViewSettings.alternateInstrumentPanel.rawValue
     }
 
+    Rectangle {
+        id: zoomMultipleRectangle
+        anchors.bottom: telemetryPanel.top
+        width: zoomMultipleLabel.width + zoomMultipleLabel.width * 0.4
+        height: zoomMultipleLabel.height + zoomMultipleLabel.height * 0.4
+        color: "white"
+        anchors.bottomMargin: 10
+        visible: false
+        anchors.horizontalCenter: telemetryPanel.horizontalCenter
+        radius: 5
+        QGCLabel {
+            id: zoomMultipleLabel
+            text: (zoomMultipleLabel.zoomMultiple / 10).toFixed(1)
+            anchors.centerIn: parent
+            color: "black"
+            font.pixelSize: 48
+
+            Timer {
+                id: visibleTimer
+                interval: 5000
+                running: false
+                repeat: false
+                onTriggered: zoomMultipleRectangle.visible = false
+            }
+
+            property real zoomMultiple: siYiCamera.zoomMultiple
+            onZoomMultipleChanged: {
+                resultRectangle.visible = false
+                zoomMultipleRectangle.visible = true
+                visibleTimer.restart()
+            }
+        }
+    }
+
+    Rectangle {
+        id: resultRectangle
+        anchors.bottom: telemetryPanel.top
+        width: resultLabel.width + resultLabel.width * 0.4
+        height: resultLabel.height + resultLabel.height * 0.4
+        anchors.bottomMargin: 10
+        anchors.horizontalCenter: telemetryPanel.horizontalCenter
+        color: "white"
+        visible: false
+        radius: 5
+        QGCLabel {
+            id: resultLabel
+            anchors.centerIn: parent
+            color: "black"
+            font.pixelSize: 48
+
+            Timer {
+                id: resultTimer
+                interval: 5000
+                running: false
+                repeat: false
+                onTriggered: resultRectangle.visible = false
+            }
+
+            Connections {
+                target: siYiCamera
+                onOperationResultChanged: {
+                    if (result === 0) {
+                        resultLabel.text = qsTr("Take Photo Success")
+                    } else if (result === 1) {
+                        resultLabel.text = qsTr("Take Photo Failed")
+                    } else if (result === 4) {
+                        resultLabel.text = qsTr("Video Record Failed")
+                    } else if (result === -1) {
+                        resultLabel.text = qsTr("Not supportted") //4K视频不支持变倍
+                    } else if (result === SiYiCamera.TipOptionLaserNotInRange) {
+                        resultLabel.text = qsTr("Not in the range of laser")
+                    } else if (result === SiYiCamera.TipOptionSettingOK) {
+                        resultLabel.text = qsTr("Setting OK")
+                    } else if (result === SiYiCamera.TipOptionSettingFailed) {
+                        resultLabel.text = qsTr("Setting Failed")
+                    } else if (result === SiYiCamera.TipOptionIsNotAiTrackingMode) {
+                        resultLabel.text = qsTr("Not in AI tracking mode") // 不支持AI跟踪模式
+                    } else if (result === SiYiCamera.TipOptionStreamNotSupportedAiTracking) {
+                        resultLabel.text = qsTr("AI tracking not supportted") //AI跟踪不支持
+                    }
+
+                    resultTimer.restart()
+                    zoomMultipleRectangle.visible = false
+                    resultRectangle.visible = true
+                }
+            }
+        }
+    }
+
     TelemetryValuesBar {
         id:                 telemetryPanel
         x:                  recalcXPosition()
         anchors.margins:    _toolsMargin
-
+        visible:           !SiYi.hideWidgets
         property real bottomEdgeCenterInset: 0
         property real rightEdgeCenterInset: 0
 

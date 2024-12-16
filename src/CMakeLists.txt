@@ -154,6 +154,7 @@ add_subdirectory(Vehicle)
 add_subdirectory(VehicleSetup)
 add_subdirectory(VideoManager)
 add_subdirectory(VideoReceiver)
+add_subdirectory(SiYi)
 
 target_link_libraries(qgc
 	PRIVATE
@@ -192,6 +193,7 @@ target_link_libraries(qgc
 		VehicleSetup
 		VideoManager
 		z # zlib
+		SiYi
 )
 
 if(GST_FOUND)

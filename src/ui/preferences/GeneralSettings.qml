@@ -24,6 +24,8 @@ import QGroundControl.Palette               1.0
 import QGroundControl.Controllers           1.0
 import QGroundControl.SettingsManager       1.0
 
+import SiYi.Object 1.0
+
 Rectangle {
     id:                 _root
     color:              qgcPal.window
@@ -339,6 +341,10 @@ Rectangle {
                                     Layout.preferredWidth:  _comboFieldWidth
                                     fact:                   _videoSettings.rtspUrl
                                     visible:                rtspUrlLabel.visible
+                                    
+                                    onTextChanged: {
+                                        SiYi.camera.analyzeIp(text)
+                                    }
                                 }
 
                                 QGCLabel {
