@@ -14,21 +14,21 @@
     "name":             "gimbalPitch",
     "shortDesc":        "Gimbal Pitch",
     "type":             "float",
-    "decimalPlaces":    1,
+    "decimalPlaces":    10,
     "units":            "deg"
 },
 {
     "name":             "gimbalYaw",
     "shortDesc":        "Gimbal Yaw",
     "type":             "float",
-    "decimalPlaces":    1,
+    "decimalPlaces":    10,
     "units":            "deg"
 },
 {
     "name":             "gimbalAzimuth",
     "shortDesc":        "Azimuth",
     "type":             "float",
-    "decimalPlaces":    1,
+    "decimalPlaces":    10,
     "units":            "deg"
 },
 {
