@@ -132,6 +132,55 @@ Joystick::Joystick(const QString& name, int axisCount, int buttonCount, int hatC
     connect(qgcApp()->toolbox()->multiVehicleManager()->vehicles(), &QmlObjectListModel::countChanged, this, &Joystick::_vehicleCountChanged);
 
     _customMavCommands = JoystickMavCommand::load("JoystickMavCommands.json");
+
+    _siyiZoomInTimer = new QTimer(this);
+    _siyiZoomInTimer->setInterval(100);
+    connect(_siyiZoomInTimer, &QTimer::timeout, this, &Joystick::_siyiZoomInTimeout);
+
+    _siyiZoomOutTimer = new QTimer(this);
+    _siyiZoomOutTimer->setInterval(100);
+    connect(_siyiZoomOutTimer, &QTimer::timeout, this, &Joystick::_siyiZoomOutTimeout);
+
+    connect(this, &Joystick::startSiYiZoomIn, this, &Joystick::_startZoomInTimer);
+    connect(this, &Joystick::startSiYiZoomOut, this, &Joystick::_startZoomOutTimer);
+    connect(this, &Joystick::stopSiYiZoomIn, this, &Joystick::_stopZoomInTimer);
+    connect(this, &Joystick::stopSiYiZoomOut, this, &Joystick::_stopZoomOutTimer);
+}
+
+void Joystick::_siyiZoomInTimeout()
+{
+    SiYi::instance()->cameraInstance()->zoom(1);
+}
+
+void Joystick::_siyiZoomOutTimeout()
+{
+    SiYi::instance()->cameraInstance()->zoom(-1);
+}
+
+void Joystick::_startZoomInTimer()
+{
+    if(!_siyiZoomInTimer->isActive()) _siyiZoomInTimer->start();
+}
+
+void Joystick::_startZoomOutTimer()
+{
+    if(!_siyiZoomOutTimer->isActive()) _siyiZoomOutTimer->start();
+}
+
+void Joystick::_stopZoomInTimer()
+{
+    if(_siyiZoomInTimer->isActive()) {
+        _siyiZoomInTimer->stop();
+        SiYi::instance()->cameraInstance()->zoom(0);
+    }
+}
+
+void Joystick::_stopZoomOutTimer()
+{
+    if(_siyiZoomOutTimer->isActive()) {
+        _siyiZoomOutTimer->stop();
+        SiYi::instance()->cameraInstance()->zoom(0);
+    }
 }
 
 void Joystick::stop()
@@ -1021,6 +1070,7 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
     if (!_activeVehicle || !_activeVehicle->joystickEnabled() || action == _buttonActionNone) {
         return;
     }
+
     if (action == _buttonActionArm) {
         if (buttonDown) emit setArmed(true);
     } else if (action == _buttonActionDisarm) {
@@ -1036,11 +1086,34 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
     } else if(action == _buttonActionContinuousZoomIn || action == _buttonActionContinuousZoomOut) {
         if (buttonDown) {
             emit startContinuousZoom(action == _buttonActionContinuousZoomIn ? 1 : -1);
+            if (action == _buttonActionContinuousZoomIn) {
+                emit startSiYiZoomIn();
+            } else {
+                emit startSiYiZoomOut();
+            }
         } else {
             emit stopContinuousZoom();
+            if (action == _buttonActionContinuousZoomIn) {
+                emit stopSiYiZoomIn();
+            } else {
+                emit stopSiYiZoomOut();
+            }
         }
     } else if(action == _buttonActionStepZoomIn || action == _buttonActionStepZoomOut) {
-        if (buttonDown) emit stepZoom(action == _buttonActionStepZoomIn ? 1 : -1);
+        if (buttonDown) {
+            emit stepZoom(action == _buttonActionStepZoomIn ? 1 : -1);
+            if (action == _buttonActionStepZoomIn) {
+                emit startSiYiZoomIn();
+            } else {
+                emit startSiYiZoomOut();
+            }
+        } else {
+            if (action == _buttonActionStepZoomIn) {
+                emit stopSiYiZoomIn();
+            } else {
+                emit stopSiYiZoomOut();
+            }
+        }
     } else if(action == _buttonActionNextStream || action == _buttonActionPreviousStream) {
         if (buttonDown) emit stepStream(action == _buttonActionNextStream ? 1 : -1);
     } else if(action == _buttonActionNextCamera || action == _buttonActionPreviousCamera) {

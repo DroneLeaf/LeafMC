@@ -20,6 +20,7 @@
 #include "Vehicle.h"
 #include "MultiVehicleManager.h"
 #include "JoystickMavCommand.h"
+#include "SiYi/SiYi.h"
 
 // JoystickLog Category declaration moved to QGCLoggingCategory.cc to allow access in Vehicle
 Q_DECLARE_LOGGING_CATEGORY(JoystickValuesLog)
@@ -221,6 +222,10 @@ signals:
     void gripperAction              (GRIPPER_ACTIONS gripperAction);
     void landingGearDeploy          ();
     void landingGearRetract         ();
+    void startSiYiZoomIn            ();
+    void stopSiYiZoomIn             ();
+    void startSiYiZoomOut           ();
+    void stopSiYiZoomOut            ();
 
 protected:
     void    _setDefaultCalibration  ();
@@ -305,6 +310,10 @@ protected:
     static const float  _minButtonFrequencyHz;
     static const float  _maxButtonFrequencyHz;
 
+    // SiYi zoom timer callback
+    QTimer* _siyiZoomInTimer = nullptr;
+    QTimer* _siyiZoomOutTimer = nullptr;
+
 private:
     static const char*  _rgFunctionSettingsKey[maxFunction];
 
@@ -362,4 +371,10 @@ private slots:
     void _activeVehicleChanged(Vehicle* activeVehicle);
     void _vehicleCountChanged(int count);
     void _flightModesChanged();
+    void _startZoomInTimer();
+    void _startZoomOutTimer();
+    void _stopZoomInTimer();
+    void _stopZoomOutTimer();
+    void _siyiZoomInTimeout();
+    void _siyiZoomOutTimeout();
 };

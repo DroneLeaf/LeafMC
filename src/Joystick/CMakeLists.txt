@@ -19,6 +19,7 @@ target_link_libraries(Joystick
         PRIVATE
 			Gimbal
             ui
+			SiYi
 	PUBLIC
 		qgc
 		ui
