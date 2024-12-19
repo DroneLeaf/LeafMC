@@ -514,7 +514,6 @@ void Vehicle::_commonInit()
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_INNER, QString("LEARNING_INNER"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_OUTER, QString("LEARNING_OUTER"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_FULL, QString("LEARNING_FULL"));
-    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_ENUM_END, QString("Unknown"));
 
     // leafStatusTexts
     _leafStatusTexts = new QMap<LEAF_STATUS, QString>();
@@ -529,7 +528,7 @@ void Vehicle::_commonInit()
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_ARMED, QString("ARMED"));
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_DISARMED, QString("DISARMED"));
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_NOT_READY, QString("NOT_READY"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_ENUM_END, QString("Unknown"));
+
 }
 
 Vehicle::~Vehicle()
