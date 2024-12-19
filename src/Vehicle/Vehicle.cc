@@ -825,6 +825,10 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         _handleLeafMode(message);
         break;
 
+    case MAVLINK_MSG_ID_LEAF_SAY_TO_QGC:
+        _leafSay(message);
+        break;
+
     case MAVLINK_MSG_ID_SERIAL_CONTROL:
     {
         mavlink_serial_control_t ser;
@@ -1102,6 +1106,15 @@ void Vehicle::_handleLeafMode(mavlink_message_t& message)
         _leafMode = _leafModeNames->find(static_cast<LEAF_MODE>(leafMode.mode)).value();
         emit leafModeChanged(_leafMode);
     }
+}
+
+void Vehicle::_leafSay(mavlink_message_t& message)
+{
+
+    mavlink_leaf_say_to_qgc_t sayMessage;
+    mavlink_msg_leaf_say_to_qgc_decode(&message, &sayMessage);
+
+    _say(QString(sayMessage.content));
 }
 
 
@@ -2997,6 +3010,7 @@ void Vehicle::leafMRFTRollToggle(bool state) {
                                       enable);
     sendMessageOnLinkThreadSafe(sharedLink.get(), mrft_roll_switch_msg);
 }
+
 void Vehicle::leafMRFTAltToggle(bool state) {
     SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
     if (!sharedLink) {

@@ -1115,6 +1115,7 @@ private:
     void _handleVfrHud                  (mavlink_message_t& message);
     void _handleLeafStatus              (mavlink_message_t& message);
     void _handleLeafMode                (mavlink_message_t& message);
+    void _leafSay                       (mavlink_message_t& message);
     void _handleNavControllerOutput     (mavlink_message_t& message);
     void _handleHighLatency             (mavlink_message_t& message);
     void _handleHighLatency2            (mavlink_message_t& message);
