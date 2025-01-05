@@ -2408,26 +2408,28 @@ void Vehicle::setFlightMode(const QString& flightMode)
 void Vehicle::setLeafMode(const QString& leafMode)
 {
     LEAF_MODE     mode;
+    qCWarning(VehicleLog) << "mode" << mode;
 
 
-    if(leafMode.compare("RC POSITION", Qt::CaseInsensitive) == 0) {
+    if(leafMode.compare("RC_POSITION", Qt::CaseInsensitive) == 0) {
         mode = LEAF_MODE_RC_POSITION;
-    } else if(leafMode.compare("RC STABILIZED", Qt::CaseInsensitive) == 0) {
+    } else if(leafMode.compare("RC_STABILIZED", Qt::CaseInsensitive) == 0) {
         mode = LEAF_MODE_RC_Stabilized;
-    } else if(leafMode.compare("WAYPOINT MISSION", Qt::CaseInsensitive) == 0) {
+    } else if(leafMode.compare("WAYPOINT_MISSION", Qt::CaseInsensitive) == 0) {
         mode = LEAF_MODE_WAYPOINT_MISSION;
-    } else if(leafMode.compare("LEARNING INNER", Qt::CaseInsensitive) == 0) {
+    } else if(leafMode.compare("LEARNING_INNER", Qt::CaseInsensitive) == 0) {
         mode = LEAF_MODE_LEARNING_INNER;
-    } else if(leafMode.compare("LEARNING OUTER", Qt::CaseInsensitive) == 0) {
+    } else if(leafMode.compare("LEARNING_OUTER", Qt::CaseInsensitive) == 0) {
         mode = LEAF_MODE_LEARNING_OUTER;
-    } else if(leafMode.compare("LEARNING FULL", Qt::CaseInsensitive) == 0) {
+    } else if(leafMode.compare("LEARNING_FULL", Qt::CaseInsensitive) == 0) {
         mode = LEAF_MODE_LEARNING_FULL;
     } else {
         qCWarning(VehicleLog) << "Unknown leaf mode:" << leafMode;
         return;
     }
 
-
+    qCWarning(VehicleLog) << "mode" << mode;
+    
     SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
     if (!sharedLink) {
         qCDebug(VehicleLog) << "setLeafMode: primary link gone!";
@@ -2435,12 +2437,22 @@ void Vehicle::setLeafMode(const QString& leafMode)
     }
 
     mavlink_message_t msg;
+    // mavlink_msg_leaf_set_mode_pack_chan(_mavlink->getSystemId(),
+    //                                _mavlink->getComponentId(),
+    //                                sharedLink->mavlinkChannel(),
+    //                                &msg,
+    //                                id(),
+    //                                LEAF_MODE_RC_POSITION);
+
     mavlink_msg_leaf_set_mode_pack_chan(_mavlink->getSystemId(),
                                    _mavlink->getComponentId(),
                                    sharedLink->mavlinkChannel(),
                                    &msg,
                                    id(),
+
                                    mode);
+
+                                   
     sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
 }
 
@@ -2885,15 +2897,25 @@ void Vehicle::guidedModeLand()
         return;
     }
 
-    mavlink_message_t traj_msg;
-    std::string traj_id = "Polynomial/Line/land_1_5m_5s.json";
-    mavlink_msg_leaf_do_queue_traj_from_buffer_by_id_pack_chan(_mavlink->getSystemId(),
-                                                               _mavlink->getComponentId(),
-                                                               sharedLink->mavlinkChannel(),
-                                                               &traj_msg,
-                                                               0,
-                                                               traj_id.c_str());
-    sendMessageOnLinkThreadSafe(sharedLink.get(), traj_msg);
+    // mavlink_message_t traj_msg;
+    // std::string traj_id = "Polynomial/Line/land_1_5m_5s.json";
+    // mavlink_msg_leaf_do_queue_traj_from_buffer_by_id_pack_chan(_mavlink->getSystemId(),
+    //                                                            _mavlink->getComponentId(),
+    //                                                            sharedLink->mavlinkChannel(),
+    //                                                            &traj_msg,
+    //                                                            0,
+    //                                                            traj_id.c_str());
+    // sendMessageOnLinkThreadSafe(sharedLink.get(), traj_msg);
+
+
+    mavlink_message_t land_msg;
+    mavlink_msg_leaf_do_land_pack_chan(_mavlink->getSystemId(),
+                                                    _mavlink->getComponentId(),
+                                                    sharedLink->mavlinkChannel(),
+                                                    &land_msg,
+                                                    0);
+                                                            
+    sendMessageOnLinkThreadSafe(sharedLink.get(), land_msg);
 }
 
 void Vehicle::guidedModeTakeoff(double altitudeRelative)
@@ -2909,37 +2931,46 @@ void Vehicle::guidedModeTakeoff(double altitudeRelative)
         return;
     }
 
-    mavlink_message_t arm_msg;
-    uint8_t arm = 1;
-    mavlink_msg_leaf_do_arm_pack_chan(_mavlink->getSystemId(),
-                                        _mavlink->getComponentId(),
-                                        sharedLink->mavlinkChannel(),
-                                        &arm_msg,
-                                        0,
-                                        arm);
-    // Two arms, one for pre-arm one for start actuating
-    sendMessageOnLinkThreadSafe(sharedLink.get(), arm_msg);
-    sendMessageOnLinkThreadSafe(sharedLink.get(), arm_msg);
+    // mavlink_message_t arm_msg;
+    // uint8_t arm = 1;
+    // mavlink_msg_leaf_do_arm_pack_chan(_mavlink->getSystemId(),
+    //                                     _mavlink->getComponentId(),
+    //                                     sharedLink->mavlinkChannel(),
+    //                                     &arm_msg,
+    //                                     0,
+    //                                     arm);
+    // // Two arms, one for pre-arm one for start actuating
+    // sendMessageOnLinkThreadSafe(sharedLink.get(), arm_msg);
+    // sendMessageOnLinkThreadSafe(sharedLink.get(), arm_msg);
 
-    mavlink_message_t reg_msg;
-    uint8_t reg = 1;
-    mavlink_msg_leaf_do_register_pos_offset_from_est_pos_pack_chan(_mavlink->getSystemId(),
-                                                                   _mavlink->getComponentId(),
-                                                                   sharedLink->mavlinkChannel(),
-                                                                   &reg_msg,
-                                                                   0,
-                                                                   reg);
-    sendMessageOnLinkThreadSafe(sharedLink.get(), reg_msg);
+    // mavlink_message_t reg_msg;
+    // uint8_t reg = 1;
+    // mavlink_msg_leaf_do_register_pos_offset_from_est_pos_pack_chan(_mavlink->getSystemId(),
+    //                                                                _mavlink->getComponentId(),
+    //                                                                sharedLink->mavlinkChannel(),
+    //                                                                &reg_msg,
+    //                                                                0,
+    //                                                                reg);
+    // sendMessageOnLinkThreadSafe(sharedLink.get(), reg_msg);
 
-    mavlink_message_t traj_msg;
-    std::string traj_id = "Polynomial/Line/takeoff_1_5m_5s.json";
-    mavlink_msg_leaf_do_queue_traj_from_buffer_by_id_pack_chan(_mavlink->getSystemId(),
-                                                                   _mavlink->getComponentId(),
-                                                                   sharedLink->mavlinkChannel(),
-                                                                   &traj_msg,
-                                                                   0,
-                                                                   traj_id.c_str());
-    sendMessageOnLinkThreadSafe(sharedLink.get(), traj_msg);
+    // mavlink_message_t traj_msg;
+    // std::string traj_id = "Polynomial/Line/takeoff_1_5m_5s.json";
+    // mavlink_msg_leaf_do_queue_traj_from_buffer_by_id_pack_chan(_mavlink->getSystemId(),
+    //                                                                _mavlink->getComponentId(),
+    //                                                                sharedLink->mavlinkChannel(),
+    //                                                                &traj_msg,
+    //                                                                0,
+    //                                                                traj_id.c_str());
+    // sendMessageOnLinkThreadSafe(sharedLink.get(), traj_msg);
+
+    mavlink_message_t takeoff_msg;
+
+    mavlink_msg_leaf_do_takeoff_pack_chan(_mavlink->getSystemId(),
+                                                    _mavlink->getComponentId(),
+                                                    sharedLink->mavlinkChannel(),
+                                                    &takeoff_msg,
+                                                    0);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), takeoff_msg);
 }
 
 void Vehicle::leafArmFC() {
@@ -2948,15 +2979,16 @@ void Vehicle::leafArmFC() {
         qCDebug(VehicleLog) << "guidedModeTakeOff: primary link gone!";
         return;
     }
+    
 
     mavlink_message_t arm_msg;
     uint8_t arm = 1;
-    mavlink_msg_leaf_do_arm_pack_chan(_mavlink->getSystemId(),
+    mavlink_msg_leaf_do_arm_idle_pack_chan(_mavlink->getSystemId(),
                                       _mavlink->getComponentId(),
                                       sharedLink->mavlinkChannel(),
                                       &arm_msg,
                                       0,
-                                      arm);
+                                      1);
     sendMessageOnLinkThreadSafe(sharedLink.get(), arm_msg);
 }
 void Vehicle::leafDisarmFC() {
@@ -2966,14 +2998,25 @@ void Vehicle::leafDisarmFC() {
         return;
     }
 
+    // mavlink_message_t arm_msg;
+    // uint8_t arm = 0;
+    // mavlink_msg_leaf_do_arm_pack_chan(_mavlink->getSystemId(),
+    //                                   _mavlink->getComponentId(),
+    //                                   sharedLink->mavlinkChannel(),
+    //                                   &arm_msg,
+    //                                   0,
+    //                                   arm);
+    // sendMessageOnLinkThreadSafe(sharedLink.get(), arm_msg);
+
+
     mavlink_message_t arm_msg;
-    uint8_t arm = 0;
-    mavlink_msg_leaf_do_arm_pack_chan(_mavlink->getSystemId(),
+
+    mavlink_msg_leaf_do_arm_idle_pack_chan(_mavlink->getSystemId(),
                                       _mavlink->getComponentId(),
                                       sharedLink->mavlinkChannel(),
                                       &arm_msg,
                                       0,
-                                      arm);
+                                      0);
     sendMessageOnLinkThreadSafe(sharedLink.get(), arm_msg);
 }
 void Vehicle::leafMRFTPitchToggle(bool state) {
