@@ -282,6 +282,7 @@ public:
     Q_PROPERTY(QString                 leafStatus                       READ leafStatus                                 NOTIFY leafStatusChanged)
     Q_PROPERTY(QString                 leafMode                         READ leafMode         WRITE setLeafMode       NOTIFY leafModeChanged)
     Q_PROPERTY(QStringList             leafModes                        READ leafModes                                  NOTIFY leafModesChanged)
+    Q_PROPERTY(QString                 leafClientName                   READ leafClientName         WRITE setLeafClientName       NOTIFY leafClientNameChanged)
 
     Q_PROPERTY(ParameterManager*        parameterManager    READ parameterManager   CONSTANT)
     Q_PROPERTY(VehicleLinkManager*      vehicleLinkManager  READ vehicleLinkManager CONSTANT)
@@ -552,6 +553,7 @@ public:
     void setFlightMode                      (const QString& flightMode);
 
     void setLeafMode                        (const QString& leafMode);
+    void setLeafClientName                  (const QString& leafClientName);
 
     bool airship() const;
 
@@ -676,6 +678,7 @@ public:
     Actuators*      actuators                   () const { return _actuators; }
     QString         leafStatus                  () const { return _leafStatus; }
     QString         leafMode                    () const { return _leafMode; }
+    QString         leafClientName              () const { return _leafClientName; }
     /// Get the maximum MAVLink protocol version supported
     /// @return the maximum version
     unsigned        maxProtoVersion         () const { return _maxProtoVersion; }
@@ -1016,6 +1019,7 @@ signals:
 
     void leafStatusChanged                   (QString leafStatus);
     void leafModeChanged                     (QString leafMode);
+    void leafClientNameChanged               (QString leafClientName);
 
     void firmwareVersionChanged         ();
     void firmwareCustomVersionChanged   ();
@@ -1115,6 +1119,7 @@ private:
     void _handleVfrHud                  (mavlink_message_t& message);
     void _handleLeafStatus              (mavlink_message_t& message);
     void _handleLeafMode                (mavlink_message_t& message);
+    void _handleLeafClientName          (mavlink_message_t& message);
     void _leafSay                       (mavlink_message_t& message);
     void _handleNavControllerOutput     (mavlink_message_t& message);
     void _handleHighLatency             (mavlink_message_t& message);
@@ -1228,6 +1233,7 @@ private:
     bool            _allSensorsHealthy                      = true;
     QString         _leafStatus = "";
     QString         _leafMode = "";
+    QString         _leafClientName = "";
 
     SysStatusSensorInfo _sysStatusSensorInfo;
 

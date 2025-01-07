@@ -509,11 +509,13 @@ void Vehicle::_commonInit()
 
     // leafModeNames fill
     _leafModeNames = new QMap<int, QString>();
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_RC_Stabilized, QString("RC_Stabilized"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_RC_POSITION, QString("RC_POSITION"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_WAYPOINT_MISSION, QString("WAYPOINT_MISSION"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_INNER, QString("LEARNING_INNER"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_OUTER, QString("LEARNING_OUTER"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_FULL, QString("LEARNING_FULL"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_INSPECTION, QString("INSPECTION"));
 
     // leafStatusTexts
     _leafStatusTexts = new QMap<LEAF_STATUS, QString>();
@@ -829,6 +831,10 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         _leafSay(message);
         break;
 
+    case MAVLINK_MSG_ID_LEAF_CLIENT_TAGNAME:
+        _handleLeafClientName(message);
+        break;
+
     case MAVLINK_MSG_ID_SERIAL_CONTROL:
     {
         mavlink_serial_control_t ser;
@@ -1106,6 +1112,20 @@ void Vehicle::_handleLeafMode(mavlink_message_t& message)
         _leafMode = _leafModeNames->find(static_cast<LEAF_MODE>(leafMode.mode)).value();
         emit leafModeChanged(_leafMode);
     }
+}
+
+void Vehicle::_handleLeafClientName(mavlink_message_t& message)
+{
+
+    mavlink_leaf_client_tagname_t leafClientName;
+    mavlink_msg_leaf_client_tagname_decode(&message, &leafClientName);
+
+    if(_leafClientName.compare(QString(leafClientName.tagname)) != 0) {
+        _leafClientName = QString(leafClientName.tagname);
+        emit leafClientNameChanged(_leafClientName);
+        emit leafModesChanged();
+    }
+
 }
 
 void Vehicle::_leafSay(mavlink_message_t& message)
@@ -2340,8 +2360,18 @@ QStringList Vehicle::flightModes()
 QStringList Vehicle::leafModes()
 {
     QStringList ret;
-    for(auto k : _leafModeNames->keys()) {
-        ret += (QString)_leafModeNames->value(k);
+
+    if(_leafClientName.compare("ENEC") == 0) {
+        ret += (QString)_leafModeNames->value(LEAF_MODE::LEAF_MODE_RC_Stabilized);
+        ret += (QString)_leafModeNames->value(LEAF_MODE::LEAF_MODE_RC_POSITION);
+        ret += (QString)_leafModeNames->value(LEAF_MODE::LEAF_MODE_WAYPOINT_MISSION);
+        ret += (QString)_leafModeNames->value(LEAF_MODE::LEAF_MODE_INSPECTION);
+        return ret;
+    } else {
+        for(auto k : _leafModeNames->keys()) {
+            if(k == LEAF_MODE::LEAF_MODE_INSPECTION) continue;
+            ret += (QString)_leafModeNames->value(k);
+        }
     }
     return ret;
 }
@@ -2454,6 +2484,10 @@ void Vehicle::setLeafMode(const QString& leafMode)
 
                                    
     sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+}
+
+void Vehicle::setLeafClientName(const QString& leafClientName){
+
 }
 
 #if 0
