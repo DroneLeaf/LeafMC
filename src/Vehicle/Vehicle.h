@@ -380,6 +380,9 @@ public:
     Q_INVOKABLE void leafMRFTAltToggle(bool state);
     Q_INVOKABLE void leafMRFTXToggle(bool state);
     Q_INVOKABLE void leafMRFTYToggle(bool state);
+    Q_INVOKABLE void leafInspectSlap(int slap);
+    Q_INVOKABLE void leafPausePipeline();
+    Q_INVOKABLE void leafResumePipeline();
 
     /// @return The minimum takeoff altitude (relative) for guided takeoff.
     Q_INVOKABLE double minimumTakeoffAltitude();

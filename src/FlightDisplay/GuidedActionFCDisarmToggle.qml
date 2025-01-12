@@ -10,9 +10,11 @@
 import QGroundControl.FlightDisplay 1.0
 
 GuidedToolStripAction {
+    property string leafMode: _guidedController._activeVehicle.leafMode
+
     text:       _guidedController.disarmFCTitle
     iconSource: "/res/action.svg"
-    visible:    _guidedController._fcArmed
+    visible:    (_guidedController._fcArmed) && leafMode.length > 0
     enabled:    true
     actionID:   _guidedController.actionFCDisarm
 }

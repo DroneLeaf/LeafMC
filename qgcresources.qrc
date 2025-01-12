@@ -64,6 +64,7 @@
         <file alias="leaf-logo.png">resources/leaf-logo.png</file>
         <file alias="circle-arrows.svg">resources/circle-arrows.svg</file>
         <file alias="infinite-outline.svg">resources/infinite-outline.svg</file>
+        <file alias="inspection.svg">resources/inspection.svg</file>
     </qresource>
     <qresource prefix="/res/firmware">
         <file alias="3drradio.png">resources/firmware/3drradio.png</file>

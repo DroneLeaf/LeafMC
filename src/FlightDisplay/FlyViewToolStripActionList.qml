@@ -35,7 +35,12 @@ ToolStripActionList {
         GuidedActionToggleMRFTRoll { },
         GuidedActionToggleMRFTAlt { },
         GuidedActionToggleMRFTX { },
-        GuidedActionToggleMRFTY { }
+        GuidedActionToggleMRFTY { },
+        GuidedActionInspectSlap1 { },
+        GuidedActionInspectSlap2 { },
+        GuidedActionInspectSlaps { },
+        GuidedActionPausePipeline { },
+        GuidedActionResumePipeline { }
         // GuidedActionRTL { },
         // GuidedActionPause { },
         // GuidedActionActionList { },

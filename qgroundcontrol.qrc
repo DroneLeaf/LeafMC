@@ -342,6 +342,11 @@
         <file alias="QGroundControl/FlightDisplay/GuidedActionToggleMRFTY.qml">src/FlightDisplay/GuidedActionToggleMRFTY.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewVideoSiYiController.qml">src/FlightDisplay/FlyViewVideoSiYiController.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewVideoSiYiControllerAiSettings.qml">src/FlightDisplay/FlyViewVideoSiYiControllerAiSettings.qml</file>
+        <file alias="QGroundControl/FlightDisplay/GuidedActionInspectSlap1.qml">src/FlightDisplay/GuidedActionInspectSlap1.qml</file>
+        <file alias="QGroundControl/FlightDisplay/GuidedActionInspectSlap2.qml">src/FlightDisplay/GuidedActionInspectSlap2.qml</file>
+        <file alias="QGroundControl/FlightDisplay/GuidedActionInspectSlaps.qml">src/FlightDisplay/GuidedActionInspectSlaps.qml</file>
+        <file alias="QGroundControl/FlightDisplay/GuidedActionPausePipeline.qml">src/FlightDisplay/GuidedActionPausePipeline.qml</file>
+        <file alias="QGroundControl/FlightDisplay/GuidedActionResumePipeline.qml">src/FlightDisplay/GuidedActionResumePipeline.qml</file>
     </qresource>
     <qresource prefix="/FirstRunPromptDialogs">
         <file alias="UnitsFirstRunPrompt.qml">src/FirstRunPromptDialogs/UnitsFirstRunPrompt.qml</file>

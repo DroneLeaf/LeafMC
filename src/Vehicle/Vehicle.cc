@@ -3139,6 +3139,60 @@ void Vehicle::leafMRFTYToggle(bool state) {
                                       enable);
     sendMessageOnLinkThreadSafe(sharedLink.get(), mrft_y_switch_msg);
 }
+
+void Vehicle::leafInspectSlap(int slap) {
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedActionInspectSlap: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t inspect_slap_msg;
+    mavlink_msg_leaf_do_inspect_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &inspect_slap_msg,
+                                      0,
+                                      slap);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), inspect_slap_msg);
+}
+
+void Vehicle::leafPausePipeline() {
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedActionPausePipeline: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t pause_msg;
+    mavlink_msg_leaf_control_cmd_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &pause_msg,
+                                      0,
+                                      LEAF_CONTROL_COMMAND::LEAF_CONTROL_PAUSE);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), pause_msg);
+}
+
+void Vehicle::leafResumePipeline() {
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedActionResumePipeline: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t resume_msg;
+    mavlink_msg_leaf_control_cmd_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &resume_msg,
+                                      0,
+                                      LEAF_CONTROL_COMMAND::LEAF_CONTROL_RESUME);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), resume_msg);
+    
+}
+
+
 void Vehicle::guidedModeExecuteCircleTraj()
 {
     if (!guidedModeSupported()) {

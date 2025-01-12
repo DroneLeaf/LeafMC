@@ -10,9 +10,11 @@
 import QGroundControl.FlightDisplay 1.0
 
 GuidedToolStripAction {
+    property string leafMode: _guidedController._activeVehicle.leafMode
+
     text:       _guidedController._fcMRFTAltOn ? _guidedController.toggleMRFTAltOffTitle : _guidedController.toggleMRFTAltOnTitle
     iconSource: "/res/up-down.svg"
-    visible:    true
+    visible:    leafMode.startsWith("LEARNING")
     enabled:    true
     actionID:   _guidedController.actionMRFTAltToggle
 }

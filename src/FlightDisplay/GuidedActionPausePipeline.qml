@@ -12,9 +12,9 @@ import QGroundControl.FlightDisplay 1.0
 GuidedToolStripAction {
     property string leafMode: _guidedController._activeVehicle.leafMode
 
-    text:       _guidedController._fcMRFTYOn ? _guidedController.toggleMRFTYOffTitle : _guidedController.toggleMRFTYOnTitle
-    iconSource: "/res/left-right.svg"
-    visible:    leafMode.startsWith("LEARNING")
+    text:       _guidedController.pausePipelineTitle
+    iconSource: "/res/Pause.svg"
+    visible:    leafMode.length > 0 && !_guidedController._fcPipelinePaused
     enabled:    true
-    actionID:   _guidedController.actionMRFTYToggle
+    actionID:   _guidedController.actionPausePipeline
 }

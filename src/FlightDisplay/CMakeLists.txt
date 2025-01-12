@@ -35,6 +35,11 @@ add_custom_target(FligthDisplayQml
 		GuidedActionToggleMRFTAlt.qml
 		GuidedActionToggleMRFTX.qml
 		GuidedActionToggleMRFTY.qml
+		GuidedActionInspectSlap1.qml
+		GuidedActionInspectSlap2.qml
+		GuidedActionInspectSlaps.qml
+		GuidedActionPausePipeline.qml
+		GuidedActionResumePipeline.qml
 		GripperMenu.qml
 		GuidedValueSlider.qml
 		GuidedToolStripAction.qml

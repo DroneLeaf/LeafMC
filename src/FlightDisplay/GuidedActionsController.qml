@@ -72,6 +72,11 @@ Item {
     readonly property string toggleMRFTYOffTitle:           qsTr("Learn-Y ON")
     readonly property string armFCTitle:                    qsTr("Arm FC")
     readonly property string disarmFCTitle:                 qsTr("Disarm FC")
+    readonly property string inspectSlap1Title:             qsTr("Inspect S1")
+    readonly property string inspectSlap2Title:             qsTr("Inspect S2")
+    readonly property string inspectSlapsTitle:             qsTr("Inspect All")
+    readonly property string pausePipelineTitle:            qsTr("Pause Pipe")
+    readonly property string resumePipelineTitle:           qsTr("Resume Pipe")
 
 
     readonly property string armMessage:                        qsTr("Arm the vehicle.")
@@ -112,6 +117,11 @@ Item {
     readonly property string toggleMRFTYOffMessage:             qsTr("Switch Y Learning OFF")
     readonly property string armFCMessage:                      qsTr("Arm FC")
     readonly property string disarmFCMessage:                   qsTr("Disarm FC")
+    readonly property string inspectSlap1Message:               qsTr("Inspect Slap 1")
+    readonly property string inspectSlap2Message:               qsTr("Inspect Slap 2")
+    readonly property string inspectSlapsMessage:               qsTr("Inspect All Slaps")
+    readonly property string pausePipelineMessage:              qsTr("Pause Pipeline")
+    readonly property string resumePipelineMessage:             qsTr("Resume Pipeline")
 
     readonly property int actionRTL:                        1
     readonly property int actionLand:                       2
@@ -149,6 +159,11 @@ Item {
     readonly property int actionMRFTYToggle:                34
     readonly property int actionFCArm:                      35
     readonly property int actionFCDisarm:                   36
+    readonly property int actionInspectSlap1:               37
+    readonly property int actionInspectSlap2:               38
+    readonly property int actionInspectSlaps:               39
+    readonly property int actionPausePipeline:              40
+    readonly property int actionResumePipeline:             41
 
     property var    _activeVehicle:             QGroundControl.multiVehicleManager.activeVehicle
     property bool   _useChecklist:              QGroundControl.settingsManager.appSettings.useChecklist.rawValue && QGroundControl.corePlugin.options.preFlightChecklistUrl.toString().length
@@ -227,6 +242,7 @@ Item {
     property bool   _fcMRFTAltOn:           false
     property bool   _fcMRFTXOn:             false
     property bool   _fcMRFTYOn:             false
+    property bool   _fcPipelinePaused:      false
 
     function _outputState() {
         if (_corePlugin.guidedActionsControllerLogging()) {
@@ -632,6 +648,37 @@ Item {
             confirmDialog.message = _fcMRFTYOn ? toggleMRFTYOffMessage : toggleMRFTYOnMessage
             confirmDialog.hideTrigger = true
             break
+
+        case actionInspectSlap1:
+            confirmDialog.title = inspectSlap1Title
+            confirmDialog.message = inspectSlap1Message
+            confirmDialog.hideTrigger = true
+            break
+
+        case actionInspectSlap2:
+            confirmDialog.title = inspectSlap2Title
+            confirmDialog.message = inspectSlap2Message
+            confirmDialog.hideTrigger = true
+            break
+
+        case actionInspectSlaps:
+            confirmDialog.title = inspectSlapsTitle
+            confirmDialog.message = inspectSlapsMessage
+            confirmDialog.hideTrigger = true
+            break
+
+        case actionPausePipeline:
+            confirmDialog.title = pausePipelineTitle
+            confirmDialog.message = pausePipelineMessage
+            confirmDialog.hideTrigger = true
+            break
+
+        case actionResumePipeline:
+            confirmDialog.title = resumePipelineTitle
+            confirmDialog.message = resumePipelineMessage
+            confirmDialog.hideTrigger = true
+            break
+
         default:
             console.warn("Unknown actionCode", actionCode)
             return
@@ -765,6 +812,28 @@ Item {
             _fcMRFTYOn = !_fcMRFTYOn
             _activeVehicle.leafMRFTYToggle(_fcMRFTYOn)
             break
+        case actionInspectSlap1:
+            _activeVehicle.leafInspectSlap(1)
+            break
+        
+        case actionInspectSlap2:
+            _activeVehicle.leafInspectSlap(2)
+            break
+        
+        case actionInspectSlaps:
+            _activeVehicle.leafInspectSlap(0)
+            break
+
+        case actionPausePipeline:
+            _fcPipelinePaused = true
+            _activeVehicle.leafPausePipeline()
+            break
+
+        case actionResumePipeline:
+            _fcPipelinePaused = false
+            _activeVehicle.leafResumePipeline()
+            break
+
         default:
             console.warn(qsTr("Internal error: unknown actionCode"), actionCode)
             break
