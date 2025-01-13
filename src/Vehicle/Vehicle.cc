@@ -831,6 +831,10 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         _leafSay(message);
         break;
 
+    case MAVLINK_MSG_ID_LEAF_MRFT_STATUS:
+        _handleLeafMRFTStatus(message);
+        break;
+
     case MAVLINK_MSG_ID_LEAF_CLIENT_TAGNAME:
         _handleLeafClientName(message);
         break;
@@ -1137,6 +1141,17 @@ void Vehicle::_leafSay(mavlink_message_t& message)
     _say(QString(sayMessage.content));
 }
 
+void Vehicle::_handleLeafMRFTStatus(mavlink_message_t& message) {
+
+    mavlink_leaf_mrft_status_t leafMRFTStatus;
+    mavlink_msg_leaf_mrft_status_decode(&message, &leafMRFTStatus);
+
+    setLeafMRFTRoll(leafMRFTStatus.roll);
+    setLeafMRFTPitch(leafMRFTStatus.pitch);
+    setLeafMRFTAlt(leafMRFTStatus.alt);
+    setLeafMRFTX(leafMRFTStatus.x);
+    setLeafMRFTY(leafMRFTStatus.y);
+}
 
 
 void Vehicle::_handleVfrHud(mavlink_message_t& message)
@@ -2490,6 +2505,31 @@ void Vehicle::setLeafClientName(const QString& leafClientName){
 
 }
 
+void Vehicle::setLeafMRFTRoll(bool state){
+    _leafMRFTRoll = state;
+    emit leafMRFTRollChanged(_leafMRFTRoll);
+}
+
+void Vehicle::setLeafMRFTPitch(bool state){
+    _leafMRFTPitch = state;
+    emit leafMRFTPitchChanged(_leafMRFTPitch);
+}
+
+void Vehicle::setLeafMRFTAlt(bool state){
+    _leafMRFTAlt = state;
+    emit leafMRFTAltChanged(_leafMRFTAlt);
+}
+
+void Vehicle::setLeafMRFTX(bool state){
+    _leafMRFTX = state;
+    emit leafMRFTXChanged(_leafMRFTX);
+}
+
+void Vehicle::setLeafMRFTY(bool state){
+    _leafMRFTY = state;
+    emit leafMRFTYChanged(_leafMRFTY);
+}
+
 #if 0
 QVariantList Vehicle::links() const {
     QVariantList ret;
@@ -2965,45 +3005,14 @@ void Vehicle::guidedModeTakeoff(double altitudeRelative)
         return;
     }
 
-    // mavlink_message_t arm_msg;
-    // uint8_t arm = 1;
-    // mavlink_msg_leaf_do_arm_pack_chan(_mavlink->getSystemId(),
-    //                                     _mavlink->getComponentId(),
-    //                                     sharedLink->mavlinkChannel(),
-    //                                     &arm_msg,
-    //                                     0,
-    //                                     arm);
-    // // Two arms, one for pre-arm one for start actuating
-    // sendMessageOnLinkThreadSafe(sharedLink.get(), arm_msg);
-    // sendMessageOnLinkThreadSafe(sharedLink.get(), arm_msg);
-
-    // mavlink_message_t reg_msg;
-    // uint8_t reg = 1;
-    // mavlink_msg_leaf_do_register_pos_offset_from_est_pos_pack_chan(_mavlink->getSystemId(),
-    //                                                                _mavlink->getComponentId(),
-    //                                                                sharedLink->mavlinkChannel(),
-    //                                                                &reg_msg,
-    //                                                                0,
-    //                                                                reg);
-    // sendMessageOnLinkThreadSafe(sharedLink.get(), reg_msg);
-
-    // mavlink_message_t traj_msg;
-    // std::string traj_id = "Polynomial/Line/takeoff_1_5m_5s.json";
-    // mavlink_msg_leaf_do_queue_traj_from_buffer_by_id_pack_chan(_mavlink->getSystemId(),
-    //                                                                _mavlink->getComponentId(),
-    //                                                                sharedLink->mavlinkChannel(),
-    //                                                                &traj_msg,
-    //                                                                0,
-    //                                                                traj_id.c_str());
-    // sendMessageOnLinkThreadSafe(sharedLink.get(), traj_msg);
-
     mavlink_message_t takeoff_msg;
 
     mavlink_msg_leaf_do_takeoff_pack_chan(_mavlink->getSystemId(),
                                                     _mavlink->getComponentId(),
                                                     sharedLink->mavlinkChannel(),
                                                     &takeoff_msg,
-                                                    0);
+                                                    0,
+                                                    altitudeRelative);
     sendMessageOnLinkThreadSafe(sharedLink.get(), takeoff_msg);
 }
 
@@ -3245,7 +3254,8 @@ void Vehicle::guidedModeExecuteFig8Traj()
 
 double Vehicle::minimumTakeoffAltitude()
 {
-    return _firmwarePlugin->minimumTakeoffAltitude(this);
+    // return _firmwarePlugin->minimumTakeoffAltitude(this);
+    return 1.5;
 }
 
 double Vehicle::maximumHorizontalSpeedMultirotor()

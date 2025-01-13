@@ -237,11 +237,11 @@ Item {
     // FC relevant properties
     property bool   _fcArmed:               false
     property bool   _fcTookOff:             false
-    property bool   _fcMRFTPitchOn:         false
-    property bool   _fcMRFTRollOn:          false
-    property bool   _fcMRFTAltOn:           false
-    property bool   _fcMRFTXOn:             false
-    property bool   _fcMRFTYOn:             false
+    property bool   _fcMRFTPitchOn:         _activeVehicle ? _activeVehicle.leafMRFTRoll : false
+    property bool   _fcMRFTRollOn:          _activeVehicle ? _activeVehicle.leafMRFTPitch : false
+    property bool   _fcMRFTAltOn:           _activeVehicle ? _activeVehicle.leafMRFTAlt : false
+    property bool   _fcMRFTXOn:             _activeVehicle ? _activeVehicle.leafMRFTX : false
+    property bool   _fcMRFTYOn:             _activeVehicle ? _activeVehicle.leafMRFTY : false
     property bool   _fcPipelinePaused:      false
 
     function _outputState() {
@@ -793,23 +793,18 @@ Item {
             _activeVehicle.guidedModeExecuteFig8Traj()
             break
         case actionMRFTPitchToggle:
-            _fcMRFTPitchOn = !_fcMRFTPitchOn
             _activeVehicle.leafMRFTPitchToggle(_fcMRFTPitchOn)
             break
         case actionMRFTRollToggle:
-            _fcMRFTRollOn = !_fcMRFTRollOn
             _activeVehicle.leafMRFTRollToggle(_fcMRFTRollOn)
             break
         case actionMRFTAltToggle:
-            _fcMRFTAltOn = !_fcMRFTAltOn
             _activeVehicle.leafMRFTAltToggle(_fcMRFTAltOn)
             break
         case actionMRFTXToggle:
-            _fcMRFTXOn = !_fcMRFTXOn
             _activeVehicle.leafMRFTXToggle(_fcMRFTXOn)
             break
         case actionMRFTYToggle:
-            _fcMRFTYOn = !_fcMRFTYOn
             _activeVehicle.leafMRFTYToggle(_fcMRFTYOn)
             break
         case actionInspectSlap1:

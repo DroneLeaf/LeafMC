@@ -24,8 +24,8 @@ sudo apt-get update && sudo apt-get install -y \
     pkg-config
 
 # Create and enter build directory
-mkdir -p build
-cd build
+mkdir -p buildAppImage
+cd buildAppImage
 
 # Configure with CMake
 cmake .. -DCMAKE_BUILD_TYPE=Release
@@ -70,5 +70,8 @@ chmod +x appimagetool-x86_64.AppImage
 
 # Create AppImage
 ./appimagetool-x86_64.AppImage AppDir QGroundControl.AppImage
+
+cd ..
+rm -rf buildAppImage
 
 echo "Build complete! AppImage created as QGroundControl.AppImage"
