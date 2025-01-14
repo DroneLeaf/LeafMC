@@ -71,6 +71,8 @@ chmod +x appimagetool-x86_64.AppImage
 # Create AppImage
 ./appimagetool-x86_64.AppImage AppDir QGroundControl.AppImage
 
+cp QGroundControl.AppImage ../LeafMC.AppImage
+
 cd ..
 rm -rf buildAppImage
 
