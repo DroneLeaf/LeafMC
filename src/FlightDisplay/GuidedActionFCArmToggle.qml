@@ -14,7 +14,7 @@ GuidedToolStripAction {
 
     text:       _guidedController.armFCTitle
     iconSource: "/res/action.svg"
-    visible:    (!_guidedController._fcArmed) && leafMode.length > 0
+    visible:    (!_guidedController._activeVehicle.leafFCArmed) && leafMode.length > 0
     enabled:    true
     actionID:   _guidedController.actionFCArm
 }
