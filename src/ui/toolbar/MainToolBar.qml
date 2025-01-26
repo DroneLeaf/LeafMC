@@ -95,6 +95,7 @@ Rectangle {
             onClicked:          _activeVehicle.closeVehicle()
             visible:            _activeVehicle && _communicationLost && currentToolbar === flyViewToolbar
         }
+
     }
 
     QGCFlickable {
@@ -117,11 +118,36 @@ Rectangle {
                                     "qrc:/toolbar/MainToolBarIndicators.qml" :
                                     (currentToolbar == planViewToolbar ? "qrc:/qml/PlanToolBarIndicators.qml" : "")
         }
+
+
     }
+
+
+    Rectangle {
+        id:                     _leafProfile
+        anchors.leftMargin:     ScreenTools.defaultFontPixelWidth * ScreenTools.largeFontPointRatio * 1.5
+        anchors.right:           _brandImage.left
+        anchors.top:            parent.top
+        anchors.bottom:         parent.bottom
+        height: parent.height
+        width: ScreenTools.defaultFontPixelWidth * 20
+        color: qgcPal.primaryButton
+        visible: _activeVehicle ? true : false
+
+        Text {
+            id: _leafProfileText
+            text: _activeVehicle ? _activeVehicle.leafProfile : qsTr("Leaf Profile")
+            color: qgcPal.primaryButtonText
+            anchors.centerIn: parent
+            font.pixelSize: ScreenTools.defaultFontPixelWidth * 2.5
+        }
+    }
+
 
     //-------------------------------------------------------------------------
     //-- Branding Logo
     Image {
+        id:                     _brandImage
         anchors.right:          parent.right
         anchors.top:            parent.top
         anchors.bottom:         parent.bottom

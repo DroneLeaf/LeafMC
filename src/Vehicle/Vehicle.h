@@ -288,7 +288,7 @@ public:
     Q_PROPERTY(bool                     leafMRFTAlt                     READ leafMRFTAlt            WRITE setLeafMRFTAlt        NOTIFY leafMRFTAltChanged)
     Q_PROPERTY(bool                     leafMRFTX                       READ leafMRFTX              WRITE setLeafMRFTX          NOTIFY leafMRFTXChanged)
     Q_PROPERTY(bool                     leafMRFTY                       READ leafMRFTY              WRITE setLeafMRFTY          NOTIFY leafMRFTYChanged)
-    Q_PROPERTY(bool                     leafFCArmed                     READ leafFCArmed            WRITE setLeafFCArmed        NOTIFY leafFCArmedChanged)
+    Q_PROPERTY(QString                  leafProfile                   READ leafProfile         WRITE setLeafProfile       NOTIFY leafProfileChanged)
 
     Q_PROPERTY(ParameterManager*        parameterManager    READ parameterManager   CONSTANT)
     Q_PROPERTY(VehicleLinkManager*      vehicleLinkManager  READ vehicleLinkManager CONSTANT)
@@ -563,12 +563,12 @@ public:
 
     void setLeafMode                        (const QString& leafMode);
     void setLeafClientName                  (const QString& leafClientName);
+    void setLeafProfile                     (const QString& leafProfile);
     void setLeafMRFTRoll                    (bool state);
     void setLeafMRFTPitch                   (bool state);
     void setLeafMRFTAlt                     (bool state);
     void setLeafMRFTX                       (bool state);
     void setLeafMRFTY                       (bool state);
-    void setLeafFCArmed                     (bool armed);
 
     bool airship() const;
 
@@ -694,12 +694,12 @@ public:
     QString         leafStatus                  () const { return _leafStatus; }
     QString         leafMode                    () const { return _leafMode; }
     QString         leafClientName              () const { return _leafClientName; }
+    QString         leafProfile                 () const { return _leafProfile; }
     bool            leafMRFTRoll                () const { return _leafMRFTRoll; }
     bool            leafMRFTPitch               () const { return _leafMRFTPitch; }
     bool            leafMRFTAlt                 () const { return _leafMRFTAlt; }
     bool            leafMRFTX                   () const { return _leafMRFTX; }
     bool            leafMRFTY                   () const { return _leafMRFTY; }
-    bool            leafFCArmed                 () const { return _leafFCArmed; }
     /// Get the maximum MAVLink protocol version supported
     /// @return the maximum version
     unsigned        maxProtoVersion         () const { return _maxProtoVersion; }
@@ -1046,7 +1046,7 @@ signals:
     void leafMRFTAltChanged                  (bool alt);
     void leafMRFTXChanged                    (bool x);
     void leafMRFTYChanged                    (bool y);
-    void leafFCArmedChanged                  (bool armed);
+    void leafProfileChanged               (QString leafProfile);
 
     void firmwareVersionChanged         ();
     void firmwareCustomVersionChanged   ();
@@ -1147,6 +1147,7 @@ private:
     void _handleLeafStatus              (mavlink_message_t& message);
     void _handleLeafMode                (mavlink_message_t& message);
     void _handleLeafClientName          (mavlink_message_t& message);
+    void _handleLeafHeartbeat           (mavlink_message_t& message);
     void _leafSay                       (mavlink_message_t& message);
     void _handleLeafMRFTStatus          (mavlink_message_t& message);
     void _handleNavControllerOutput     (mavlink_message_t& message);
@@ -1262,12 +1263,12 @@ private:
     QString         _leafStatus = "";
     QString         _leafMode = "";
     QString         _leafClientName = "";
+    QString         _leafProfile = "";
     bool            _leafMRFTRoll = false;
     bool            _leafMRFTPitch = false;
     bool            _leafMRFTAlt = false;
     bool            _leafMRFTX = false;
     bool            _leafMRFTY = false;
-    bool            _leafFCArmed = false;
 
     SysStatusSensorInfo _sysStatusSensorInfo;
 

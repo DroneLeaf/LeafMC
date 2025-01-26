@@ -838,6 +838,10 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     case MAVLINK_MSG_ID_LEAF_CLIENT_TAGNAME:
         _handleLeafClientName(message);
         break;
+    
+    case MAVLINK_MSG_ID_LEAF_HEARTBEAT:
+        _handleLeafHeartbeat(message);
+        break;
 
     case MAVLINK_MSG_ID_SERIAL_CONTROL:
     {
@@ -1101,14 +1105,6 @@ void Vehicle::_handleLeafStatus(mavlink_message_t& message)
         ) {
         _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
         emit leafStatusChanged(_leafStatus);
-        if (leafStatus.status == LEAF_STATUS::LEAF_STATUS_ARMED_IDLE){
-            setLeafFCArmed(true);
-            emit leafFCArmedChanged(true);
-        }
-        else if (leafStatus.status == LEAF_STATUS::LEAF_STATUS_READY_TO_FLY){
-            setLeafFCArmed(false);
-            emit leafFCArmedChanged(false);
-        }
     }
 }
 
@@ -1136,6 +1132,19 @@ void Vehicle::_handleLeafClientName(mavlink_message_t& message)
         _leafClientName = QString(leafClientName.tagname);
         emit leafClientNameChanged(_leafClientName);
         emit leafModesChanged();
+    }
+
+}
+
+void Vehicle::_handleLeafHeartbeat(mavlink_message_t& message)
+{
+    // TODO: Implement parsing of heartbeat message from LeafFC
+    mavlink_leaf_heartbeat_t leafHeartbeat;
+    mavlink_msg_leaf_heartbeat_decode(&message, &leafHeartbeat);
+
+    if(_leafProfile.compare(QString(leafHeartbeat.profile)) != 0) {
+        _leafProfile = QString(leafHeartbeat.profile);
+        emit leafProfileChanged(_leafProfile);
     }
 
 }
@@ -2461,7 +2470,7 @@ void Vehicle::setFlightMode(const QString& flightMode)
 void Vehicle::setLeafMode(const QString& leafMode)
 {
     LEAF_MODE     mode;
-    qCWarning(VehicleLog) << "mode" << mode;
+    qCInfo(VehicleLog) << "mode: " << mode;
 
 
     if(leafMode.compare("RC_POSITION", Qt::CaseInsensitive) == 0) {
@@ -2510,7 +2519,13 @@ void Vehicle::setLeafMode(const QString& leafMode)
 }
 
 void Vehicle::setLeafClientName(const QString& leafClientName){
+    _leafClientName = leafClientName;
+    emit leafClientNameChanged(_leafClientName);
+}
 
+void Vehicle::setLeafProfile(const QString& leafProfile){
+    _leafProfile = leafProfile;
+    emit leafProfileChanged(_leafProfile);
 }
 
 void Vehicle::setLeafMRFTRoll(bool state){
@@ -2536,11 +2551,6 @@ void Vehicle::setLeafMRFTX(bool state){
 void Vehicle::setLeafMRFTY(bool state){
     _leafMRFTY = state;
     emit leafMRFTYChanged(_leafMRFTY);
-}
-
-void Vehicle::setLeafFCArmed(bool armed){
-    _leafFCArmed = armed;
-    emit leafFCArmedChanged(_leafFCArmed);
 }
 
 #if 0
