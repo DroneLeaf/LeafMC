@@ -69,4 +69,5 @@ Row {
             visible:            item.showIndicator
         }
     }
+
 }
