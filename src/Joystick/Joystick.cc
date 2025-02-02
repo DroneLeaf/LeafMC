@@ -141,10 +141,16 @@ Joystick::Joystick(const QString& name, int axisCount, int buttonCount, int hatC
     _siyiZoomOutTimer->setInterval(100);
     connect(_siyiZoomOutTimer, &QTimer::timeout, this, &Joystick::_siyiZoomOutTimeout);
 
+    _siyiCtrlTimer = new QTimer(this);
+    _siyiCtrlTimer->setInterval(100);
+    connect(_siyiCtrlTimer, &QTimer::timeout, this, &Joystick::_siyiCtrlTimeout);
+
     connect(this, &Joystick::startSiYiZoomIn, this, &Joystick::_startZoomInTimer);
     connect(this, &Joystick::startSiYiZoomOut, this, &Joystick::_startZoomOutTimer);
     connect(this, &Joystick::stopSiYiZoomIn, this, &Joystick::_stopZoomInTimer);
     connect(this, &Joystick::stopSiYiZoomOut, this, &Joystick::_stopZoomOutTimer);
+    connect(this, &Joystick::startSiYiCtrl, this, &Joystick::_siyiCtrlStart);
+    connect(this, &Joystick::stopSiYiCtrl, this, &Joystick::_siyiCtrlStop);
 }
 
 void Joystick::_siyiZoomInTimeout()
@@ -157,6 +163,13 @@ void Joystick::_siyiZoomOutTimeout()
     SiYi::instance()->cameraInstance()->zoom(-1);
 }
 
+void Joystick::_siyiCtrlTimeout()
+{
+    if(_siyiCtrlSendEnabled) {
+        SiYi::instance()->cameraInstance()->turn(_siyiCtrlYaw, _siyiCtrlPitch);
+    }
+}
+
 void Joystick::_startZoomInTimer()
 {
     if(!_siyiZoomInTimer->isActive()) _siyiZoomInTimer->start();
@@ -165,6 +178,26 @@ void Joystick::_startZoomInTimer()
 void Joystick::_startZoomOutTimer()
 {
     if(!_siyiZoomOutTimer->isActive()) _siyiZoomOutTimer->start();
+}
+
+void Joystick::_siyiCtrlStart()
+{
+    if(!_siyiCtrlTimer->isActive()) {
+        _siyiCtrlTimer->start();
+        _siyiCtrlSendEnabled = true;
+    }
+
+}
+
+void Joystick::_siyiCtrlStop()
+{
+    if(_siyiCtrlTimer->isActive()) {
+        _siyiCtrlTimer->stop();
+        _siyiCtrlYaw = 0;
+        _siyiCtrlPitch = 0;
+        _siyiCtrlSendEnabled = false;
+        SiYi::instance()->cameraInstance()->turn(0, 0);
+    }
 }
 
 void Joystick::_stopZoomInTimer()
@@ -182,6 +215,7 @@ void Joystick::_stopZoomOutTimer()
         SiYi::instance()->cameraInstance()->zoom(0);
     }
 }
+
 
 void Joystick::stop()
 {
@@ -1119,7 +1153,10 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
     } else if(action == _buttonActionNextCamera || action == _buttonActionPreviousCamera) {
         if (buttonDown) emit stepCamera(action == _buttonActionNextCamera ? 1 : -1);
     } else if(action == _buttonActionTriggerCamera) {
-        if (buttonDown) emit triggerCamera();
+        if (buttonDown) {
+            emit triggerCamera();
+            SiYi::instance()->cameraInstance()->sendCommand(SiYiCamera::CameraCommand::CameraCommandTakePhoto);
+        }
     } else if(action == _buttonActionStartVideoRecord) {
         if (buttonDown) emit startVideoRecord();
     } else if(action == _buttonActionStopVideoRecord) {
@@ -1127,15 +1164,46 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
     } else if(action == _buttonActionToggleVideoRecord) {
         if (buttonDown) emit toggleVideoRecord();
     } else if(action == _buttonActionGimbalUp) {
-        if (buttonDown) emit gimbalPitchStep(1);
+        if (buttonDown){
+            // emit gimbalPitchStep(1);
+            _siyiCtrlPitch += 1;
+            if(!_siyiCtrlSendEnabled)
+                emit startSiYiCtrl();
+        } else {
+            emit stopSiYiCtrl();
+        }
     } else if(action == _buttonActionGimbalDown) {
-        if (buttonDown) emit gimbalPitchStep(-1);
+        if (buttonDown) {
+            // emit gimbalPitchStep(-1);
+            _siyiCtrlPitch -= 1;
+            if(!_siyiCtrlSendEnabled)
+                emit startSiYiCtrl();
+        } else {
+            emit stopSiYiCtrl();
+        }
     } else if(action == _buttonActionGimbalLeft) {
-        if (buttonDown) emit gimbalYawStep(-1);
+        if (buttonDown) {
+            // emit gimbalYawStep(-1);
+            _siyiCtrlYaw -= 1;
+            if(!_siyiCtrlSendEnabled)
+                emit startSiYiCtrl();
+        } else {
+            emit stopSiYiCtrl();
+        }
     } else if(action == _buttonActionGimbalRight) {
-        if (buttonDown) emit gimbalYawStep(1);
+        if (buttonDown) {
+            // emit gimbalYawStep(1);
+            _siyiCtrlYaw += 1;
+            if(!_siyiCtrlSendEnabled)
+                emit startSiYiCtrl();
+        } else {
+            emit stopSiYiCtrl();
+        }
     } else if(action == _buttonActionGimbalCenter) {
-        if (buttonDown) emit centerGimbal();
+        if (buttonDown) {
+            // emit centerGimbal();
+            SiYi::instance()->cameraInstance()->resetPostion();
+        }
     } else if(action == _buttonActionGimbalYawLock) {
         if (buttonDown) emit gimbalYawLock(true);
     } else if(action == _buttonActionGimbalYawFollow) {

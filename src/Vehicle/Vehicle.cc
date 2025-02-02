@@ -1105,6 +1105,14 @@ void Vehicle::_handleLeafStatus(mavlink_message_t& message)
         ) {
         _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
         emit leafStatusChanged(_leafStatus);
+        if (leafStatus.status == LEAF_STATUS::LEAF_STATUS_ARMED_IDLE){
+            setLeafFCArmed(true);
+            emit leafFCArmedChanged(true);
+        }
+        else if (leafStatus.status == LEAF_STATUS::LEAF_STATUS_READY_TO_FLY){
+            setLeafFCArmed(false);
+            emit leafFCArmedChanged(false);
+        }
     }
 }
 
@@ -2551,6 +2559,11 @@ void Vehicle::setLeafMRFTX(bool state){
 void Vehicle::setLeafMRFTY(bool state){
     _leafMRFTY = state;
     emit leafMRFTYChanged(_leafMRFTY);
+}
+
+void Vehicle::setLeafFCArmed(bool armed){
+    _leafFCArmed = armed;
+    emit leafFCArmedChanged(_leafFCArmed);
 }
 
 #if 0

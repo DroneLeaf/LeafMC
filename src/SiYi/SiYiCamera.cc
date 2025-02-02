@@ -2,12 +2,14 @@
 #include <QStandardPaths>
 #include <QTimerEvent>
 #include <QtEndian>
+#include <QDateTime>
 
 #include "SiYiCamera.h"
 
 SiYiCamera::SiYiCamera(QObject *parent)
     : SiYiTcpClient("192.168.144.25", 37256)
 {
+    sendSetUTC();
     m_laserTimer = new QTimer(this);
     m_laserTimer->setInterval(1000);
     connect(m_laserTimer, &QTimer::timeout, this, [=]() {
@@ -141,6 +143,21 @@ bool SiYiCamera::sendRecodingCommand(int cmd)
     uint8_t cmdId = 0x81;
     QByteArray body;
     body.append(char(cmd));
+
+    QByteArray msg = packMessage(0x01, cmdId, body);
+    sendMessage(msg);
+    return true;
+}
+
+bool SiYiCamera::sendSetUTC()
+{
+    uint8_t cmdId = 0x30;
+    QByteArray body;
+    QDateTime utc;
+    utc = QDateTime::currentDateTimeUtc();
+    qInfo() << "UTC:" << utc.toString("yyyy-MM-dd hh:mm:ss");
+    qInfo() << "UTC:" << utc.toTime_t();
+    body.append(uint64_t(utc.toTime_t()));
 
     QByteArray msg = packMessage(0x01, cmdId, body);
     sendMessage(msg);

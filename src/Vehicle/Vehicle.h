@@ -289,6 +289,8 @@ public:
     Q_PROPERTY(bool                     leafMRFTX                       READ leafMRFTX              WRITE setLeafMRFTX          NOTIFY leafMRFTXChanged)
     Q_PROPERTY(bool                     leafMRFTY                       READ leafMRFTY              WRITE setLeafMRFTY          NOTIFY leafMRFTYChanged)
     Q_PROPERTY(QString                  leafProfile                   READ leafProfile         WRITE setLeafProfile       NOTIFY leafProfileChanged)
+    Q_PROPERTY(bool                     leafFCArmed                     READ leafFCArmed            WRITE setLeafFCArmed        NOTIFY leafFCArmedChanged)
+
 
     Q_PROPERTY(ParameterManager*        parameterManager    READ parameterManager   CONSTANT)
     Q_PROPERTY(VehicleLinkManager*      vehicleLinkManager  READ vehicleLinkManager CONSTANT)
@@ -569,6 +571,7 @@ public:
     void setLeafMRFTAlt                     (bool state);
     void setLeafMRFTX                       (bool state);
     void setLeafMRFTY                       (bool state);
+    void setLeafFCArmed                     (bool armed);
 
     bool airship() const;
 
@@ -700,6 +703,7 @@ public:
     bool            leafMRFTAlt                 () const { return _leafMRFTAlt; }
     bool            leafMRFTX                   () const { return _leafMRFTX; }
     bool            leafMRFTY                   () const { return _leafMRFTY; }
+    bool            leafFCArmed                 () const { return _leafFCArmed; }
     /// Get the maximum MAVLink protocol version supported
     /// @return the maximum version
     unsigned        maxProtoVersion         () const { return _maxProtoVersion; }
@@ -1047,6 +1051,7 @@ signals:
     void leafMRFTXChanged                    (bool x);
     void leafMRFTYChanged                    (bool y);
     void leafProfileChanged               (QString leafProfile);
+    void leafFCArmedChanged                  (bool armed);
 
     void firmwareVersionChanged         ();
     void firmwareCustomVersionChanged   ();
@@ -1269,6 +1274,7 @@ private:
     bool            _leafMRFTAlt = false;
     bool            _leafMRFTX = false;
     bool            _leafMRFTY = false;
+    bool            _leafFCArmed = false;
 
     SysStatusSensorInfo _sysStatusSensorInfo;
 
