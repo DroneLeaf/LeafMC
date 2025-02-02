@@ -226,6 +226,8 @@ signals:
     void stopSiYiZoomIn             ();
     void startSiYiZoomOut           ();
     void stopSiYiZoomOut            ();
+    void startSiYiCtrl              ();
+    void stopSiYiCtrl               ();
 
 protected:
     void    _setDefaultCalibration  ();
@@ -313,6 +315,11 @@ protected:
     // SiYi zoom timer callback
     QTimer* _siyiZoomInTimer = nullptr;
     QTimer* _siyiZoomOutTimer = nullptr;
+    QTimer* _siyiCtrlTimer = nullptr;
+
+    float _siyiCtrlYaw = 0,
+        _siyiCtrlPitch = 0;
+    bool _siyiCtrlSendEnabled = false;
 
 private:
     static const char*  _rgFunctionSettingsKey[maxFunction];
@@ -377,4 +384,7 @@ private slots:
     void _stopZoomOutTimer();
     void _siyiZoomInTimeout();
     void _siyiZoomOutTimeout();
+    void _siyiCtrlTimeout();
+    void _siyiCtrlStart();
+    void _siyiCtrlStop();
 };
