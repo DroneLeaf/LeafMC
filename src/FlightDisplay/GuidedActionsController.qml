@@ -237,8 +237,8 @@ Item {
     // FC relevant properties
     property bool   _fcArmed:               false
     property bool   _fcTookOff:             false
-    property bool   _fcMRFTPitchOn:         _activeVehicle ? _activeVehicle.leafMRFTRoll : false
-    property bool   _fcMRFTRollOn:          _activeVehicle ? _activeVehicle.leafMRFTPitch : false
+    property bool   _fcMRFTPitchOn:         _activeVehicle ? _activeVehicle.leafMRFTPitch : false
+    property bool   _fcMRFTRollOn:          _activeVehicle ? _activeVehicle.leafMRFTRoll : false
     property bool   _fcMRFTAltOn:           _activeVehicle ? _activeVehicle.leafMRFTAlt : false
     property bool   _fcMRFTXOn:             _activeVehicle ? _activeVehicle.leafMRFTX : false
     property bool   _fcMRFTYOn:             _activeVehicle ? _activeVehicle.leafMRFTY : false
