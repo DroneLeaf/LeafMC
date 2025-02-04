@@ -18,6 +18,6 @@ GuidedToolStripAction {
     message:    _guidedController.landMessage
     iconSource: "/res/land.svg"
     visible:    true
-    enabled:    _guidedController._fcTookOff && !hideLand && !isLeafArmed
+    enabled:    _guidedController._fcTookOff && !hideLand && isLeafArmed
     actionID:   _guidedController.actionLand
 }
