@@ -10,10 +10,14 @@
 import QGroundControl.FlightDisplay 1.0
 
 GuidedToolStripAction {
+    property string leafMode: _guidedController._activeVehicle.leafMode
+    property bool   hideLand: leafMode.startsWith("RC Stabilized") || leafMode.startsWith("LEARNING INNER")
+    property bool isLeafArmed: _guidedController._activeVehicle.leafFCArmed
+
     text:       _guidedController.landTitle
     message:    _guidedController.landMessage
     iconSource: "/res/land.svg"
     visible:    true
-    enabled:    _guidedController._fcTookOff
+    enabled:    _guidedController._fcTookOff && !hideLand && !isLeafArmed
     actionID:   _guidedController.actionLand
 }

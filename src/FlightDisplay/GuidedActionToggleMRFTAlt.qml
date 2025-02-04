@@ -14,7 +14,7 @@ GuidedToolStripAction {
 
     text:       _guidedController._fcMRFTAltOn ? _guidedController.toggleMRFTAltOffTitle : _guidedController.toggleMRFTAltOnTitle
     iconSource: "/res/up-down.svg"
-    visible:    leafMode.startsWith("LEARNING")
+    visible:    leafMode.startsWith("Refined")
     enabled:    true
     actionID:   _guidedController.actionMRFTAltToggle
 }

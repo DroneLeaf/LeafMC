@@ -11,10 +11,11 @@ import QGroundControl.FlightDisplay 1.0
 
 GuidedToolStripAction {
     property string leafMode: _guidedController._activeVehicle.leafMode
-
+    property bool showTraj: leafMode.startsWith("Refined")
+    
     text:       _guidedController.executeCircleTrajTitle
     iconSource: "/res/circle-arrows.svg"
-    visible:    leafMode.length > 0
+    visible:    leafMode.length > 0 && showTraj
     enabled:    true
     actionID:   _guidedController.actionExecuteCircleTraj
 }

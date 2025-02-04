@@ -1104,6 +1104,7 @@ private slots:
     void _handleFlightModeChanged           (const QString& flightMode);
     void _announceArmedChanged              (bool armed);
     void _announceLeafModeChanged           (QString mode);
+    void _announceLeafStatusChanged         (QString status);
     void _offlineCruiseSpeedSettingChanged  (QVariant value);
     void _offlineHoverSpeedSettingChanged   (QVariant value);
     void _handleTextMessage                 (int newCount);

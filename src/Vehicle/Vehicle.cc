@@ -201,6 +201,8 @@ Vehicle::Vehicle(LinkInterface*             link,
     connect(this, &Vehicle::armedChanged,               this, &Vehicle::_announceArmedChanged);
 
     connect(this, &Vehicle::leafModeChanged,               this, &Vehicle::_announceLeafModeChanged);
+    connect(this, &Vehicle::leafStatusChanged,             this, &Vehicle::_announceLeafStatusChanged);
+
 
     connect(_toolbox->multiVehicleManager(), &MultiVehicleManager::parameterReadyVehicleAvailableChanged, this, &Vehicle::_vehicleParamLoaded);
 
@@ -509,13 +511,15 @@ void Vehicle::_commonInit()
 
     // leafModeNames fill
     _leafModeNames = new QMap<int, QString>();
-    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_RC_Stabilized, QString("RC_Stabilized"));
-    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_RC_POSITION, QString("RC_POSITION"));
-    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_WAYPOINT_MISSION, QString("WAYPOINT_MISSION"));
-    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_INNER, QString("LEARNING_INNER"));
-    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_OUTER, QString("LEARNING_OUTER"));
-    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_FULL, QString("LEARNING_FULL"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_RC_Stabilized, QString("RC Stabilized"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_RC_POSITION, QString("RC POSITION"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_WAYPOINT_MISSION, QString("WAYPOINT MISSION"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_INNER, QString("LEARNING INNER"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_OUTER, QString("LEARNING OUTER"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_FULL, QString("LEARNING FULL"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_INSPECTION, QString("INSPECTION"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_REFINED_TUNING_ONLINE, QString("Refined Tuning"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_REFINED_TUNING_OFFLINE, QString("Refined Tuning - Collect Data"));
 
     // leafStatusTexts
     _leafStatusTexts = new QMap<LEAF_STATUS, QString>();
@@ -530,6 +534,17 @@ void Vehicle::_commonInit()
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_ARMED, QString("ARMED"));
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_DISARMED, QString("DISARMED"));
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_NOT_READY, QString("NOT_READY"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTION_READY, QString("INSPECTION_READY"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_GOING_TO_SLAP_1, QString("GOING_TO_SLAP_1"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_GOING_TO_SLAP_2, QString("GOING_TO_SLAP_2"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTING_SLAP_1, QString("INSPECTING_SLAP_1"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTING_SLAP_2, QString("INSPECTING_SLAP_2"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTING_SLAP_1_FINISHED, QString("INSPECTION_SLAP_1_FINISHED"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTING_SLAP_2_FINISHED, QString("INSPECTION_SLAP_2_FINISHED"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTING_FINISHED, QString("INSPECTION_FINISHED"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTING_ABORTED, QString("INSPECTION_ABORTED"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTING_PAUSED, QString("INSPECTION_PAUSED"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_RETURNING_TO_HOME, QString("RETURNING_TO_HOME"));
 
 }
 
@@ -2479,21 +2494,16 @@ void Vehicle::setLeafMode(const QString& leafMode)
 {
     LEAF_MODE     mode;
     qCInfo(VehicleLog) << "mode: " << mode;
+    bool leafModeFound = false;
+    for(auto k : _leafModeNames->keys()) {
+        if(leafMode.compare(_leafModeNames->value(k)) == 0) {
+            mode = (LEAF_MODE)k;
+            leafModeFound = true;
+            break;
+        }
+    }
 
-
-    if(leafMode.compare("RC_POSITION", Qt::CaseInsensitive) == 0) {
-        mode = LEAF_MODE_RC_POSITION;
-    } else if(leafMode.compare("RC_STABILIZED", Qt::CaseInsensitive) == 0) {
-        mode = LEAF_MODE_RC_Stabilized;
-    } else if(leafMode.compare("WAYPOINT_MISSION", Qt::CaseInsensitive) == 0) {
-        mode = LEAF_MODE_WAYPOINT_MISSION;
-    } else if(leafMode.compare("LEARNING_INNER", Qt::CaseInsensitive) == 0) {
-        mode = LEAF_MODE_LEARNING_INNER;
-    } else if(leafMode.compare("LEARNING_OUTER", Qt::CaseInsensitive) == 0) {
-        mode = LEAF_MODE_LEARNING_OUTER;
-    } else if(leafMode.compare("LEARNING_FULL", Qt::CaseInsensitive) == 0) {
-        mode = LEAF_MODE_LEARNING_FULL;
-    } else {
+    if(!leafModeFound) {
         qCWarning(VehicleLog) << "Unknown leaf mode:" << leafMode;
         return;
     }
@@ -2519,7 +2529,6 @@ void Vehicle::setLeafMode(const QString& leafMode)
                                    sharedLink->mavlinkChannel(),
                                    &msg,
                                    id(),
-
                                    mode);
 
                                    
@@ -2936,6 +2945,11 @@ void Vehicle::_announceArmedChanged(bool armed)
 void Vehicle::_announceLeafModeChanged(QString mode)
 {
     _say(QString("%1 LEAF Mode is %2").arg(_vehicleIdSpeech()).arg(tr(mode.toStdString().c_str())));
+}
+
+void Vehicle::_announceLeafStatusChanged(QString status)
+{
+    _say(QString("%1").arg(tr(status.toStdString().c_str())));
 }
 
 void Vehicle::_setFlying(bool flying)

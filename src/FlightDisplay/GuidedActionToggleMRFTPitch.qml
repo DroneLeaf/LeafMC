@@ -14,7 +14,7 @@ GuidedToolStripAction {
 
     text:       _guidedController._fcMRFTPitchOn ? _guidedController.toggleMRFTPitchOffTitle : _guidedController.toggleMRFTPitchOnTitle
     iconSource: "/res/firmware/swing-arrow.png"
-    visible:    leafMode.startsWith("LEARNING")
+    visible:    leafMode.startsWith("Refined")
     enabled:    true
     actionID:   _guidedController.actionMRFTPitchToggle
 }

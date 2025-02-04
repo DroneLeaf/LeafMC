@@ -14,7 +14,7 @@ GuidedToolStripAction {
 
     text:       _guidedController._fcMRFTXOn ? _guidedController.toggleMRFTXOffTitle : _guidedController.toggleMRFTXOnTitle
     iconSource: "/res/left-right.svg"
-    visible:    leafMode.startsWith("LEARNING")
+    visible:    leafMode.startsWith("Refined")
     enabled:    true
     actionID:   _guidedController.actionMRFTXToggle
 }
