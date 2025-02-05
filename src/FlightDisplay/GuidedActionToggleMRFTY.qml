@@ -11,10 +11,11 @@ import QGroundControl.FlightDisplay 1.0
 
 GuidedToolStripAction {
     property string leafMode: _guidedController._activeVehicle.leafMode
+    property bool   hideMRFTY: !_guidedController._fcMRFTPitchOn && !_guidedController._fcMRFTRollOn && !_guidedController._fcMRFTXOn && !_guidedController._fcMRFTAltOn
 
     text:       _guidedController._fcMRFTYOn ? _guidedController.toggleMRFTYOffTitle : _guidedController.toggleMRFTYOnTitle
     iconSource: "/res/left-right.svg"
     visible:    leafMode.startsWith("Refined")
-    enabled:    true
+    enabled:    hideMRFTY
     actionID:   _guidedController.actionMRFTYToggle
 }
