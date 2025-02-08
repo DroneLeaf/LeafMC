@@ -15,7 +15,7 @@ GuidedToolStripAction {
 
     text:       _guidedController._fcMRFTXOn ? _guidedController.toggleMRFTXOffTitle : _guidedController.toggleMRFTXOnTitle
     iconSource: "/res/left-right.svg"
-    visible:    leafMode.startsWith("Refined")
+    visible:    leafMode == "Refined Tuning - Collect Data"
     enabled:    hideMRFTX
     actionID:   _guidedController.actionMRFTXToggle
 }

@@ -15,7 +15,7 @@ GuidedToolStripAction {
 
     text:       _guidedController._fcMRFTRollOn ? _guidedController.toggleMRFTRollOffTitle : _guidedController.toggleMRFTRollOnTitle
     iconSource: "/res/firmware/swing-arrow.png"
-    visible:    leafMode.startsWith("Refined")
+    visible:    leafMode == "Refined Tuning - Collect Data"
     enabled:    hideMRFTRoll
     actionID:   _guidedController.actionMRFTRollToggle
 }

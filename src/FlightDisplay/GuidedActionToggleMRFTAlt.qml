@@ -15,7 +15,7 @@ GuidedToolStripAction {
 
     text:       _guidedController._fcMRFTAltOn ? _guidedController.toggleMRFTAltOffTitle : _guidedController.toggleMRFTAltOnTitle
     iconSource: "/res/up-down.svg"
-    visible:    leafMode.startsWith("Refined")
+    visible:    leafMode == "Refined Tuning - Collect Data"
     enabled:    hideMRFTAlt
     actionID:   _guidedController.actionMRFTAltToggle
 }

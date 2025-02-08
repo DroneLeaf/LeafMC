@@ -2418,9 +2418,7 @@ QStringList Vehicle::leafModes()
     QStringList ret;
 
     if(_leafClientName.compare("ENEC") == 0) {
-        ret += (QString)_leafModeNames->value(LEAF_MODE::LEAF_MODE_RC_Stabilized);
         ret += (QString)_leafModeNames->value(LEAF_MODE::LEAF_MODE_RC_POSITION);
-        ret += (QString)_leafModeNames->value(LEAF_MODE::LEAF_MODE_WAYPOINT_MISSION);
         ret += (QString)_leafModeNames->value(LEAF_MODE::LEAF_MODE_INSPECTION);
         return ret;
     } else {
