@@ -4,13 +4,6 @@
 !include Win\Propkey.nsh
 !include "FileFunc.nsh"
 
-!define INSTALLER_ICON "C:\\LeafMC\\deploy\\windows\\WindowsQGC.ico"
-!define HEADER_BITMAP "C:\\LeafMC\\deploy\\windows\\installheader.bmp"
-!define APPNAME "QGroundControl"
-!define DESTDIR "C:\\LeafMC\\build\\Desktop-Release"
-!define DRIVER_MSI "C:\\LeafMC\\deploy\\windows\\driver.msi"
-!define EXENAME "QGroundControl"
-
 !macro DemoteShortCut target
     !insertmacro ComHlpr_CreateInProcInstance ${CLSID_ShellLink} ${IID_IShellLink} r0 ""
     ${If} $0 <> 0

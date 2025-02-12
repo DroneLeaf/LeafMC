@@ -871,21 +871,6 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         }
     }
         break;
-#ifdef DAILY_BUILD // Disable use of development/WIP MAVLink messages for release builds
-        case MAVLINK_MSG_ID_AVAILABLE_MODES_MONITOR:
-    {
-        // Avoid duplicate requests during initial connection setup
-        if (!_initialConnectStateMachine || !_initialConnectStateMachine->active()) {
-            mavlink_available_modes_monitor_t availableModesMonitor;
-            mavlink_msg_available_modes_monitor_decode(&message, &availableModesMonitor);
-            _standardModes->availableModesMonitorReceived(availableModesMonitor.seq);
-        }
-        break;
-    }
-    case MAVLINK_MSG_ID_CURRENT_MODE:
-        _handleCurrentMode(message);
-        break;
-#endif // DAILY_BUILD
 
         // Following are ArduPilot dialect messages
 #if !defined(NO_ARDUPILOT_DIALECT)
@@ -2492,7 +2477,6 @@ void Vehicle::setFlightMode(const QString& flightMode)
 void Vehicle::setLeafMode(const QString& leafMode)
 {
     LEAF_MODE     mode;
-    qCInfo(VehicleLog) << "mode: " << mode;
     bool leafModeFound = false;
     for(auto k : _leafModeNames->keys()) {
         if(leafMode.compare(_leafModeNames->value(k)) == 0) {
@@ -3074,7 +3058,6 @@ void Vehicle::leafArmFC() {
     
 
     mavlink_message_t arm_msg;
-    uint8_t arm = 1;
     mavlink_msg_leaf_do_arm_idle_pack_chan(_mavlink->getSystemId(),
                                       _mavlink->getComponentId(),
                                       sharedLink->mavlinkChannel(),

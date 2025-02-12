@@ -53,7 +53,7 @@ LinuxBuild {
 
 WindowsBuild {
     RC_ICONS = resources/icons/qgroundcontrol.ico
-    CONFIG += resources_big installer
+    CONFIG += resources_big
 }
 
 #
@@ -1464,9 +1464,9 @@ LinuxBuild {
     INSTALLS += target share_qgroundcontrol share_icons share_metainfo share_applications
 }
 
-
 # Installer targets
 #
+
 
 CONFIG += installer
 
