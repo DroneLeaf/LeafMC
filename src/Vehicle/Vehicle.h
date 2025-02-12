@@ -1527,7 +1527,7 @@ private:
     Actuators*                      _actuators                  = nullptr;
     RemoteIDManager*                _remoteIDManager            = nullptr;
     StandardModes*                  _standardModes              = nullptr;
-    QMap<int, QString>*       _leafModeNames              = nullptr;
+    QMap<int, QString>*             _leafModeNames              = nullptr;
     QMap<LEAF_STATUS, QString>*     _leafStatusTexts            = nullptr;
 
     static const char* _rollFactName;

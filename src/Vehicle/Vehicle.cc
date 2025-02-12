@@ -520,6 +520,7 @@ void Vehicle::_commonInit()
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_INSPECTION, QString("INSPECTION"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_REFINED_TUNING_ONLINE, QString("Refined Tuning"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_REFINED_TUNING_OFFLINE, QString("Refined Tuning - Collect Data"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_REFINED_TUNING_OUTER, QString("Refined Tuning Outer - Collect Data"));
 
     // leafStatusTexts
     _leafStatusTexts = new QMap<LEAF_STATUS, QString>();
@@ -2417,9 +2418,7 @@ QStringList Vehicle::leafModes()
     QStringList ret;
 
     if(_leafClientName.compare("ENEC") == 0) {
-        ret += (QString)_leafModeNames->value(LEAF_MODE::LEAF_MODE_RC_Stabilized);
         ret += (QString)_leafModeNames->value(LEAF_MODE::LEAF_MODE_RC_POSITION);
-        ret += (QString)_leafModeNames->value(LEAF_MODE::LEAF_MODE_WAYPOINT_MISSION);
         ret += (QString)_leafModeNames->value(LEAF_MODE::LEAF_MODE_INSPECTION);
         return ret;
     } else {
