@@ -27,7 +27,7 @@ message(Qt version $$[QT_VERSION])
 
 include(QGCCommon.pri)
 
-TARGET   = LeafMC
+TARGET   = QGroundControl
 TEMPLATE = app
 QGCROOT  = $$PWD
 
@@ -53,7 +53,7 @@ LinuxBuild {
 
 WindowsBuild {
     RC_ICONS = resources/icons/qgroundcontrol.ico
-    CONFIG += resources_big
+    CONFIG += resources_big installer
 }
 
 #
@@ -435,7 +435,7 @@ HEADERS += \
     src/SiYi/SiYiCamera.h \
     src/SiYi/SiYiCrcApi.h \
     src/SiYi/SiYiTcpClient.h \
-    src/SiYi/SiYiTransmitter.h
+    src/SiYi/SiYiTransmitter.h \
     src/QmlControls/CustomAction.h \
     src/QmlControls/CustomActionManager.h \
     src/QmlControls/QmlUnitsConversion.h \
@@ -1463,3 +1463,11 @@ LinuxBuild {
 
     INSTALLS += target share_qgroundcontrol share_icons share_metainfo share_applications
 }
+
+
+# Installer targets
+#
+
+CONFIG += installer
+
+include(QGCPostLinkInstaller.pri)
