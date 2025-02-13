@@ -1466,8 +1466,6 @@ LinuxBuild {
 
 # Installer targets
 #
-
-
 CONFIG += installer
 
-include(QGCPostLinkInstaller.pri)
+include(QGCPostLinkInstaller.pri)android: include(C:/Users/amerg/AppData/Local/Android/Sdk/android_openssl/openssl.pri)
