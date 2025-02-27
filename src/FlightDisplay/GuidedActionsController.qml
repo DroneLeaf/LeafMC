@@ -72,11 +72,11 @@ Item {
     readonly property string toggleMRFTYOffTitle:           qsTr("Learn-Y ON")
     readonly property string armFCTitle:                    qsTr("Idle")
     readonly property string disarmFCTitle:                 qsTr("Disarm")
-    readonly property string inspectSlap1Title:             qsTr("Inspect S1")
-    readonly property string inspectSlap2Title:             qsTr("Inspect S2")
+    readonly property string inspectSlap1Title:             qsTr("Inspect N")
+    readonly property string inspectSlap2Title:             qsTr("Inspect S")
     readonly property string inspectSlapsTitle:             qsTr("Inspect All")
-    readonly property string pausePipelineTitle:            qsTr("Pause Pipe")
-    readonly property string resumePipelineTitle:           qsTr("Resume Pipe")
+    readonly property string pausePipelineTitle:            qsTr("Pause")
+    readonly property string resumePipelineTitle:           qsTr("Resume")
 
 
     readonly property string armMessage:                        qsTr("Arm the vehicle.")
@@ -117,11 +117,11 @@ Item {
     readonly property string toggleMRFTYOffMessage:             qsTr("Switch Y Learning OFF")
     readonly property string armFCMessage:                      qsTr("Arm FC")
     readonly property string disarmFCMessage:                   qsTr("Disarm FC")
-    readonly property string inspectSlap1Message:               qsTr("Inspect Slap 1")
-    readonly property string inspectSlap2Message:               qsTr("Inspect Slap 2")
-    readonly property string inspectSlapsMessage:               qsTr("Inspect All Slaps")
-    readonly property string pausePipelineMessage:              qsTr("Pause Pipeline")
-    readonly property string resumePipelineMessage:             qsTr("Resume Pipeline")
+    readonly property string inspectSlap1Message:               qsTr("Inspect North Face")
+    readonly property string inspectSlap2Message:               qsTr("Inspect South Face")
+    readonly property string inspectSlapsMessage:               qsTr("Inspect All Around")
+    readonly property string pausePipelineMessage:              qsTr("Pause Mission")
+    readonly property string resumePipelineMessage:             qsTr("Resume Mission")
 
     readonly property int actionRTL:                        1
     readonly property int actionLand:                       2
