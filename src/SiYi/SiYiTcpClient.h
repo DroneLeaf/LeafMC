@@ -7,6 +7,7 @@
 #include <QTcpSocket>
 
 #define PROTOCOL_STX 0x5566AABB
+#define PROTOCOL_STX_V2 0x5566
 
 class SiYiTcpClient : public QThread
 {
@@ -33,11 +34,14 @@ protected:
     quint16 port_;
 protected:
     quint16 sequence();
+    quint16 sequenceV2();
     void run() override;
     quint32 checkSum32(const QByteArray &bytes);
+    quint16 checkSum16(const QByteArray &bytes);
     void resetIp(const QString &ip);
 private:
     quint16 sequence_;
+    quint16 sequence_2;
 signals:
     void connected();
     void disconnected();

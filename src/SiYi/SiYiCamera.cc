@@ -9,7 +9,6 @@
 SiYiCamera::SiYiCamera(QObject *parent)
     : SiYiTcpClient("192.168.144.25", 37256)
 {
-    sendSetUTC();
     m_laserTimer = new QTimer(this);
     m_laserTimer->setInterval(1000);
     connect(m_laserTimer, &QTimer::timeout, this, [=]() {
@@ -25,6 +24,7 @@ SiYiCamera::SiYiCamera(QObject *parent)
         getRecordingState();
         getSplitMode();
         m_laserTimer->start();
+        sendSetUTC();
 #if 0
         setLogState(1);
 #endif
@@ -38,6 +38,8 @@ SiYiCamera::SiYiCamera(QObject *parent)
     if (!tmp.isEmpty()) {
         ip_ = tmp;
     }
+    
+
 }
 
 SiYiCamera::~SiYiCamera()
@@ -94,6 +96,8 @@ bool SiYiCamera::autoFocus(int x, int y, int w, int h)
 
     QByteArray msg = packMessage(0x01, cmdId, body);
     sendMessage(msg);
+
+
     return true;
 }
 
@@ -132,9 +136,13 @@ bool SiYiCamera::sendCommand(int cmd)
     uint8_t cmdId = 0x9f;
     QByteArray body;
     body.append(char(cmd));
-
+    if (cmd==0){ //take photo
+        sendSetUTC();
+    }
     QByteArray msg = packMessage(0x00, cmdId, body);
     sendMessage(msg);
+    qInfo() << "sendCommand: " << cmd;
+
     return true;
 }
 
@@ -152,14 +160,16 @@ bool SiYiCamera::sendRecodingCommand(int cmd)
 bool SiYiCamera::sendSetUTC()
 {
     uint8_t cmdId = 0x30;
-    QByteArray body;
     QDateTime utc;
     utc = QDateTime::currentDateTimeUtc();
     qInfo() << "UTC:" << utc.toString("yyyy-MM-dd hh:mm:ss");
     qInfo() << "UTC:" << utc.toTime_t();
-    body.append(uint64_t(utc.toTime_t()));
-
-    QByteArray msg = packMessage(0x01, cmdId, body);
+    // body.append(uint64_t(utc.toTime_t()*1000000));
+    uint64_t test_time= uint64_t(1721266588000000);
+    QByteArray body(reinterpret_cast<const char*>(&test_time), sizeof(test_time));
+    // QByteArray msg = packMessage(0x01, cmdId, body);
+    QByteArray msg = packMessageV2(0x01, cmdId, body);
+    // qInfo() << "sendSetUTC";
     sendMessage(msg);
     return true;
 }
@@ -471,6 +481,41 @@ QByteArray SiYiCamera::packMessage(quint8 control, quint8 cmd,
     return msg;
 }
 
+QByteArray SiYiCamera::packMessageV2(quint8 control, quint8 cmd,
+                                   const QByteArray &payload)
+{
+    qInfo() << "packMessageV2";
+    ProtocolMessageContextV2 ctx;
+    ctx.header.stx = PROTOCOL_STX_V2;
+    ctx.header.control = control;
+    ctx.header.dataLength = payload.length();
+    ctx.header.sequence = sequenceV2();
+    ctx.header.cmdId = cmd;
+    ctx.data = payload;
+    ctx.crc = packetCheckSum16(&ctx);
+
+    qInfo() << "packMessageV2 ctx.header.stx:" << ctx.header.stx;
+    qInfo() << "packMessageV2 ctx.header.control:" << ctx.header.control;
+    qInfo() << "packMessageV2 ctx.header.dataLength:" << ctx.header.dataLength;
+    qInfo() << "packMessageV2 ctx.header.sequence:" << ctx.header.sequence;
+    qInfo() << "packMessageV2 ctx.header.cmdId:" << ctx.header.cmdId;
+
+    QByteArray msg;
+    quint16 beStx = qToBigEndian<quint16>(ctx.header.stx);
+
+    msg.append(reinterpret_cast<char*>(&beStx), 2);                 // STX
+    msg.append(reinterpret_cast<char*>(&ctx.header.control), 1);    // CTRL
+    msg.append(reinterpret_cast<char*>(&ctx.header.dataLength), 2); // Data_len
+    msg.append(reinterpret_cast<char*>(&ctx.header.sequence), 2);   // SEQ
+    msg.append(reinterpret_cast<char*>(&ctx.header.cmdId), 1);      // CMD_ID
+    msg.append(ctx.data);                                           // DATA
+    msg.append(reinterpret_cast<char*>(&ctx.crc), 2);               // CRC16(packet)
+
+    qInfo() << "packMessageV2 Output:" << msg.toHex().toUpper();
+
+    return msg;
+}
+
 quint32 SiYiCamera::headerCheckSum32(ProtocolMessageHeaderContext *ctx)
 {
     if (ctx) {
@@ -503,6 +548,27 @@ quint32 SiYiCamera::packetCheckSum32(ProtocolMessageContext *ctx)
         bytes.append(ctx->data);
 
         return checkSum32(bytes);
+    }
+
+    return 0;
+}
+
+quint16 SiYiCamera::packetCheckSum16(ProtocolMessageContextV2 *ctx)
+{
+    if (ctx) {
+        QByteArray bytes;
+        quint16 beStx = qToBigEndian<quint16>(ctx->header.stx);
+        bytes.append(reinterpret_cast<char*>(&beStx), 2);
+        bytes.append(reinterpret_cast<char*>(&ctx->header.control), 1);
+        bytes.append(reinterpret_cast<char*>(&ctx->header.dataLength), 2);
+        bytes.append(reinterpret_cast<char*>(&ctx->header.sequence), 2);
+        bytes.append(reinterpret_cast<char*>(&ctx->header.cmdId), 1);
+
+        bytes.append(ctx->data);
+
+        qInfo() << "packetCheckSum16 Output:" << bytes.toHex().toUpper();
+
+        return checkSum16(bytes);
     }
 
     return 0;

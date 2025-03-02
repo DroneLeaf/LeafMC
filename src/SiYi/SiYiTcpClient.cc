@@ -71,6 +71,13 @@ quint16 SiYiTcpClient::sequence()
     return seq;
 }
 
+quint16 SiYiTcpClient::sequenceV2()
+{
+    quint16 seq = sequence_2;
+    sequence_2 += 1;
+    return seq;
+}
+
 void SiYiTcpClient::run()
 {
     QTcpSocket *tcpClient = new QTcpSocket();
@@ -191,6 +198,11 @@ void SiYiTcpClient::run()
 quint32 SiYiTcpClient::checkSum32(const QByteArray &bytes)
 {
     return SiYiCrcApi::calculateCrc32(bytes);
+}
+
+quint16 SiYiTcpClient::checkSum16(const QByteArray &bytes)
+{
+    return SiYiCrcApi::calculateCrc16(bytes);
 }
 
 void SiYiTcpClient::resetIp(const QString &ip)
