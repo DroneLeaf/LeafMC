@@ -163,13 +163,12 @@ bool SiYiCamera::sendSetUTC()
     QDateTime utc;
     utc = QDateTime::currentDateTimeUtc();
     qInfo() << "UTC:" << utc.toString("yyyy-MM-dd hh:mm:ss");
-    qInfo() << "UTC:" << utc.toTime_t();
-    // body.append(uint64_t(utc.toTime_t()*1000000));
-    uint64_t test_time= uint64_t(1721266588000000);
-    QByteArray body(reinterpret_cast<const char*>(&test_time), sizeof(test_time));
+    uint64_t utc_time= utc.toTime_t();
+    utc_time = utc_time*1000000;
+    qInfo() << "UTC Time:" << utc_time;
+    QByteArray body(reinterpret_cast<const char*>(&utc_time), sizeof(utc_time));
     // QByteArray msg = packMessage(0x01, cmdId, body);
     QByteArray msg = packMessageV2(0x01, cmdId, body);
-    // qInfo() << "sendSetUTC";
     sendMessage(msg);
     return true;
 }
