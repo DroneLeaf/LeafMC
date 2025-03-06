@@ -163,13 +163,13 @@ bool SiYiCamera::sendSetUTC()
     QDateTime utc;
     utc = QDateTime::currentDateTimeUtc();
     qInfo() << "UTC:" << utc.toString("yyyy-MM-dd hh:mm:ss");
-    uint64_t utc_time= utc.toTime_t();
-    utc_time = utc_time*1000000;
+//    uint64_t *utc_time_p= reinterpret_cast<uint64_t*>(&t, sizeof(t));
+    uint64_t utc_time = utc.toTime_t()*uint64_t(1000000);
     qInfo() << "UTC Time:" << utc_time;
     QByteArray body(reinterpret_cast<const char*>(&utc_time), sizeof(utc_time));
     // QByteArray msg = packMessage(0x01, cmdId, body);
     QByteArray msg = packMessageV2(0x01, cmdId, body);
-    sendMessage(msg);
+    sendmessageUdp(msg);
     return true;
 }
 
@@ -340,6 +340,11 @@ QByteArray SiYiCamera::heartbeatMessage()
     return packMessage(0x01, 0x80, QByteArray());
 }
 
+QByteArray SiYiCamera::heartbeatMessageUdp()
+{
+    return packMessageV2(0x01, 0x80, QByteArray());
+}
+
 void SiYiCamera::analyzeMessage()
 {
     while (rxBytes_.length() >= 4) {
@@ -452,6 +457,70 @@ void SiYiCamera::analyzeMessage()
     }
 }
 
+void SiYiCamera::analyzeUDPMessage()
+{
+    while (u_rxBytes_.length() >= 4) {
+        if ((u_rxBytes_.at(0) == char(0x55)) && (u_rxBytes_.at(1) == char(0x66))) {
+            int headerLength = 2+1+2+2+1;
+            if (u_rxBytes_.length() >= headerLength) {
+                ProtocolMessageHeaderContextV2 header;
+                quint16 *ptr16 = nullptr;
+                quint8 *ptr8 = nullptr;
+                int offset = 0;
+                ptr16 = reinterpret_cast<quint16*>(u_rxBytes_.data());
+                header.stx = *ptr16;
+                offset += 2;
+
+                ptr8 = reinterpret_cast<quint8*>(u_rxBytes_.data() + offset);
+                header.control = *ptr8;
+                offset += 1;
+
+                ptr16 = reinterpret_cast<quint16*>(u_rxBytes_.data() + offset);
+                header.dataLength = *ptr16;
+                offset += 2;
+
+                ptr16 = reinterpret_cast<quint16*>(u_rxBytes_.data() + offset);
+                header.sequence = *ptr16;
+                offset += 2;
+                
+                ptr8 = reinterpret_cast<quint8*>(u_rxBytes_.data() + offset);
+                header.cmdId = *ptr8;
+#if 0
+                header.stx = qToBigEndian<quint16>(header.stx);
+                header.control = qToBigEndian<quint8>(header.control);
+                header.dataLength = qToBigEndian<quint16>(header.dataLength);
+                header.sequence = qToBigEndian<quint16>(header.sequence);
+                header.cmdId = qToBigEndian<quint8>(header.cmdId);
+#endif
+
+                ProtocolMessageContextV2 msg;
+                msg.header = header;
+                int msgLen = headerLength + header.dataLength + 2;
+                if (u_rxBytes_.length() >= msgLen) {
+                    msg.data = QByteArray(u_rxBytes_.data() + headerLength);
+                    int offset = headerLength + header.dataLength;
+                    msg.crc = *reinterpret_cast<quint16*>(u_rxBytes_.data() + offset);
+                    msg.crc = qToBigEndian<quint16>(msg.crc);
+                } else {
+                    // 数据帧未完整
+                    break;
+                }
+
+                QByteArray packet = QByteArray(u_rxBytes_.data(), msgLen);
+                const QString info = QString("[%1:%2]:").arg(ip_, QString::number(37260));
+                QString id = QString("0x%1").arg(QString::number(msg.header.cmdId, 8), 1, '0');
+                qWarning() << info << "UDP message received, cmd id:" << id;
+
+                u_rxBytes_.remove(0, msgLen);
+            } else {
+                break;
+            }
+        } else {
+            u_rxBytes_.remove(0, 1);
+        }
+    }
+}               
+
 QByteArray SiYiCamera::packMessage(quint8 control, quint8 cmd,
                                    const QByteArray &payload)
 {
@@ -483,7 +552,6 @@ QByteArray SiYiCamera::packMessage(quint8 control, quint8 cmd,
 QByteArray SiYiCamera::packMessageV2(quint8 control, quint8 cmd,
                                    const QByteArray &payload)
 {
-    qInfo() << "packMessageV2";
     ProtocolMessageContextV2 ctx;
     ctx.header.stx = PROTOCOL_STX_V2;
     ctx.header.control = control;
@@ -492,12 +560,6 @@ QByteArray SiYiCamera::packMessageV2(quint8 control, quint8 cmd,
     ctx.header.cmdId = cmd;
     ctx.data = payload;
     ctx.crc = packetCheckSum16(&ctx);
-
-    qInfo() << "packMessageV2 ctx.header.stx:" << ctx.header.stx;
-    qInfo() << "packMessageV2 ctx.header.control:" << ctx.header.control;
-    qInfo() << "packMessageV2 ctx.header.dataLength:" << ctx.header.dataLength;
-    qInfo() << "packMessageV2 ctx.header.sequence:" << ctx.header.sequence;
-    qInfo() << "packMessageV2 ctx.header.cmdId:" << ctx.header.cmdId;
 
     QByteArray msg;
     quint16 beStx = qToBigEndian<quint16>(ctx.header.stx);
@@ -510,7 +572,6 @@ QByteArray SiYiCamera::packMessageV2(quint8 control, quint8 cmd,
     msg.append(ctx.data);                                           // DATA
     msg.append(reinterpret_cast<char*>(&ctx.crc), 2);               // CRC16(packet)
 
-    qInfo() << "packMessageV2 Output:" << msg.toHex().toUpper();
 
     return msg;
 }

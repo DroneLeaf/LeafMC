@@ -18,18 +18,21 @@ public:
     ~SiYiTcpClient();
 
     void sendMessage(const QByteArray &msg);
+    void sendmessageUdp(const QByteArray &msg);
     Q_INVOKABLE virtual void analyzeIp(QString videoUrl);
 
 protected:
     virtual void analyzeMessage() = 0;
+    virtual void analyzeUDPMessage() = 0;
     virtual QByteArray heartbeatMessage() = 0;
+    virtual QByteArray heartbeatMessageUdp() = 0;
 protected:
-    QVector<QByteArray> txMessageVector_;
-    QMutex txMessageVectorMutex_;
-    QByteArray rxBytes_;
-    QMutex rxBytesMutex_;
-    int timeoutCount = 0;
-    QMutex timeoutCountMutex;
+    QVector<QByteArray> txMessageVector_, u_txMessageVector_;
+    QMutex txMessageVectorMutex_, u_txMessageVectorMutex_;
+    QByteArray rxBytes_, u_rxBytes_;
+    QMutex rxBytesMutex_, u_rxBytesMutex_;
+    int timeoutCount = 0, u_timeoutCount = 0;
+    QMutex timeoutCountMutex, u_timeoutCountMutex;
     QString ip_;
     quint16 port_;
 protected:
@@ -45,11 +48,15 @@ private:
 signals:
     void connected();
     void disconnected();
+    void udpConnected();
+    void udpDisconnected();
     void ipChanged();
 private:
-    bool isConnected_{false};
+    bool isConnected_{false}, isUdpConnected_{false};
     bool isConnected(){return isConnected_;}
+    bool isUdpConnected(){return isUdpConnected_;}
     Q_SIGNAL void isConnectedChanged();
+    Q_SIGNAL void isUdpConnectedChanged();
 };
 
 #endif // SIYITCPCLIENT_H

@@ -130,7 +130,6 @@ public:
     ~SiYiCamera();
 
     Q_INVOKABLE void analyzeIp(QString videoUrl) override;
-
     Q_INVOKABLE bool turn(int yaw, int pitch);
     Q_INVOKABLE bool resetPostion();
     Q_INVOKABLE bool autoFocus(int x, int y, int w, int h);
@@ -158,7 +157,9 @@ public:
 
 protected:
     QByteArray heartbeatMessage() override;
+    QByteArray heartbeatMessageUdp() override;
     void analyzeMessage() override;
+    void analyzeUDPMessage() override;
 
 private:
     qint8 recording_state_{0};

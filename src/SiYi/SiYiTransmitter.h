@@ -46,7 +46,9 @@ public:
     explicit SiYiTransmitter(QObject *parent = nullptr);
 protected:
     QByteArray heartbeatMessage() override;
+    QByteArray heartbeatMessageUdp() override;
     void analyzeMessage() override;
+    void analyzeUDPMessage() override;
 private:
     QByteArray packMessage(quint8 control, quint8 cmd,
                            const QByteArray &payload);

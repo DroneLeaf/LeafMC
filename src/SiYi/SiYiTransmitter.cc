@@ -16,6 +16,11 @@ QByteArray SiYiTransmitter::heartbeatMessage()
 #endif
 }
 
+QByteArray SiYiTransmitter::heartbeatMessageUdp()
+{
+    return QByteArray();
+}
+
 void SiYiTransmitter::analyzeMessage()
 {
     while (rxBytes_.length() >= 4) {
@@ -95,6 +100,10 @@ void SiYiTransmitter::analyzeMessage()
             rxBytes_.remove(0, 1);
         }
     }
+}
+
+void SiYiTransmitter::analyzeUDPMessage()
+{
 }
 
 QByteArray SiYiTransmitter::packMessage(quint8 control, quint8 cmd,
