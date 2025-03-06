@@ -186,10 +186,19 @@ bool SiYiCamera::sendGPS()
     // Vn = 0000 0000  // Not significant  
     // Ve = 0000 0000  // Not significant  
     // Vd = 0000 0000  // Not significant  
+    // body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+    // body.append(char(0x00)); body.append(char(0x0e)); body.append(char(0x27)); body.append(char(0x07));
+    // body.append(char(0x00)); body.append(char(0x46)); body.append(char(0xc3)); body.append(char(0x23));
+    // body.append(char(0xf4)); body.append(char(0x01)); body.append(char(0x00)); body.append(char(0x00));
+    // body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+    // body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+    // body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+    // body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+
     body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
-    body.append(char(0x00)); body.append(char(0x0e)); body.append(char(0x27)); body.append(char(0x07));
-    body.append(char(0x00)); body.append(char(0x46)); body.append(char(0xc3)); body.append(char(0x23));
-    body.append(char(0xf4)); body.append(char(0x01)); body.append(char(0x00)); body.append(char(0x00));
+    body.append(char(0x41)); body.append(char(0xc3)); body.append(char(0x59)); body.append(char(0x11));
+    body.append(char(0x42)); body.append(char(0x5a)); body.append(char(0x02)); body.append(char(0xc5));
+    body.append(char(0x4a)); body.append(char(0x83)); body.append(char(0x12)); body.append(char(0x61));
     body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
     body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
     body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
