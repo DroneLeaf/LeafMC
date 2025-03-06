@@ -139,6 +139,7 @@ public:
     Q_INVOKABLE bool focus(int option);
     Q_INVOKABLE bool sendCommand(int cmd);
     Q_INVOKABLE bool sendSetUTC();
+    Q_INVOKABLE bool sendGPS();
     Q_INVOKABLE bool sendRecodingCommand(int cmd);
     void setLogState(int state);
     bool getRecordingState();

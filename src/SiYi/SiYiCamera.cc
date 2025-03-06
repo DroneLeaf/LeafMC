@@ -138,6 +138,7 @@ bool SiYiCamera::sendCommand(int cmd)
     body.append(char(cmd));
     if (cmd==0){ //take photo
         sendSetUTC();
+        sendGPS();
     }
     QByteArray msg = packMessage(0x00, cmdId, body);
     sendMessage(msg);
@@ -168,6 +169,32 @@ bool SiYiCamera::sendSetUTC()
     qInfo() << "UTC Time:" << utc_time;
     QByteArray body(reinterpret_cast<const char*>(&utc_time), sizeof(utc_time));
     // QByteArray msg = packMessage(0x01, cmdId, body);
+    QByteArray msg = packMessageV2(0x01, cmdId, body);
+    sendmessageUdp(msg);
+    return true;
+}
+
+bool SiYiCamera::sendGPS()
+{
+    uint8_t cmdId = 0x3e;
+    QByteArray body;
+    // time_boot_ms = 0000 0000  // Generally unused  
+    // Lat = 000e 2707  // GPS Longitude  
+    // Lon = 0046 c323  // GPS Latitude  
+    // Alt = f401 0000  // GPS Altitude  
+    // Alt_ellipsoid = 0000 0000  // Not significant  
+    // Vn = 0000 0000  // Not significant  
+    // Ve = 0000 0000  // Not significant  
+    // Vd = 0000 0000  // Not significant  
+    body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+    body.append(char(0x00)); body.append(char(0x0e)); body.append(char(0x27)); body.append(char(0x07));
+    body.append(char(0x00)); body.append(char(0x46)); body.append(char(0xc3)); body.append(char(0x23));
+    body.append(char(0xf4)); body.append(char(0x01)); body.append(char(0x00)); body.append(char(0x00));
+    body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+    body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+    body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+    body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+
     QByteArray msg = packMessageV2(0x01, cmdId, body);
     sendmessageUdp(msg);
     return true;
