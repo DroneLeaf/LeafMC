@@ -50,11 +50,26 @@ public:
         quint8 cmdId;
         quint32 crc;
     };
+
+    struct ProtocolMessageHeaderContextV2 {
+        quint16 stx;
+        quint8 control;
+        quint16 dataLength;
+        quint16 sequence;
+        quint8 cmdId;
+    };
     struct ProtocolMessageContext {
         ProtocolMessageHeaderContext header;
         QByteArray data;
         quint32 crc;
     };
+
+    struct ProtocolMessageContextV2 {
+        ProtocolMessageHeaderContextV2 header;
+        QByteArray data;
+        quint16 crc;
+    };
+
     enum CameraCommand {
         CameraCommandTakePhoto
     };
@@ -115,7 +130,6 @@ public:
     ~SiYiCamera();
 
     Q_INVOKABLE void analyzeIp(QString videoUrl) override;
-
     Q_INVOKABLE bool turn(int yaw, int pitch);
     Q_INVOKABLE bool resetPostion();
     Q_INVOKABLE bool autoFocus(int x, int y, int w, int h);
@@ -125,6 +139,7 @@ public:
     Q_INVOKABLE bool focus(int option);
     Q_INVOKABLE bool sendCommand(int cmd);
     Q_INVOKABLE bool sendSetUTC();
+    Q_INVOKABLE bool sendGPS();
     Q_INVOKABLE bool sendRecodingCommand(int cmd);
     void setLogState(int state);
     bool getRecordingState();
@@ -143,7 +158,9 @@ public:
 
 protected:
     QByteArray heartbeatMessage() override;
+    QByteArray heartbeatMessageUdp() override;
     void analyzeMessage() override;
+    void analyzeUDPMessage() override;
 
 private:
     qint8 recording_state_{0};
@@ -159,8 +176,12 @@ private:
 private:
     QByteArray packMessage(quint8 control, quint8 cmd,
                            const QByteArray &payload);
+    QByteArray packMessageV2(quint8 control, quint8 cmd,
+                           const QByteArray &payload);
+
     quint32 headerCheckSum32(ProtocolMessageHeaderContext *ctx);
     quint32 packetCheckSum32(ProtocolMessageContext *ctx);
+    quint16 packetCheckSum16(ProtocolMessageContextV2 *ctx);
     bool unpackMessage(ProtocolMessageContext *ctx,
                        const QByteArray &msg);
     void getCamerVersion();

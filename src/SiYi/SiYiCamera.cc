@@ -9,7 +9,6 @@
 SiYiCamera::SiYiCamera(QObject *parent)
     : SiYiTcpClient("192.168.144.25", 37256)
 {
-    sendSetUTC();
     m_laserTimer = new QTimer(this);
     m_laserTimer->setInterval(1000);
     connect(m_laserTimer, &QTimer::timeout, this, [=]() {
@@ -25,6 +24,7 @@ SiYiCamera::SiYiCamera(QObject *parent)
         getRecordingState();
         getSplitMode();
         m_laserTimer->start();
+        sendSetUTC();
 #if 0
         setLogState(1);
 #endif
@@ -38,6 +38,8 @@ SiYiCamera::SiYiCamera(QObject *parent)
     if (!tmp.isEmpty()) {
         ip_ = tmp;
     }
+    
+
 }
 
 SiYiCamera::~SiYiCamera()
@@ -94,6 +96,8 @@ bool SiYiCamera::autoFocus(int x, int y, int w, int h)
 
     QByteArray msg = packMessage(0x01, cmdId, body);
     sendMessage(msg);
+
+
     return true;
 }
 
@@ -132,9 +136,14 @@ bool SiYiCamera::sendCommand(int cmd)
     uint8_t cmdId = 0x9f;
     QByteArray body;
     body.append(char(cmd));
-
+    if (cmd==0){ //take photo
+        sendSetUTC();
+        sendGPS();
+    }
     QByteArray msg = packMessage(0x00, cmdId, body);
     sendMessage(msg);
+    qInfo() << "sendCommand: " << cmd;
+
     return true;
 }
 
@@ -152,15 +161,51 @@ bool SiYiCamera::sendRecodingCommand(int cmd)
 bool SiYiCamera::sendSetUTC()
 {
     uint8_t cmdId = 0x30;
-    QByteArray body;
     QDateTime utc;
     utc = QDateTime::currentDateTimeUtc();
     qInfo() << "UTC:" << utc.toString("yyyy-MM-dd hh:mm:ss");
-    qInfo() << "UTC:" << utc.toTime_t();
-    body.append(uint64_t(utc.toTime_t()));
+//    uint64_t *utc_time_p= reinterpret_cast<uint64_t*>(&t, sizeof(t));
+    uint64_t utc_time = utc.toTime_t()*uint64_t(1000000);
+    qInfo() << "UTC Time:" << utc_time;
+    QByteArray body(reinterpret_cast<const char*>(&utc_time), sizeof(utc_time));
+    // QByteArray msg = packMessage(0x01, cmdId, body);
+    QByteArray msg = packMessageV2(0x01, cmdId, body);
+    sendmessageUdp(msg);
+    return true;
+}
 
-    QByteArray msg = packMessage(0x01, cmdId, body);
-    sendMessage(msg);
+bool SiYiCamera::sendGPS()
+{
+    uint8_t cmdId = 0x3e;
+    QByteArray body;
+    // time_boot_ms = 0000 0000  // Generally unused  
+    // Lat = 000e 2707  // GPS Longitude  
+    // Lon = 0046 c323  // GPS Latitude  
+    // Alt = f401 0000  // GPS Altitude  
+    // Alt_ellipsoid = 0000 0000  // Not significant  
+    // Vn = 0000 0000  // Not significant  
+    // Ve = 0000 0000  // Not significant  
+    // Vd = 0000 0000  // Not significant  
+    // body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+    // body.append(char(0x00)); body.append(char(0x0e)); body.append(char(0x27)); body.append(char(0x07));
+    // body.append(char(0x00)); body.append(char(0x46)); body.append(char(0xc3)); body.append(char(0x23));
+    // body.append(char(0xf4)); body.append(char(0x01)); body.append(char(0x00)); body.append(char(0x00));
+    // body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+    // body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+    // body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+    // body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+
+    body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+    body.append(char(0x41)); body.append(char(0xc3)); body.append(char(0x59)); body.append(char(0x11));
+    body.append(char(0x42)); body.append(char(0x5a)); body.append(char(0x02)); body.append(char(0xc5));
+    body.append(char(0x4a)); body.append(char(0x83)); body.append(char(0x12)); body.append(char(0x61));
+    body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+    body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+    body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+    body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00)); body.append(char(0x00));
+
+    QByteArray msg = packMessageV2(0x01, cmdId, body);
+    sendmessageUdp(msg);
     return true;
 }
 
@@ -331,6 +376,11 @@ QByteArray SiYiCamera::heartbeatMessage()
     return packMessage(0x01, 0x80, QByteArray());
 }
 
+QByteArray SiYiCamera::heartbeatMessageUdp()
+{
+    return packMessageV2(0x01, 0x80, QByteArray());
+}
+
 void SiYiCamera::analyzeMessage()
 {
     while (rxBytes_.length() >= 4) {
@@ -443,6 +493,70 @@ void SiYiCamera::analyzeMessage()
     }
 }
 
+void SiYiCamera::analyzeUDPMessage()
+{
+    while (u_rxBytes_.length() >= 4) {
+        if ((u_rxBytes_.at(0) == char(0x55)) && (u_rxBytes_.at(1) == char(0x66))) {
+            int headerLength = 2+1+2+2+1;
+            if (u_rxBytes_.length() >= headerLength) {
+                ProtocolMessageHeaderContextV2 header;
+                quint16 *ptr16 = nullptr;
+                quint8 *ptr8 = nullptr;
+                int offset = 0;
+                ptr16 = reinterpret_cast<quint16*>(u_rxBytes_.data());
+                header.stx = *ptr16;
+                offset += 2;
+
+                ptr8 = reinterpret_cast<quint8*>(u_rxBytes_.data() + offset);
+                header.control = *ptr8;
+                offset += 1;
+
+                ptr16 = reinterpret_cast<quint16*>(u_rxBytes_.data() + offset);
+                header.dataLength = *ptr16;
+                offset += 2;
+
+                ptr16 = reinterpret_cast<quint16*>(u_rxBytes_.data() + offset);
+                header.sequence = *ptr16;
+                offset += 2;
+                
+                ptr8 = reinterpret_cast<quint8*>(u_rxBytes_.data() + offset);
+                header.cmdId = *ptr8;
+#if 0
+                header.stx = qToBigEndian<quint16>(header.stx);
+                header.control = qToBigEndian<quint8>(header.control);
+                header.dataLength = qToBigEndian<quint16>(header.dataLength);
+                header.sequence = qToBigEndian<quint16>(header.sequence);
+                header.cmdId = qToBigEndian<quint8>(header.cmdId);
+#endif
+
+                ProtocolMessageContextV2 msg;
+                msg.header = header;
+                int msgLen = headerLength + header.dataLength + 2;
+                if (u_rxBytes_.length() >= msgLen) {
+                    msg.data = QByteArray(u_rxBytes_.data() + headerLength);
+                    int offset = headerLength + header.dataLength;
+                    msg.crc = *reinterpret_cast<quint16*>(u_rxBytes_.data() + offset);
+                    msg.crc = qToBigEndian<quint16>(msg.crc);
+                } else {
+                    // 数据帧未完整
+                    break;
+                }
+
+                QByteArray packet = QByteArray(u_rxBytes_.data(), msgLen);
+                const QString info = QString("[%1:%2]:").arg(ip_, QString::number(37260));
+                QString id = QString("0x%1").arg(QString::number(msg.header.cmdId, 8), 1, '0');
+                qWarning() << info << "UDP message received, cmd id:" << id;
+
+                u_rxBytes_.remove(0, msgLen);
+            } else {
+                break;
+            }
+        } else {
+            u_rxBytes_.remove(0, 1);
+        }
+    }
+}               
+
 QByteArray SiYiCamera::packMessage(quint8 control, quint8 cmd,
                                    const QByteArray &payload)
 {
@@ -467,6 +581,33 @@ QByteArray SiYiCamera::packMessage(quint8 control, quint8 cmd,
     msg.append(reinterpret_cast<char*>(&ctx.header.crc), 4);        // CRC32(header)
     msg.append(ctx.data);                                           // DATA
     msg.append(reinterpret_cast<char*>(&ctx.crc), 4);               // CRC32(packet)
+
+    return msg;
+}
+
+QByteArray SiYiCamera::packMessageV2(quint8 control, quint8 cmd,
+                                   const QByteArray &payload)
+{
+    ProtocolMessageContextV2 ctx;
+    ctx.header.stx = PROTOCOL_STX_V2;
+    ctx.header.control = control;
+    ctx.header.dataLength = payload.length();
+    ctx.header.sequence = sequenceV2();
+    ctx.header.cmdId = cmd;
+    ctx.data = payload;
+    ctx.crc = packetCheckSum16(&ctx);
+
+    QByteArray msg;
+    quint16 beStx = qToBigEndian<quint16>(ctx.header.stx);
+
+    msg.append(reinterpret_cast<char*>(&beStx), 2);                 // STX
+    msg.append(reinterpret_cast<char*>(&ctx.header.control), 1);    // CTRL
+    msg.append(reinterpret_cast<char*>(&ctx.header.dataLength), 2); // Data_len
+    msg.append(reinterpret_cast<char*>(&ctx.header.sequence), 2);   // SEQ
+    msg.append(reinterpret_cast<char*>(&ctx.header.cmdId), 1);      // CMD_ID
+    msg.append(ctx.data);                                           // DATA
+    msg.append(reinterpret_cast<char*>(&ctx.crc), 2);               // CRC16(packet)
+
 
     return msg;
 }
@@ -503,6 +644,27 @@ quint32 SiYiCamera::packetCheckSum32(ProtocolMessageContext *ctx)
         bytes.append(ctx->data);
 
         return checkSum32(bytes);
+    }
+
+    return 0;
+}
+
+quint16 SiYiCamera::packetCheckSum16(ProtocolMessageContextV2 *ctx)
+{
+    if (ctx) {
+        QByteArray bytes;
+        quint16 beStx = qToBigEndian<quint16>(ctx->header.stx);
+        bytes.append(reinterpret_cast<char*>(&beStx), 2);
+        bytes.append(reinterpret_cast<char*>(&ctx->header.control), 1);
+        bytes.append(reinterpret_cast<char*>(&ctx->header.dataLength), 2);
+        bytes.append(reinterpret_cast<char*>(&ctx->header.sequence), 2);
+        bytes.append(reinterpret_cast<char*>(&ctx->header.cmdId), 1);
+
+        bytes.append(ctx->data);
+
+        qInfo() << "packetCheckSum16 Output:" << bytes.toHex().toUpper();
+
+        return checkSum16(bytes);
     }
 
     return 0;

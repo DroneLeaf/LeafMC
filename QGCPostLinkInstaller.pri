@@ -56,7 +56,7 @@ installer {
             message(Keystore password not available - not signing package)
             # This is for builds in forks and PR where the Android keystore password is not available
             QMAKE_POST_LINK += && make apk
-            QMAKE_POST_LINK += && copy .\android-build\build\outputs\apk\debug\android-build-debug.apk package\QGroundControl$${ANDROID_TRUE_BITNESS}.apk
+            QMAKE_POST_LINK += && cp android-build/build/outputs/apk/debug/android-build-debug.apk package\QGroundControl$${ANDROID_TRUE_BITNESS}.apk
         } else {
             QMAKE_POST_LINK += && make apk_install_target INSTALL_ROOT=android-build
             QMAKE_POST_LINK += && androiddeployqt --verbose --input android-QGroundControl-deployment-settings.json --output android-build --release --sign $${SOURCE_DIR}\android/android_release.keystore QGCAndroidKeyStore --storepass $$(ANDROID_KEYSTORE_PASSWORD)
