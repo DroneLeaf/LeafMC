@@ -15,7 +15,7 @@ GuidedToolStripAction {
 
     text:       _guidedController.resumePipelineTitle
     iconSource: "/res/action.svg"
-    visible:    leafMode.length > 0 && leafStatus.startsWith("INSPECTION_PAUSED")
+    visible:    leafMode.length > 0 && (leafStatus.endsWith("INSPECTING NORTH FACE") || leafStatus.endsWith("INSPECTING SOUTH FACE"))
     enabled:    true
     actionID:   _guidedController.actionResumePipeline
 }

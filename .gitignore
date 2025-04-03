@@ -95,3 +95,6 @@ docs/.vitepress/dist/
 CMakeCache.txt
 *.cmake
 *.conan
+
+# App images
+*.AppImage

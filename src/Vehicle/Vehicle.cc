@@ -524,28 +524,28 @@ void Vehicle::_commonInit()
 
     // leafStatusTexts
     _leafStatusTexts = new QMap<LEAF_STATUS, QString>();
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_READY_TO_LEARN, QString("READY_TO_LEARN"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_READY_TO_LEARN, QString("READY TO LEARN"));
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_LEARNING, QString("LEARNING"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_READY_TO_FLY, QString("READY_TO_FLY"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_TAKING_OFF, QString("TAKING_OFF"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_READY_TO_FLY, QString("READY TO FLY"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_TAKING_OFF, QString("TAKING OFF"));
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_FLYING, QString("FLYING"));
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_LANDING, QString("LANDING"));
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_LANDED, QString("LANDED"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_ARMED_IDLE, QString("ARMED_IDLE"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_ARMED_IDLE, QString("ARMED IDLE"));
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_ARMED, QString("ARMED"));
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_DISARMED, QString("DISARMED"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_NOT_READY, QString("NOT_READY"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTION_READY, QString("INSPECTION_READY"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_GOING_TO_SLAP_1, QString("GOING_TO_SLAP_1"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_GOING_TO_SLAP_2, QString("GOING_TO_SLAP_2"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTING_SLAP_1, QString("INSPECTING_SLAP_1"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTING_SLAP_2, QString("INSPECTING_SLAP_2"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTING_SLAP_1_FINISHED, QString("INSPECTION_SLAP_1_FINISHED"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTING_SLAP_2_FINISHED, QString("INSPECTION_SLAP_2_FINISHED"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTING_FINISHED, QString("INSPECTION_FINISHED"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTING_ABORTED, QString("INSPECTION_ABORTED"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTING_PAUSED, QString("INSPECTION_PAUSED"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_RETURNING_TO_HOME, QString("RETURNING_TO_HOME"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_NOT_READY, QString("NOT READY"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTION_READY, QString("INSPECTION READY"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_GOING_TO_NORTH_FACE, QString("GOING TO NORTH FACE"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_GOING_TO_SOUTH_FACE, QString("GOING TO SOUTH FACE"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTING_NORTH_FACE, QString("INSPECTING NORTH FACE"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTING_SOUTH_FACE, QString("INSPECTING SOUTH FACE"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTION_NORTH_FACE_FINISHED, QString("INSPECTION NORTH FACE FINISHED"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTION_SOUTH_FACE_FINISHED, QString("INSPECTION SOUTH FACE FINISHED"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTION_FINISHED, QString("INSPECTION FINISHED"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTION_ABORTED, QString("INSPECTION ABORTED"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_MISSION_PAUSED, QString("MISSION PAUSED"));
+    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_RETURNING_TO_BASE, QString("RETURNING TO BASE"));
 
 }
 
