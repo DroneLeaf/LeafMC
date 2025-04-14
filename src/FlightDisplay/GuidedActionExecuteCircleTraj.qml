@@ -15,7 +15,7 @@ GuidedToolStripAction {
     
     text:       _guidedController.executeCircleTrajTitle
     iconSource: "/res/circle-arrows.svg"
-    visible:    leafMode.length > 0 && showTraj
+    visible:    leafMode.length > 0 && false
     enabled:    true
     actionID:   _guidedController.actionExecuteCircleTraj
 }
