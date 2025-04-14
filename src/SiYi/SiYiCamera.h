@@ -206,11 +206,12 @@ private:
     void messageHandle0xba(const QByteArray &msg);
     void messageHandle0xbb(const QByteArray &msg);
 
-private:
+public:
     bool isRecording_{false};
     bool isRecording(){return isRecording_;}
     //Q_SIGNAL void isRecordingChanged();
 
+private:
     int zoomMultiple_{1};
     int zoomMultiple(){return zoomMultiple_;}
     Q_SIGNAL void zoomMultipleChanged();
