@@ -15,7 +15,7 @@ GuidedToolStripAction {
 
     text:       _guidedController.executeFig8TrajTitle
     iconSource: "/res/infinite-outline.svg"
-    visible:    leafMode.length > 0 && showTraj
+    visible:    leafMode.length > 0 && false
     enabled:    true
     actionID:   _guidedController.actionExecuteFig8Traj
 }
