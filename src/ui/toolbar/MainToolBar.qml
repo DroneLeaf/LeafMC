@@ -131,13 +131,13 @@ Rectangle {
         anchors.bottom:         parent.bottom
         height: parent.height
         width: ScreenTools.defaultFontPixelWidth * 20
-        color: 'black'
+        color: 'transparent'
         visible: _activeVehicle ? true : false
 
         Text {
             id: _leafProfileText
             text: _activeVehicle && _activeVehicle.leafProfile.length > 0 ? _activeVehicle.leafProfile : qsTr("Leaf Profile")
-            color: qgcPal.primaryButton
+            color: qgcPal.text
             anchors.centerIn: parent
             font.pixelSize: ScreenTools.defaultFontPixelWidth * 2.5
         }
