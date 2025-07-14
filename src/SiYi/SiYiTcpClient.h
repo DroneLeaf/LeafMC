@@ -53,10 +53,12 @@ signals:
     void ipChanged();
 private:
     bool isConnected_{false}, isUdpConnected_{false};
-    bool isConnected(){return isConnected_;}
-    bool isUdpConnected(){return isUdpConnected_;}
+
     Q_SIGNAL void isConnectedChanged();
     Q_SIGNAL void isUdpConnectedChanged();
+public:
+    bool isConnected(){return isConnected_;}
+    bool isUdpConnected(){return isUdpConnected_;}
 };
 
 #endif // SIYITCPCLIENT_H

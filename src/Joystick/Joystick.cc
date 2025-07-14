@@ -19,7 +19,6 @@
 #include "GimbalController.h"
 
 #include <QSettings>
-
 // JoystickLog Category declaration moved to QGCLoggingCategory.cc to allow access in Vehicle
 QGC_LOGGING_CATEGORY(JoystickValuesLog, "JoystickValuesLog")
 
@@ -73,6 +72,10 @@ const char* Joystick::_buttonActionGripperRelease =     QT_TR_NOOP("Gripper Open
 const char* Joystick::_buttonActionLandingGearDeploy=   QT_TR_NOOP("Landing gear deploy");
 const char* Joystick::_buttonActionLandingGearRetract=  QT_TR_NOOP("Landing gear retract");
 
+const char* Joystick::_buttonActionFocusFar =   QT_TR_NOOP("Focus Far");
+const char* Joystick::_buttonActionFocusNear =  QT_TR_NOOP("Focus Near");
+const char* Joystick::_buttonActionAutoFocus =  QT_TR_NOOP("Auto Focus");
+
 const char* Joystick::_rgFunctionSettingsKey[Joystick::maxFunction] = {
     "RollAxis",
     "PitchAxis",
@@ -90,6 +93,9 @@ const float Joystick::_minAxisFrequencyHz       = 0.25f;
 const float Joystick::_maxAxisFrequencyHz       = 200.0f;
 const float Joystick::_minButtonFrequencyHz     = 0.25f;
 const float Joystick::_maxButtonFrequencyHz     = 50.0f;
+
+double gain_gimbal_yaw=1.0;
+double gain_gimbal_pitch=1.0;
 
 AssignedButtonAction::AssignedButtonAction(QObject* parent, const QString name)
     : QObject(parent)
@@ -415,10 +421,24 @@ void Joystick::_loadSettings()
         }
     }
 
+    // Read Gimbal Gains
+    QString GimbalYawGain("GimbalYawGain");
+    QString GimbalPitchGain("GimbalPitchGain");
+
+    gain_gimbal_yaw = settings.value(GimbalYawGain, 1.0).toDouble(&convertOk);
+    badSettings |= !convertOk;
+
+    gain_gimbal_pitch = settings.value(GimbalPitchGain, 1.0).toDouble(&convertOk);
+    badSettings |= !convertOk;
+
     if (badSettings) {
         _calibrated = false;
         settings.setValue(_calibratedSettingsKey, false);
+        qInfo() << "_loadSettings::badSettings";
     }
+
+
+    
 }
 
 void Joystick::_saveButtonSettings()
@@ -732,12 +752,14 @@ void Joystick::_handleAxis()
 
             if(_axisCount > 4) {
                 axis = _rgFunctionAxis[gimbalPitchFunction];
-                gimbalPitch = _adjustRange(_rgAxisValues[axis], _rgCalibration[axis],_deadband);
+                gimbalPitch = _adjustRange(_rgAxisValues[axis], _rgCalibration[axis],_deadband)*gain_gimbal_pitch;
+                _siyiCtrlPitch = gimbalPitch;
             }
 
             if(_axisCount > 5) {
                 axis = _rgFunctionAxis[gimbalYawFunction];
-                gimbalYaw = _adjustRange(_rgAxisValues[axis],   _rgCalibration[axis],_deadband);
+                gimbalYaw = _adjustRange(_rgAxisValues[axis],   _rgCalibration[axis],_deadband)*gain_gimbal_yaw;
+                _siyiCtrlYaw = gimbalYaw;
             }
 
             if (_accumulator) {
@@ -778,6 +800,7 @@ void Joystick::_handleAxis()
                 throttle = (throttle + 1.0f) / 2.0f;
             }
             qCDebug(JoystickValuesLog) << "name:roll:pitch:yaw:throttle:gimbalPitch:gimbalYaw" << name() << roll << -pitch << yaw << throttle << gimbalPitch << gimbalYaw;
+            qInfo() << "name:roll:pitch:yaw:throttle:gimbalPitch:gimbalYaw" << name() << roll << -pitch << yaw << throttle << gimbalPitch << gimbalYaw;
             // NOTE: The buttonPressedBits going to MANUAL_CONTROL are currently used by ArduSub (and it only handles 16 bits)
             // Set up button bitmap
             quint64 buttonPressedBits = 0;  // Buttons pressed for manualControl signal
@@ -792,6 +815,21 @@ void Joystick::_handleAxis()
 
             uint16_t shortButtons = static_cast<uint16_t>(buttonPressedBits & 0xFFFF);
             _activeVehicle->sendJoystickDataThreadSafe(roll, pitch, yaw, throttle, shortButtons);
+
+            // Handle gimbal analog inputs
+            if (abs(gimbalPitch) > 0.02*gain_gimbal_pitch || abs(gimbalYaw) > 0.02 * gain_gimbal_yaw) { //deadband
+                if(!_siyiCtrlSendEnabled){
+                    emit startSiYiCtrl();
+                }
+            }
+            else{
+                if(_siyiCtrlSendEnabled){
+                    emit stopSiYiCtrl();
+                }
+            }
+
+
+
         }
     }
 }
@@ -1119,33 +1157,48 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
         if (buttonDown) emit setFlightMode(action);
     } else if(action == _buttonActionContinuousZoomIn || action == _buttonActionContinuousZoomOut) {
         if (buttonDown) {
-            emit startContinuousZoom(action == _buttonActionContinuousZoomIn ? 1 : -1);
-            if (action == _buttonActionContinuousZoomIn) {
-                emit startSiYiZoomIn();
-            } else {
-                emit startSiYiZoomOut();
+            qInfo() << "SiYi Status: " << SiYi::instance()->cameraInstance()->isConnected() << " And " << SiYi::instance()->cameraInstance()->isUdpConnected();
+            if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
+                if (action == _buttonActionContinuousZoomIn) {
+                    emit startSiYiZoomIn();
+                } else {
+                    emit startSiYiZoomOut();
+                }
+            }
+            else{
+                emit startContinuousZoom(action == _buttonActionContinuousZoomIn ? 1 : -1);
             }
         } else {
-            emit stopContinuousZoom();
-            if (action == _buttonActionContinuousZoomIn) {
-                emit stopSiYiZoomIn();
-            } else {
-                emit stopSiYiZoomOut();
+            if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
+                if (action == _buttonActionContinuousZoomIn) {
+                    emit stopSiYiZoomIn();
+                } else {
+                    emit stopSiYiZoomOut();
+                }
+            }
+            else{
+                emit stopContinuousZoom();
             }
         }
     } else if(action == _buttonActionStepZoomIn || action == _buttonActionStepZoomOut) {
         if (buttonDown) {
-            emit stepZoom(action == _buttonActionStepZoomIn ? 1 : -1);
-            if (action == _buttonActionStepZoomIn) {
-                emit startSiYiZoomIn();
-            } else {
-                emit startSiYiZoomOut();
+            if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
+                if (action == _buttonActionStepZoomIn) {
+                    emit startSiYiZoomIn();
+                } else {
+                    emit startSiYiZoomOut();
+                }
+            }
+            else{
+                emit stepZoom(action == _buttonActionStepZoomIn ? 1 : -1);
             }
         } else {
-            if (action == _buttonActionStepZoomIn) {
-                emit stopSiYiZoomIn();
-            } else {
-                emit stopSiYiZoomOut();
+            if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
+                if (action == _buttonActionStepZoomIn) {
+                    emit stopSiYiZoomIn();
+                } else {
+                    emit stopSiYiZoomOut();
+                }
             }
         }
     } else if(action == _buttonActionNextStream || action == _buttonActionPreviousStream) {
@@ -1154,55 +1207,113 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
         if (buttonDown) emit stepCamera(action == _buttonActionNextCamera ? 1 : -1);
     } else if(action == _buttonActionTriggerCamera) {
         if (buttonDown) {
-            emit triggerCamera();
-            SiYi::instance()->cameraInstance()->sendCommand(SiYiCamera::CameraCommand::CameraCommandTakePhoto);
+            if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
+                SiYi::instance()->cameraInstance()->sendCommand(SiYiCamera::CameraCommand::CameraCommandTakePhoto);
+            }
+            else{
+                emit triggerCamera();
+            }
         }
     } else if(action == _buttonActionStartVideoRecord) {
-        if (buttonDown) emit startVideoRecord();
+        if (buttonDown) {
+            if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
+                SiYi::instance()->cameraInstance()->sendRecodingCommand(SiYiCamera::CameraVideoCommand::OpenRecording);
+            }
+            else{
+                emit startVideoRecord();
+            }
+        }
     } else if(action == _buttonActionStopVideoRecord) {
-        if (buttonDown) emit stopVideoRecord();
+        if (buttonDown) {
+            if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
+                SiYi::instance()->cameraInstance()->sendRecodingCommand(SiYiCamera::CameraVideoCommand::CloseRecording);
+            }
+            else{
+                emit stopVideoRecord();
+            }
+        }
     } else if(action == _buttonActionToggleVideoRecord) {
-        if (buttonDown) emit toggleVideoRecord();
+        if (buttonDown) {
+            if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
+                if (SiYi::instance()->cameraInstance()->isRecording()) {
+                    SiYi::instance()->cameraInstance()->sendRecodingCommand(SiYiCamera::CameraVideoCommand::CloseRecording);
+                } else {
+                    SiYi::instance()->cameraInstance()->sendRecodingCommand(SiYiCamera::CameraVideoCommand::OpenRecording);
+                }
+            }
+            else{
+                emit toggleVideoRecord();
+            }
+        }
     } else if(action == _buttonActionGimbalUp) {
         if (buttonDown){
-            // emit gimbalPitchStep(1);
-            _siyiCtrlPitch += 1;
-            if(!_siyiCtrlSendEnabled)
-                emit startSiYiCtrl();
+            if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
+                _siyiCtrlPitch += 1;
+                if(!_siyiCtrlSendEnabled){
+                    emit startSiYiCtrl();
+                }
+            }
+            else{
+                emit gimbalPitchStep(1);
+            }
         } else {
-            emit stopSiYiCtrl();
+            if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
+                emit stopSiYiCtrl();
+            }
         }
     } else if(action == _buttonActionGimbalDown) {
         if (buttonDown) {
-            // emit gimbalPitchStep(-1);
-            _siyiCtrlPitch -= 1;
-            if(!_siyiCtrlSendEnabled)
-                emit startSiYiCtrl();
+            if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
+                _siyiCtrlPitch -= 1;
+                if(!_siyiCtrlSendEnabled)
+                    emit startSiYiCtrl();
+            }
+            else{
+                emit gimbalPitchStep(-1);
+            }
         } else {
-            emit stopSiYiCtrl();
+            if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
+                emit stopSiYiCtrl();
+            }
         }
     } else if(action == _buttonActionGimbalLeft) {
         if (buttonDown) {
-            // emit gimbalYawStep(-1);
-            _siyiCtrlYaw -= 1;
-            if(!_siyiCtrlSendEnabled)
-                emit startSiYiCtrl();
+            if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
+                _siyiCtrlYaw -= 1;
+                if(!_siyiCtrlSendEnabled)
+                    emit startSiYiCtrl();
+            }
+            else{
+                emit gimbalYawStep(-1);
+            }
         } else {
-            emit stopSiYiCtrl();
+            if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
+                emit stopSiYiCtrl();
+            }
         }
     } else if(action == _buttonActionGimbalRight) {
         if (buttonDown) {
-            // emit gimbalYawStep(1);
-            _siyiCtrlYaw += 1;
-            if(!_siyiCtrlSendEnabled)
-                emit startSiYiCtrl();
+            if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
+                _siyiCtrlYaw += 1;
+                if(!_siyiCtrlSendEnabled)
+                    emit startSiYiCtrl();
+            }
+            else{
+                emit gimbalYawStep(1);
+            }
         } else {
-            emit stopSiYiCtrl();
+            if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
+                emit stopSiYiCtrl();
+            }
         }
     } else if(action == _buttonActionGimbalCenter) {
         if (buttonDown) {
-            // emit centerGimbal();
+            if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
             SiYi::instance()->cameraInstance()->resetPostion();
+            }
+            else{
+                emit centerGimbal();
+            }
         }
     } else if(action == _buttonActionGimbalYawLock) {
         if (buttonDown) emit gimbalYawLock(true);
@@ -1222,7 +1333,32 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
         if (buttonDown) emit landingGearDeploy();
     } else if(action == _buttonActionLandingGearRetract) {
         if (buttonDown) emit landingGearRetract();
-    } else {
+    } 
+    // Added focus actions for SiYi
+    else if(action == _buttonActionFocusFar) {
+        if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
+            if (buttonDown) {
+                SiYi::instance()->cameraInstance()->focus(-1);
+            } else {
+                SiYi::instance()->cameraInstance()->focus(0);
+            }
+        }
+    } else if(action == _buttonActionFocusNear) {
+        if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
+            if (buttonDown) {
+                SiYi::instance()->cameraInstance()->focus(1);
+            } else {
+                SiYi::instance()->cameraInstance()->focus(0);
+            }
+        }
+    } else if(action == _buttonActionAutoFocus) {
+        if (SiYi::instance()->cameraInstance()->isConnected()&&SiYi::instance()->cameraInstance()->isUdpConnected()) {
+            if (buttonDown) {
+                SiYi::instance()->cameraInstance()->autoFocus(1.0,1.0,2.0,2.0); // Arbitrary way of saying middle of the screen
+            }
+        }
+    }
+    else {
         if (buttonDown && _activeVehicle) {
             for (auto& item : _customMavCommands) {
                 if (action == item.name()) {
@@ -1231,7 +1367,7 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
                 }
             }
         }
-    }
+    } 
 }
 
 bool Joystick::_validAxis(int axis) const
@@ -1303,6 +1439,10 @@ void Joystick::_buildActionList(Vehicle* activeVehicle)
     _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionGripperRelease));
     _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionLandingGearDeploy));
     _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionLandingGearRetract));
+
+    _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionFocusFar, true));
+    _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionFocusNear, true));
+    _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionAutoFocus, true));
 
     for (auto& item : _customMavCommands) {
         _assignableButtonActions.append(new AssignableButtonAction(this, item.name()));

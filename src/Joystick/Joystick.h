@@ -374,6 +374,10 @@ private:
     static const char* _buttonActionLandingGearDeploy;
     static const char* _buttonActionLandingGearRetract;
 
+    static const char* _buttonActionFocusFar;
+    static const char* _buttonActionFocusNear;
+    static const char* _buttonActionAutoFocus;
+
 private slots:
     void _activeVehicleChanged(Vehicle* activeVehicle);
     void _vehicleCountChanged(int count);
