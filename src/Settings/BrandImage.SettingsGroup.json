@@ -8,14 +8,14 @@
     "shortDesc": "User-selected brand image",
     "longDesc":  "Location in file system of user-selected brand image (indoor)",
     "type":             "string",
-    "default":     ""
+    "default":     "qrc:/res/branding/White-horizental-smallRes.png"
 },
 {
     "name":             "userBrandImageOutdoor",
     "shortDesc": "User-selected brand image",
     "longDesc":  "Location in file system of user-selected brand image (outdoor)",
     "type":             "string",
-    "default":     ""
+    "default":     "qrc:/res/branding/Normal-horizental-smallRes.png"
 }
 ]
 }

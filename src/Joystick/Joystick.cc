@@ -254,6 +254,70 @@ void Joystick::_setDefaultCalibration(void) {
     // Only set default calibrations if we do not have a calibration for this gamecontroller
     if(_calibrated) return;
 
+    if (_name == "Turtle Beach VelocityOne Flightstick") {
+        // Axis calibration
+        int minValues[] =   { -32768, -32768, -32768, -32768, -32768, -32768, 0, 0 };
+        int maxValues[] =   { 32767, 32767, 32767, 32767, 32767, 32767, 0, 0 };
+        bool reversed[] =   { false, true, false, false, true, false, false, false };
+        for (int i = 0; i < 8; i++) {
+            if (i < _axisCount) {
+                Calibration_t cal;
+                cal.min = minValues[i];
+                cal.max = maxValues[i];
+                cal.center = 0;
+                cal.deadband = 0;
+                cal.reversed = reversed[i];
+                _rgCalibration[i] = cal;
+            }
+        }
+
+        // Function to axis mapping
+        _rgFunctionAxis[rollFunction]       = 0;
+        _rgFunctionAxis[pitchFunction]      = 1;
+        _rgFunctionAxis[yawFunction]        = 2;
+        _rgFunctionAxis[throttleFunction]   = 5;
+        _rgFunctionAxis[gimbalPitchFunction]= 4;
+        _rgFunctionAxis[gimbalYawFunction]  = 3;
+
+        // Button actions
+        setButtonAction(12, _buttonActionFocusFar);
+        setButtonAction(13, _buttonActionFocusNear);
+        setButtonAction(14, _buttonActionAutoFocus);
+        setButtonAction(15, _buttonActionStartVideoRecord);
+        setButtonAction(16, _buttonActionStopVideoRecord);
+        setButtonAction(17, _buttonActionTriggerCamera);
+        setButtonAction(18, _buttonActionGimbalCenter);
+        setButtonAction(24, _buttonActionContinuousZoomIn);
+        setButtonAction(25, _buttonActionContinuousZoomOut);
+
+        // Button repeats
+        setButtonRepeat(12, true);
+        setButtonRepeat(13, true);
+        setButtonRepeat(14, false);
+        setButtonRepeat(15, false);
+        setButtonRepeat(16, false);
+        setButtonRepeat(17, false);
+        setButtonRepeat(18, false);
+        setButtonRepeat(24, true);
+        setButtonRepeat(25, true);
+
+        // Other settings
+        _throttleMode = ThrottleMode_t(1);
+        _negativeThrust = false;
+        _exponential = 0;
+        _accumulator = false;
+        _deadband = false;
+        _circleCorrection = false;
+        _calibrated = true;
+
+        // Gains
+        settings.setValue("GimbalYawGain", 13.0);
+        settings.setValue("GimbalPitchGain", 13.0);
+
+        _saveSettings();
+        return;
+    }
+
     for(int axis = 0; axis < _axisCount; axis++) {
         Joystick::Calibration_t calibration;
         _rgCalibration[axis] = calibration;
