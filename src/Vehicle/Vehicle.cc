@@ -513,7 +513,7 @@ void Vehicle::_commonInit()
     _leafModeNames = new QMap<int, QString>();
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_RC_Stabilized, QString("RC Stabilized"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_RC_POSITION, QString("RC POSITION"));
-    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_WAYPOINT_MISSION, QString("WAYPOINT MISSION"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_MISSION, QString("LeafSDK Mission"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_INNER, QString("LEARNING INNER"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_OUTER, QString("LEARNING OUTER"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_FULL, QString("LEARNING FULL"));
