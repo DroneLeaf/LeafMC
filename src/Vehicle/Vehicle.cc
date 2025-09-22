@@ -3211,7 +3211,8 @@ void Vehicle::leafPausePipeline() {
                                       sharedLink->mavlinkChannel(),
                                       &pause_msg,
                                       0,
-                                      LEAF_CONTROL_COMMAND::LEAF_CONTROL_PAUSE);
+                                      LEAF_CONTROL_COMMAND::LEAF_CONTROL_PAUSE,
+                                      LEAF_CONTROL_COMMAND_ACTION::LEAF_CONTROL_COMMAND_ACTION_NONE);
     sendMessageOnLinkThreadSafe(sharedLink.get(), pause_msg);
 }
 
@@ -3228,7 +3229,8 @@ void Vehicle::leafResumePipeline() {
                                       sharedLink->mavlinkChannel(),
                                       &resume_msg,
                                       0,
-                                      LEAF_CONTROL_COMMAND::LEAF_CONTROL_RESUME);
+                                      LEAF_CONTROL_COMMAND::LEAF_CONTROL_RESUME,
+                                      LEAF_CONTROL_COMMAND_ACTION::LEAF_CONTROL_COMMAND_ACTION_NONE);
     sendMessageOnLinkThreadSafe(sharedLink.get(), resume_msg);
     
 }
