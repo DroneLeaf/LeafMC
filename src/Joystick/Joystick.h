@@ -198,7 +198,7 @@ signals:
     void accumulatorChanged         (bool accumulator);
     void enabledChanged             (bool enabled);
     void circleCorrectionChanged    (bool circleCorrection);
-    void axisValues                 (float roll, float pitch, float yaw, float throttle);
+    void axisValues                 (float roll, float pitch, float yaw, float throttle, float gimbalPitch, float gimbalYaw);
 
     void axisFrequencyHzChanged     ();
     void buttonFrequencyHzChanged   ();

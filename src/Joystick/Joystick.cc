@@ -254,69 +254,73 @@ void Joystick::_setDefaultCalibration(void) {
     // Only set default calibrations if we do not have a calibration for this gamecontroller
     if(_calibrated) return;
 
-    if (_name == "Turtle Beach VelocityOne Flightstick") {
-        // Axis calibration
-        int minValues[] =   { -32768, -32768, -32768, -32768, -32768, -32768, 0, 0 };
-        int maxValues[] =   { 32767, 32767, 32767, 32767, 32767, 32767, 0, 0 };
-        bool reversed[] =   { false, true, false, false, true, false, false, false };
-        for (int i = 0; i < 8; i++) {
-            if (i < _axisCount) {
-                Calibration_t cal;
-                cal.min = minValues[i];
-                cal.max = maxValues[i];
-                cal.center = 0;
-                cal.deadband = 0;
-                cal.reversed = reversed[i];
-                _rgCalibration[i] = cal;
-            }
-        }
+    // if (_name == "Turtle Beach VelocityOne Flightstick" && false) {
+    //     // add debug message that we are setting up the defaults of Turtle Beach
+    //     qCDebug(JoystickLog) << "Setting default calibration for Turtle Beach VelocityOne Flightstick";
 
-        // Function to axis mapping
-        _rgFunctionAxis[rollFunction]       = 0;
-        _rgFunctionAxis[pitchFunction]      = 1;
-        _rgFunctionAxis[yawFunction]        = 2;
-        _rgFunctionAxis[throttleFunction]   = 5;
-        _rgFunctionAxis[gimbalPitchFunction]= 4;
-        _rgFunctionAxis[gimbalYawFunction]  = 3;
 
-        // Button actions
-        setButtonAction(12, _buttonActionFocusFar);
-        setButtonAction(13, _buttonActionFocusNear);
-        setButtonAction(14, _buttonActionAutoFocus);
-        setButtonAction(15, _buttonActionStartVideoRecord);
-        setButtonAction(16, _buttonActionStopVideoRecord);
-        setButtonAction(17, _buttonActionTriggerCamera);
-        setButtonAction(18, _buttonActionGimbalCenter);
-        setButtonAction(24, _buttonActionContinuousZoomIn);
-        setButtonAction(25, _buttonActionContinuousZoomOut);
+    //     // Axis calibration
+    //     int minValues[] =   { -32768, -32768, -32768, -32768, -32768, -32768, 0, 0 };
+    //     int maxValues[] =   { 32767, 32767, 32767, 32767, 32767, 32767, 0, 0 };
+    //     bool reversed[] =   { false, true, false, false, true, false, false, false };
+    //     for (int i = 0; i < 8; i++) {
+    //         if (i < _axisCount) {
+    //             Calibration_t cal;
+    //             cal.min = minValues[i];
+    //             cal.max = maxValues[i];
+    //             cal.center = 0;
+    //             cal.deadband = 0;
+    //             cal.reversed = reversed[i];
+    //             _rgCalibration[i] = cal;
+    //         }
+    //     }
 
-        // Button repeats
-        setButtonRepeat(12, true);
-        setButtonRepeat(13, true);
-        setButtonRepeat(14, false);
-        setButtonRepeat(15, false);
-        setButtonRepeat(16, false);
-        setButtonRepeat(17, false);
-        setButtonRepeat(18, false);
-        setButtonRepeat(24, true);
-        setButtonRepeat(25, true);
+    //     // Function to axis mapping
+    //     _rgFunctionAxis[rollFunction]       = 0;
+    //     _rgFunctionAxis[pitchFunction]      = 1;
+    //     _rgFunctionAxis[yawFunction]        = 2;
+    //     _rgFunctionAxis[throttleFunction]   = 5;
+    //     _rgFunctionAxis[gimbalPitchFunction]= 4;
+    //     _rgFunctionAxis[gimbalYawFunction]  = 3;
 
-        // Other settings
-        _throttleMode = ThrottleMode_t(1);
-        _negativeThrust = false;
-        _exponential = 0;
-        _accumulator = false;
-        _deadband = false;
-        _circleCorrection = false;
-        _calibrated = true;
+    //     // Button actions
+    //     setButtonAction(12, _buttonActionFocusFar);
+    //     setButtonAction(13, _buttonActionFocusNear);
+    //     setButtonAction(14, _buttonActionAutoFocus);
+    //     setButtonAction(15, _buttonActionStartVideoRecord);
+    //     setButtonAction(16, _buttonActionStopVideoRecord);
+    //     setButtonAction(17, _buttonActionTriggerCamera);
+    //     setButtonAction(18, _buttonActionGimbalCenter);
+    //     setButtonAction(24, _buttonActionContinuousZoomIn);
+    //     setButtonAction(25, _buttonActionContinuousZoomOut);
 
-        // Gains
-        settings.setValue("GimbalYawGain", 13.0);
-        settings.setValue("GimbalPitchGain", 13.0);
+    //     // Button repeats
+    //     setButtonRepeat(12, true);
+    //     setButtonRepeat(13, true);
+    //     setButtonRepeat(14, false);
+    //     setButtonRepeat(15, false);
+    //     setButtonRepeat(16, false);
+    //     setButtonRepeat(17, false);
+    //     setButtonRepeat(18, false);
+    //     setButtonRepeat(24, true);
+    //     setButtonRepeat(25, true);
 
-        _saveSettings();
-        return;
-    }
+    //     // Other settings
+    //     _throttleMode = ThrottleMode_t(1);
+    //     _negativeThrust = false;
+    //     _exponential = 0;
+    //     _accumulator = false;
+    //     _deadband = false;
+    //     _circleCorrection = false;
+    //     _calibrated = true;
+
+    //     // Gains
+    //     settings.setValue("GimbalYawGain", 13.0);
+    //     settings.setValue("GimbalPitchGain", 13.0);
+
+    //     _saveSettings();
+    //     return;
+    // }
 
     for(int axis = 0; axis < _axisCount; axis++) {
         Joystick::Calibration_t calibration;
@@ -489,10 +493,10 @@ void Joystick::_loadSettings()
     QString GimbalYawGain("GimbalYawGain");
     QString GimbalPitchGain("GimbalPitchGain");
 
-    gain_gimbal_yaw = settings.value(GimbalYawGain, 1.0).toDouble(&convertOk);
+    gain_gimbal_yaw = settings.value(GimbalYawGain, 100.0).toDouble(&convertOk);
     badSettings |= !convertOk;
 
-    gain_gimbal_pitch = settings.value(GimbalPitchGain, 1.0).toDouble(&convertOk);
+    gain_gimbal_pitch = settings.value(GimbalPitchGain, 100.0).toDouble(&convertOk);
     badSettings |= !convertOk;
 
     if (badSettings) {
@@ -797,7 +801,8 @@ void Joystick::_handleAxis()
             _rgAxisValues[axisIndex] = newAxisValue;
             emit rawAxisValueChanged(axisIndex, newAxisValue);
         }
-        if (_activeVehicle->joystickEnabled() && !_calibrationMode && _calibrated) {
+    // Emit processed axis values for UI. Allow during calibration so calibration UI shows live values.
+    if (_activeVehicle->joystickEnabled() && (_calibrated || _calibrationMode)) {
             int     axis = _rgFunctionAxis[rollFunction];
             float   roll = _adjustRange(_rgAxisValues[axis],    _rgCalibration[axis], _deadband);
 
@@ -816,14 +821,14 @@ void Joystick::_handleAxis()
 
             if(_axisCount > 4) {
                 axis = _rgFunctionAxis[gimbalPitchFunction];
-                gimbalPitch = _adjustRange(_rgAxisValues[axis], _rgCalibration[axis],_deadband)*gain_gimbal_pitch;
-                _siyiCtrlPitch = gimbalPitch;
+                gimbalPitch = _adjustRange(_rgAxisValues[axis], _rgCalibration[axis],_deadband);
+                _siyiCtrlPitch = gimbalPitch * gain_gimbal_pitch;
             }
 
             if(_axisCount > 5) {
                 axis = _rgFunctionAxis[gimbalYawFunction];
-                gimbalYaw = _adjustRange(_rgAxisValues[axis],   _rgCalibration[axis],_deadband)*gain_gimbal_yaw;
-                _siyiCtrlYaw = gimbalYaw;
+                gimbalYaw = _adjustRange(_rgAxisValues[axis],   _rgCalibration[axis],_deadband);
+                _siyiCtrlYaw = gimbalYaw * gain_gimbal_yaw;
             }
 
             if (_accumulator) {
@@ -864,7 +869,7 @@ void Joystick::_handleAxis()
                 throttle = (throttle + 1.0f) / 2.0f;
             }
             qCDebug(JoystickValuesLog) << "name:roll:pitch:yaw:throttle:gimbalPitch:gimbalYaw" << name() << roll << -pitch << yaw << throttle << gimbalPitch << gimbalYaw;
-            qInfo() << "name:roll:pitch:yaw:throttle:gimbalPitch:gimbalYaw" << name() << roll << -pitch << yaw << throttle << gimbalPitch << gimbalYaw;
+            // qInfo() << "name:roll:pitch:yaw:throttle:gimbalPitch:gimbalYaw" << name() << roll << -pitch << yaw << throttle << gimbalPitch << gimbalYaw;
             // NOTE: The buttonPressedBits going to MANUAL_CONTROL are currently used by ArduSub (and it only handles 16 bits)
             // Set up button bitmap
             quint64 buttonPressedBits = 0;  // Buttons pressed for manualControl signal
@@ -875,22 +880,30 @@ void Joystick::_handleAxis()
                     buttonPressedBits |= buttonBit;
                 }
             }
-            emit axisValues(roll, pitch, yaw, throttle);
+            emit axisValues(roll, pitch, yaw, throttle, gimbalPitch, gimbalYaw);
 
             uint16_t shortButtons = static_cast<uint16_t>(buttonPressedBits & 0xFFFF);
             _activeVehicle->sendJoystickDataThreadSafe(roll, pitch, yaw, throttle, shortButtons);
 
             // Handle gimbal analog inputs
-            if (abs(gimbalPitch) > 0.02*gain_gimbal_pitch || abs(gimbalYaw) > 0.02 * gain_gimbal_yaw) { //deadband
+
+            // if (abs(gimbalPitch) > 0.02 || abs(gimbalYaw) > 0.02) { //deadband
+                // chech individual axis to avoid gimbal jump when switching between joystick and gimbal control
+
                 if(!_siyiCtrlSendEnabled){
                     emit startSiYiCtrl();
                 }
-            }
-            else{
-                if(_siyiCtrlSendEnabled){
-                    emit stopSiYiCtrl();
-                }
-            }
+            // }
+            // else{
+                // if(_siyiCtrlSendEnabled){
+                    // gimbalPitch = 0;
+                    // gimbalYaw = 0;
+                //     emit stopSiYiCtrl();
+                // }
+                // else{
+                //     emit startSiYiCtrl();
+                // }
+            // }
 
 
 

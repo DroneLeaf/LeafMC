@@ -456,6 +456,8 @@ void SiYiCamera::analyzeMessage()
                     messageHandle0x94(packet);
                 } else if (msg.header.cmdId == 0x98) {
                     messageHandle0x98(packet);
+                } else if (msg.header.cmdId == 0x9a) {
+                    messageHandle0x9a(packet);
                 } else if (msg.header.cmdId == 0x9e) {
                     messageHandle0x9e(packet);
                 } else if (msg.header.cmdId == 0xa1) {
@@ -1028,6 +1030,11 @@ void SiYiCamera::messageHandle0x98(const QByteArray &msg)
     }
 }
 
+void SiYiCamera::messageHandle0x9a(const QByteArray &msg)
+{
+    // Nothing to do yet.
+
+}
 void SiYiCamera::messageHandle0x9e(const QByteArray &msg)
 {
     struct ACK {

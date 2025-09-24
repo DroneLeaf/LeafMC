@@ -27,55 +27,82 @@ const int JoystickConfigController::_calMinDelta =          1000;       ///< Amo
 const int JoystickConfigController::_stickDetectSettleMSecs = 500;
 
 static const JoystickConfigController::stateStickPositions stSticksCentered {
-    0.25, 0.5, 0.75, 0.5
+    0.25, 0.5, 0.75, 0.5, 0.5, 0.85
 };
 
 static const JoystickConfigController::stateStickPositions stLeftStickUp {
-    0.25, 0.3084, 0.75, 0.5
+    0.25, 0.3084, 0.75, 0.5, 0.5, 0.85
 };
 
 static const JoystickConfigController::stateStickPositions stLeftStickDown {
-    0.25, 0.6916, 0.75, 0.5
+    0.25, 0.6916, 0.75, 0.5, 0.5, 0.85  
 };
 
 static const JoystickConfigController::stateStickPositions stLeftStickLeft {
-    0.1542, 0.5, 0.75, 0.5
+    0.1542, 0.5, 0.75, 0.5, 0.5, 0.85
 };
 
 static const JoystickConfigController::stateStickPositions stLeftStickRight {
-    0.3458, 0.5, 0.75, 0.5
+    0.3458, 0.5, 0.75, 0.5, 0.5, 0.85
 };
 
 static const JoystickConfigController::stateStickPositions stRightStickUp {
-    0.25, 0.5, 0.75, 0.3084
+    0.25, 0.5, 0.75, 0.3084, 0.5, 0.85
 };
 
 static const JoystickConfigController::stateStickPositions stRightStickDown {
-    0.25, 0.5, 0.75, 0.6916
+    0.25, 0.5, 0.75, 0.6916, 0.5, 0.85
 };
 
 static const JoystickConfigController::stateStickPositions stRightStickLeft {
-    0.25, 0.5, 0.6542, 0.5
+    0.25, 0.5, 0.6542, 0.5, 0.5, 0.85
 };
 
 static const JoystickConfigController::stateStickPositions stRightStickRight {
-    0.25, 0.5, 0.8423, 0.5
+    0.25, 0.5, 0.8423, 0.5, 0.5, 0.85
+};
+
+// Gimbal positions are centered by default
+// Gimbal pitch up
+static const JoystickConfigController::stateStickPositions stGimbalPitchUp {
+    0.25, 0.5, 0.75, 0.5, 0.5, 0.75
+};
+// Gimbal pitch down
+static const JoystickConfigController::stateStickPositions stGimbalPitchDown {
+    0.25, 0.5, 0.75, 0.5, 0.5, 0.95
+};
+// Gimbal yaw left
+static const JoystickConfigController::stateStickPositions stGimbalYawLeft {
+    0.25, 0.5, 0.75, 0.5, 0.45, 0.85
+};
+// Gimbal yaw right
+static const JoystickConfigController::stateStickPositions stGimbalYawRight {
+    0.25, 0.5, 0.75, 0.5, 0.55, 0.85
 };
 
 JoystickConfigController::JoystickConfigController(void)
     : _joystickManager(qgcApp()->toolbox()->joystickManager())
 {
-    
+    // _currentStickPositions << stGimbalPitchUp << stGimbalPitchDown << stGimbalYawLeft << stGimbalYawRight;
     connect(_joystickManager, &JoystickManager::activeJoystickChanged, this, &JoystickConfigController::_activeJoystickChanged);
     _activeJoystickChanged(_joystickManager->activeJoystick());
     _setStickPositions();
     _resetInternalCalibrationValues();
-    _currentStickPositions  << _sticksCentered.leftX  << _sticksCentered.leftY  << _sticksCentered.rightX  << _sticksCentered.rightY;
+    _currentStickPositions  << _sticksCentered.leftX  << _sticksCentered.leftY  << _sticksCentered.rightX  << _sticksCentered.rightY << _sticksCentered.gimbalX << _sticksCentered.gimbalY;
+    // Initialize gimbal positions to centered defaults
+    // _currentStickPositions << _gimbalPosX << _gimbalPosY;
 }
 
 void JoystickConfigController::start(void)
 {
     _stopCalibration();
+}
+
+void JoystickConfigController::forceStartCalibration(void)
+{
+    if (_activeJoystick && _axisCount >= _axisMinimum) {
+        _startCalibration();
+    }
 }
 
 void JoystickConfigController::setDeadbandValue(int axis, int value)
@@ -106,7 +133,11 @@ const JoystickConfigController::stateMachineEntry* JoystickConfigController::_ge
     static const char* msgRollRight =           "Move the Roll stick all the way to the right and hold it there...";
     static const char* msgPitchDown =           "Move the Pitch stick all the way down and hold it there...";
     static const char* msgPitchUp =             "Move the Pitch stick all the way up and hold it there...";
-    static const char* msgPitchCenter =         "Allow the Pitch stick to move back to center...";
+    // static const char* msgPitchCenter =         "Allow the Pitch stick to move back to center...";
+    static const char* msgGimbalPitchUp =       "Move the Gimbal Pitch control all the way up and hold it there...";
+    static const char* msgGimbalPitchDown =     "Move the Gimbal Pitch control all the way down and hold it there...";
+    static const char* msgGimbalYawLeft =       "Move the Gimbal Yaw control all the way to the left and hold it there...";
+    static const char* msgGimbalYawRight =      "Move the Gimbal Yaw control all the way to the right and hold it there...";
     static const char* msgComplete =            "All settings have been captured.\nClick Next to enable the joystick.";
 
     static const stateMachineEntry rgStateMachine[] = {
@@ -120,7 +151,10 @@ const JoystickConfigController::stateMachineEntry* JoystickConfigController::_ge
         { Joystick::rollFunction,           msgRollLeft,        _sticksRollLeft,        &JoystickConfigController::_inputStickMin,          nullptr,                                         nullptr, 2 },
         { Joystick::pitchFunction,          msgPitchUp,         _sticksPitchUp,         &JoystickConfigController::_inputStickDetect,       nullptr,                                         nullptr, 3 },
         { Joystick::pitchFunction,          msgPitchDown,       _sticksPitchDown,       &JoystickConfigController::_inputStickMin,          nullptr,                                         nullptr, 3 },
-        { Joystick::pitchFunction,          msgPitchCenter,     _sticksCentered,        &JoystickConfigController::_inputCenterWait,        nullptr,                                         nullptr, 3 },
+        { Joystick::gimbalYawFunction,      msgGimbalYawRight,  _sticksGimbalYawRight,  &JoystickConfigController::_inputStickDetect,       nullptr,                                         nullptr, 5 },
+        { Joystick::gimbalYawFunction,      msgGimbalYawLeft,   _sticksGimbalYawLeft,   &JoystickConfigController::_inputStickMin,          nullptr,                                         nullptr, 5 },
+        { Joystick::gimbalPitchFunction,    msgGimbalPitchUp,   _sticksGimbalPitchUp,   &JoystickConfigController::_inputStickDetect,       nullptr,                                         nullptr, 4 },
+        { Joystick::gimbalPitchFunction,    msgGimbalPitchDown, _sticksGimbalPitchDown, &JoystickConfigController::_inputStickMin,          nullptr,                                         nullptr, 4 },
         { Joystick::maxFunction,            msgComplete,        _sticksCentered,        nullptr,                                            &JoystickConfigController::_writeCalibration,    nullptr, -1 },
     };
 
@@ -161,7 +195,38 @@ void JoystickConfigController::_setupCurrentState()
     _stickDetectSettleStarted = false;
     _calSaveCurrentValues();
     _currentStickPositions.clear();
-    _currentStickPositions << state->stickPositions.leftX << state->stickPositions.leftY << state->stickPositions.rightX << state->stickPositions.rightY;
+    _currentStickPositions << state->stickPositions.leftX << state->stickPositions.leftY << state->stickPositions.rightX << state->stickPositions.rightY << state->stickPositions.gimbalX << state->stickPositions.gimbalY;
+    // Determine gimbal positions for sequencing first so emitted stickPositions reflect
+    // the intended visual immediately (avoid one-step delay).
+    // qreal newGimbalX = _gimbalPosX;
+    // qreal newGimbalY = _gimbalPosY;
+
+    // if (state->function == Joystick::gimbalPitchFunction) {
+    //     // Two entries for gimbalPitch: up then down. channelID==4 is the 'up' detect entry.
+    //     if (state->channelID == 4) {
+    //         newGimbalY = 0.3084; // up
+    //     } else {
+    //         newGimbalY = 0.82; // center/default
+    //     }
+    // } else if (state->function == Joystick::gimbalYawFunction) {
+    //     // Two entries for gimbalYaw: right then left. channelID==5 use left mapping, otherwise default
+    //     if (state->channelID == 5) {
+    //         newGimbalX = 0.1542; // left
+    //     } else {
+    //         newGimbalX = 0.5; // center/default
+    //     }
+    // }
+
+    // Update internal values if changed and notify
+    // if (!qFuzzyCompare(newGimbalX, _gimbalPosX) || !qFuzzyCompare(newGimbalY, _gimbalPosY)) {
+    //     _gimbalPosX = newGimbalX;
+    //     _gimbalPosY = newGimbalY;
+    //     emit gimbalPositionChanged();
+    // }
+
+    // Append the (now up-to-date) gimbal positions
+    // _currentStickPositions << _gimbalPosX << _gimbalPosY;
+
     emit stickPositionsChanged();
     emit nextEnabledChanged();
     emit skipEnabledChanged();
@@ -587,6 +652,10 @@ void JoystickConfigController::_setStickPositions()
         _sticksRollRight    = stRightStickRight;
         _sticksPitchUp      = stLeftStickUp;
         _sticksPitchDown    = stLeftStickDown;
+        _sticksGimbalPitchUp   = stGimbalPitchUp;
+        _sticksGimbalPitchDown = stGimbalPitchDown;
+        _sticksGimbalYawLeft   = stGimbalYawLeft;
+        _sticksGimbalYawRight  = stGimbalYawRight;
         break;
     case 2:
         _sticksThrottleUp   = stLeftStickUp;
@@ -597,6 +666,10 @@ void JoystickConfigController::_setStickPositions()
         _sticksRollRight    = stRightStickRight;
         _sticksPitchUp      = stRightStickUp;
         _sticksPitchDown    = stRightStickDown;
+        _sticksGimbalPitchUp   = stGimbalPitchUp;
+        _sticksGimbalPitchDown = stGimbalPitchDown;
+        _sticksGimbalYawLeft   = stGimbalYawLeft;
+        _sticksGimbalYawRight  = stGimbalYawRight;
         break;
     case 3:
         _sticksThrottleUp   = stRightStickUp;
@@ -607,6 +680,10 @@ void JoystickConfigController::_setStickPositions()
         _sticksRollRight    = stLeftStickRight;
         _sticksPitchUp      = stLeftStickUp;
         _sticksPitchDown    = stLeftStickDown;
+        _sticksGimbalPitchUp   = stGimbalPitchUp;
+        _sticksGimbalPitchDown = stGimbalPitchDown;
+        _sticksGimbalYawLeft   = stGimbalYawLeft;
+        _sticksGimbalYawRight  = stGimbalYawRight;
         break;
     case 4:
         _sticksThrottleUp   = stLeftStickUp;
@@ -617,6 +694,10 @@ void JoystickConfigController::_setStickPositions()
         _sticksRollRight    = stLeftStickRight;
         _sticksPitchUp      = stRightStickUp;
         _sticksPitchDown    = stRightStickDown;
+        _sticksGimbalPitchUp   = stGimbalPitchUp;
+        _sticksGimbalPitchDown = stGimbalPitchDown;
+        _sticksGimbalYawLeft   = stGimbalYawLeft;
+        _sticksGimbalYawRight  = stGimbalYawRight;
         break;
     default:
         Q_ASSERT(false);
@@ -659,6 +740,24 @@ bool JoystickConfigController::throttleAxisReversed()
     }
 }
 
+bool JoystickConfigController::gimbalPitchAxisReversed()
+{
+    if (_rgFunctionAxisMapping[Joystick::gimbalPitchFunction] != _axisNoAxis) {
+        return _rgAxisInfo[_rgFunctionAxisMapping[Joystick::gimbalPitchFunction]].reversed;
+    } else {
+        return false;
+    }
+}
+
+bool JoystickConfigController::gimbalYawAxisReversed()
+{
+    if (_rgFunctionAxisMapping[Joystick::gimbalYawFunction] != _axisNoAxis) {
+        return _rgAxisInfo[_rgFunctionAxisMapping[Joystick::gimbalYawFunction]].reversed;
+    } else {
+        return false;
+    }
+}
+
 void JoystickConfigController::setTransmitterMode(int mode)
 {
     // Mode selection is disabled during calibration
@@ -676,11 +775,15 @@ void JoystickConfigController::_signalAllAttitudeValueChanges()
     emit pitchAxisMappedChanged(pitchAxisMapped());
     emit yawAxisMappedChanged(yawAxisMapped());
     emit throttleAxisMappedChanged(throttleAxisMapped());
+    emit gimbalPitchAxisMappedChanged(gimbalPitchAxisMapped());
+    emit gimbalYawAxisMappedChanged(gimbalYawAxisMapped());
 
     emit rollAxisReversedChanged(rollAxisReversed());
     emit pitchAxisReversedChanged(pitchAxisReversed());
     emit yawAxisReversedChanged(yawAxisReversed());
     emit throttleAxisReversedChanged(throttleAxisReversed());
+    emit gimbalPitchAxisReversedChanged(gimbalPitchAxisReversed());
+    emit gimbalYawAxisReversedChanged(gimbalYawAxisReversed());
 
     emit transmitterModeChanged(_transmitterMode);
 }
@@ -690,6 +793,7 @@ void JoystickConfigController::_activeJoystickChanged(Joystick* joystick)
     bool joystickTransition = false;
     if (_activeJoystick) {
         joystickTransition = true;
+        // qInfo() << "_activeJoystickChanged disconnecting from:" << _activeJoystick->name();
         disconnect(_activeJoystick, &Joystick::rawAxisValueChanged, this, &JoystickConfigController::_axisValueChanged);
         // This will reset _rgFunctionAxis values to -1 to prevent out-of-bounds accesses
         _resetInternalCalibrationValues();
@@ -711,9 +815,27 @@ void JoystickConfigController::_activeJoystickChanged(Joystick* joystick)
         _axisValueSave  = new int[_axisCount];
         _axisRawValue   = new int[_axisCount];
         _setInternalCalibrationValuesFromSettings();
+        // qInfo() << "_activeJoystickChanged connecting to:" << _activeJoystick->name();
         connect(_activeJoystick, &Joystick::rawAxisValueChanged, this, &JoystickConfigController::_axisValueChanged);
+        // Connect processed axis values (including gimbal values) so UI can update gimbal indicator like stick positions
+        // connect(_activeJoystick, &Joystick::axisValues, this, &JoystickConfigController::_axisValuesChanged);
     }
 }
+
+// void JoystickConfigController::_axisValuesChanged(float roll, float pitch, float yaw, float throttle, float gimbalPitch, float gimbalYaw)
+// {
+//     // Map gimbalPitch/gimbalYaw (which are in [-1,1]) to UI positions like stickPositions use
+//     // X maps to 0.5 + yaw*0.5, Y maps to 0.82 + pitch*0.5 (match QML placement)
+//     qreal newX =  static_cast<qreal>(gimbalYaw) * 0.5;
+//     qreal newY =  static_cast<qreal>(gimbalPitch) * 0.5;
+//     // Debug log to help diagnose whether this slot is being called
+//     qInfo() << "_axisValuesChanged gimbalPitch,gimbalYaw ->" << gimbalPitch << gimbalYaw << "mapped->" << newX << newY;
+//     if (!qFuzzyCompare(newX, _gimbalPosX) || !qFuzzyCompare(newY, _gimbalPosY)) {
+//         _gimbalPosX = newX;
+//         _gimbalPosY = newY;
+//         emit gimbalPositionChanged();
+//     }
+// }
 
 bool JoystickConfigController::_validAxis(int axis) const
 {

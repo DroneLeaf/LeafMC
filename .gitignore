@@ -98,3 +98,5 @@ CMakeCache.txt
 
 # App images
 *.AppImage
+WARP.md
+rebuild.sh
