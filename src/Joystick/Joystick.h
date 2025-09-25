@@ -225,8 +225,8 @@ signals:
     void toggleVideoRecord          ();
     void gimbalPitchStep            (int direction);
     void gimbalYawStep              (int direction);
-    void gimbalPitchStep            (int direction, float speed);
-    void gimbalYawStep              (int direction, float speed);
+    void gimbalPitchStep            (int direction, float steps);
+    void gimbalYawStep              (int direction, float steps);
 
     void centerGimbal               ();
     void gimbalYawLock              (bool lock);

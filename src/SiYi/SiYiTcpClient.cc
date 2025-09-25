@@ -15,6 +15,9 @@ SiYiTcpClient::SiYiTcpClient(const QString ip, quint16 port, QObject *parent)
     , ip_(ip)
     , port_(port)
 {
+    // IP config and defaults are loaded by concrete transmitters (e.g. SiYiTransmitter)
+    // and passed into this base class via the constructor. This keeps platform
+    // specific configuration logic out of the generic TCP client.
     sequence_ = quint16(QDateTime::currentMSecsSinceEpoch());
     sequence_2 = sequence_;
     // 自动重连

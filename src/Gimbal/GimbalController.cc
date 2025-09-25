@@ -430,7 +430,7 @@ void GimbalController::gimbalPitchStep(int direction){
 }
 
 
-void GimbalController::gimbalPitchStep(int direction, float speed)
+void GimbalController::gimbalPitchStep(int direction, float steps)
 {
     if (!_activeGimbal) {
         qCDebug(GimbalLog) << "gimbalStepPitch: active gimbal is nullptr, returning";
@@ -438,9 +438,9 @@ void GimbalController::gimbalPitchStep(int direction, float speed)
     }
 
     if (_activeGimbal->yawLock()) {
-        sendPitchAbsoluteYaw(_activeGimbal->absolutePitch()->rawValue().toFloat() + direction * speed, _activeGimbal->absoluteYaw()->rawValue().toFloat(), false);
+        sendPitchAbsoluteYaw(_activeGimbal->absolutePitch()->rawValue().toFloat() + direction * steps, _activeGimbal->absoluteYaw()->rawValue().toFloat(), false);
     } else {
-        sendPitchBodyYaw(_activeGimbal->absolutePitch()->rawValue().toFloat() + direction * speed, _activeGimbal->bodyYaw()->rawValue().toFloat(), false);
+        sendPitchBodyYaw(_activeGimbal->absolutePitch()->rawValue().toFloat() + direction * steps, _activeGimbal->bodyYaw()->rawValue().toFloat(), false);
     }
 }
 
@@ -448,7 +448,7 @@ void GimbalController::gimbalYawStep(int direction){
     gimbalYawStep(direction, 5.0f);
 }
 
-void GimbalController::gimbalYawStep(int direction, float speed)
+void GimbalController::gimbalYawStep(int direction, float steps)
 {
     if (!_activeGimbal) {
         qCDebug(GimbalLog) << "gimbalStepPitch: active gimbal is nullptr, returning";
@@ -456,9 +456,9 @@ void GimbalController::gimbalYawStep(int direction, float speed)
     }
 
     if (_activeGimbal->yawLock()) {
-        sendPitchAbsoluteYaw(_activeGimbal->absolutePitch()->rawValue().toFloat(), _activeGimbal->absoluteYaw()->rawValue().toFloat() + direction * speed, false);
+        sendPitchAbsoluteYaw(_activeGimbal->absolutePitch()->rawValue().toFloat(), _activeGimbal->absoluteYaw()->rawValue().toFloat() + direction * steps, false);
     } else {
-        sendPitchBodyYaw(_activeGimbal->absolutePitch()->rawValue().toFloat(), _activeGimbal->bodyYaw()->rawValue().toFloat() + direction * speed, false);
+        sendPitchBodyYaw(_activeGimbal->absolutePitch()->rawValue().toFloat(), _activeGimbal->bodyYaw()->rawValue().toFloat() + direction * steps, false);
     }
 }
 

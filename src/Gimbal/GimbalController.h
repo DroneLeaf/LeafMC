@@ -164,8 +164,8 @@ public slots:
     Q_INVOKABLE void centerGimbal   (); // Also used by qml
     void gimbalPitchStep            (int direction);
     void gimbalYawStep              (int direction);
-    void gimbalPitchStep            (int direction, float speed);
-    void gimbalYawStep              (int direction, float speed);
+    void gimbalPitchStep            (int direction, float steps);
+    void gimbalYawStep              (int direction, float steps);
     
     
 signals:

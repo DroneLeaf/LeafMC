@@ -910,14 +910,19 @@ void Joystick::_handleAxis()
 
             if (_activeVehicle && _activeVehicle->gimbalController()) {
                 const float analogDeadband = 0.02f; // avoid jitter
-                const float stepScale = 100.0f;       // scale analog [-1..1] to step magnitude; adjust to taste
 
-                if (fabsf(gimbalPitch) > analogDeadband) {
-                        emit gimbalPitchStep(fabsf(gimbalPitch) > 0 ? 1: -1 , stepScale * fabsf(gimbalPitch));
-                }
+                {
+                    float absPitch = fabsf(gimbalPitch);
+                    if (absPitch > analogDeadband) {
+                        int dir = (gimbalPitch > 0.0f) ? 1 : -1;
+                        emit gimbalPitchStep(dir, _mavlinkGimbalGain * absPitch);
+                    }
 
-                if (fabsf(gimbalYaw) > analogDeadband) {
-                    emit gimbalYawStep(fabsf(gimbalYaw) > 0 ? 1: -1 , stepScale * fabsf(gimbalYaw));
+                    float absYaw = fabsf(gimbalYaw);
+                    if (absYaw > analogDeadband) {
+                        int dir = (gimbalYaw > 0.0f) ? 1 : -1;
+                        emit gimbalYawStep(dir, _mavlinkGimbalGain * absYaw);
+                    }
                 }
             }
 
