@@ -893,6 +893,26 @@ void Joystick::_handleAxis()
                 if(!_siyiCtrlSendEnabled){
                     emit startSiYiCtrl();
                 }
+
+            if (_activeVehicle && _activeVehicle->gimbalController()) {
+                const float analogDeadband = 0.02f; // avoid jitter
+                const float stepScale = 1.0f;       // scale analog [-1..1] to step magnitude; adjust to taste
+
+                if (fabsf(gimbalPitch) > analogDeadband) {
+                    int pitchStep = static_cast<int>(gimbalPitch * stepScale);
+                    if (pitchStep != 0) {
+                        emit gimbalPitchStep(pitchStep);
+                    }
+                }
+
+                if (fabsf(gimbalYaw) > analogDeadband) {
+                    int yawStep = static_cast<int>(gimbalYaw * stepScale);
+                    if (yawStep != 0) {
+                        emit gimbalYawStep(yawStep);
+                    }
+                }
+            }
+
             // }
             // else{
                 // if(_siyiCtrlSendEnabled){
