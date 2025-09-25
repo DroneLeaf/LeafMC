@@ -115,6 +115,9 @@ public:
     Q_PROPERTY(bool     accumulator             READ accumulator            WRITE setAccumulator        NOTIFY accumulatorChanged)
     Q_PROPERTY(bool     circleCorrection        READ circleCorrection       WRITE setCircleCorrection   NOTIFY circleCorrectionChanged)
 
+    Q_PROPERTY(int      siyiGimbalGain          READ siyiGimbalGain        WRITE setSiyiGimbalGain     NOTIFY siyiGimbalGainChanged)
+    Q_PROPERTY(int      mavlinkGimbalGain       READ mavlinkGimbalGain     WRITE setMavlinkGimbalGain  NOTIFY mavlinkGimbalGainChanged)
+
     Q_INVOKABLE void    setButtonRepeat     (int button, bool repeat);
     Q_INVOKABLE bool    getButtonRepeat     (int button);
     Q_INVOKABLE void    setButtonAction     (int button, const QString& action);
@@ -185,6 +188,13 @@ public:
     /// Set joystick button repeat rate (in Hz)
     void  setButtonFrequency(float val);
 
+    // Gimbal gains
+    int   siyiGimbalGain() const;
+    void  setSiyiGimbalGain(int g);
+
+    int   mavlinkGimbalGain() const;
+    void  setMavlinkGimbalGain(int g);
+
 signals:
     // The raw signals are only meant for use by calibration
     void rawAxisValueChanged        (int index, int value);
@@ -202,6 +212,8 @@ signals:
 
     void axisFrequencyHzChanged     ();
     void buttonFrequencyHzChanged   ();
+    void siyiGimbalGainChanged      (int g);
+    void mavlinkGimbalGainChanged   (int g);
     void startContinuousZoom        (int direction);
     void stopContinuousZoom         ();
     void stepZoom                   (int direction);
@@ -213,8 +225,8 @@ signals:
     void toggleVideoRecord          ();
     void gimbalPitchStep            (int direction);
     void gimbalYawStep              (int direction);
-    void gimbalPitchStep            (int direction, float speed = 5.0f);
-    void gimbalYawStep              (int direction, float speed = 5.0f);
+    void gimbalPitchStep            (int direction, float speed);
+    void gimbalYawStep              (int direction, float speed);
 
     void centerGimbal               ();
     void gimbalYawLock              (bool lock);
@@ -324,6 +336,10 @@ protected:
         _siyiCtrlPitch = 0;
     bool _siyiCtrlSendEnabled = false;
 
+    // Gimbal gain settings
+    int _siyiGimbalGain = 100;    ///< percentage for SiYi control (default 100)
+    int _mavlinkGimbalGain = 5;   ///< step scale for MAVLink gimbal (default 5)
+
 private:
     static const char*  _rgFunctionSettingsKey[maxFunction];
 
@@ -339,6 +355,8 @@ private:
     static const char* _circleCorrectionSettingsKey;
     static const char* _axisFrequencySettingsKey;
     static const char* _buttonFrequencySettingsKey;
+    static const char* _siyiGimbalGainSettingsKey;
+    static const char* _mavlinkGimbalGainSettingsKey;
     static const char* _txModeSettingsKey;
     static const char* _fixedWingTXModeSettingsKey;
     static const char* _multiRotorTXModeSettingsKey;

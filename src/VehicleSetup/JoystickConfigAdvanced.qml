@@ -140,6 +140,40 @@ Item {
             visible:            advancedSettings.checked
         }
         //-----------------------------------------------------------------
+        QGCLabel {
+            text:               qsTr("SiYi Gimbal Gain (%):")
+            Layout.alignment:   Qt.AlignVCenter
+            visible:            advancedSettings.checked
+        }
+        QGCTextField {
+            text:               _activeJoystick ? _activeJoystick.siyiGimbalGain : 100
+            enabled:            advancedSettings.checked
+            validator:          IntValidator { bottom: 1; top: 1000 }
+            inputMethodHints:   Qt.ImhFormattedNumbersOnly
+            Layout.alignment:   Qt.AlignVCenter
+            onEditingFinished: {
+                _activeJoystick.siyiGimbalGain = parseInt(text)
+            }
+            visible:            advancedSettings.checked
+        }
+
+        QGCLabel {
+            text:               qsTr("MAVLINK Gimbal Gain:")
+            Layout.alignment:   Qt.AlignVCenter
+            visible:            advancedSettings.checked
+        }
+        QGCTextField {
+            text:               _activeJoystick ? _activeJoystick.mavlinkGimbalGain : 5
+            enabled:            advancedSettings.checked
+            validator:          IntValidator { bottom: 0; top: 1000 }
+            inputMethodHints:   Qt.ImhFormattedNumbersOnly
+            Layout.alignment:   Qt.AlignVCenter
+            onEditingFinished: {
+                _activeJoystick.mavlinkGimbalGain = parseInt(text)
+            }
+            visible:            advancedSettings.checked
+        }
+        //-----------------------------------------------------------------
         //-- Enable circle correction
         QGCLabel {
             text:               qsTr("Enable circle correction")

@@ -430,7 +430,7 @@ void GimbalController::gimbalPitchStep(int direction){
 }
 
 
-void GimbalController::gimbalPitchStep(int direction, float speed = 5.0f)
+void GimbalController::gimbalPitchStep(int direction, float speed)
 {
     if (!_activeGimbal) {
         qCDebug(GimbalLog) << "gimbalStepPitch: active gimbal is nullptr, returning";
@@ -448,7 +448,7 @@ void GimbalController::gimbalYawStep(int direction){
     gimbalYawStep(direction, 5.0f);
 }
 
-void GimbalController::gimbalYawStep(int direction, float speed = 5.0f)
+void GimbalController::gimbalYawStep(int direction, float speed)
 {
     if (!_activeGimbal) {
         qCDebug(GimbalLog) << "gimbalStepPitch: active gimbal is nullptr, returning";

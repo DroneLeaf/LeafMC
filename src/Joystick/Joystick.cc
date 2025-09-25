@@ -34,6 +34,8 @@ const char* Joystick::_deadbandSettingsKey =            "Deadband";
 const char* Joystick::_circleCorrectionSettingsKey =    "Circle_Correction";
 const char* Joystick::_axisFrequencySettingsKey =       "AxisFrequency";
 const char* Joystick::_buttonFrequencySettingsKey =     "ButtonFrequency";
+const char* Joystick::_siyiGimbalGainSettingsKey =      "SiYiGimbalGain";
+const char* Joystick::_mavlinkGimbalGainSettingsKey =   "MavlinkGimbalGain";
 const char* Joystick::_txModeSettingsKey =              nullptr;
 const char* Joystick::_fixedWingTXModeSettingsKey =     "TXMode_FixedWing";
 const char* Joystick::_multiRotorTXModeSettingsKey =    "TXMode_MultiRotor";
@@ -493,10 +495,18 @@ void Joystick::_loadSettings()
     QString GimbalYawGain("GimbalYawGain");
     QString GimbalPitchGain("GimbalPitchGain");
 
+    // legacy SiYi gain (float multiplier stored historically)
     gain_gimbal_yaw = settings.value(GimbalYawGain, 100.0).toDouble(&convertOk);
     badSettings |= !convertOk;
 
     gain_gimbal_pitch = settings.value(GimbalPitchGain, 100.0).toDouble(&convertOk);
+    badSettings |= !convertOk;
+
+    // New persisted settings (integers) for Joystick UI
+    _siyiGimbalGain = settings.value(_siyiGimbalGainSettingsKey, 100).toInt(&convertOk);
+    badSettings |= !convertOk;
+
+    _mavlinkGimbalGain = settings.value(_mavlinkGimbalGainSettingsKey, 5).toInt(&convertOk);
     badSettings |= !convertOk;
 
     if (badSettings) {
@@ -578,6 +588,10 @@ void Joystick::_saveSettings()
         qCDebug(JoystickLog) << "_saveSettings name:function:axis" << _name << function << _rgFunctionSettingsKey[function];
     }
     _saveButtonSettings();
+
+    // Save new gimbal gain settings
+    settings.setValue(_siyiGimbalGainSettingsKey, _siyiGimbalGain);
+    settings.setValue(_mavlinkGimbalGainSettingsKey, _mavlinkGimbalGain);
 }
 
 // Relative mappings of axis functions between different TX modes
@@ -899,12 +913,11 @@ void Joystick::_handleAxis()
                 const float stepScale = 100.0f;       // scale analog [-1..1] to step magnitude; adjust to taste
 
                 if (fabsf(gimbalPitch) > analogDeadband) {
-                        emit gimbalPitchStep(fabsf(gimbalPitch) > 0 ? 1: -1 , stepScale);
+                        emit gimbalPitchStep(fabsf(gimbalPitch) > 0 ? 1: -1 , stepScale * fabsf(gimbalPitch));
                 }
 
                 if (fabsf(gimbalYaw) > analogDeadband) {
-                    emit gimbalYawStep(fabsf(gimbalYaw) > 0 ? 1: -1 , stepScale);
-                    }
+                    emit gimbalYawStep(fabsf(gimbalYaw) > 0 ? 1: -1 , stepScale * fabsf(gimbalYaw));
                 }
             }
 
@@ -936,8 +949,10 @@ void Joystick::startPolling(Vehicle* vehicle)
             disconnect(this, &Joystick::setFlightMode,      _activeVehicle, &Vehicle::setFlightMode);
             disconnect(this, &Joystick::gimbalYawLock,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawLock);
             disconnect(this, &Joystick::centerGimbal,       _activeVehicle->gimbalController(), &GimbalController::centerGimbal);
-            disconnect(this, &Joystick::gimbalPitchStep,    _activeVehicle->gimbalController(), &GimbalController::gimbalPitchStep);
-            disconnect(this, &Joystick::gimbalYawStep,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawStep);
+            disconnect(this, qOverload<int>(&Joystick::gimbalPitchStep),    _activeVehicle->gimbalController(), qOverload<int>(&GimbalController::gimbalPitchStep));
+            disconnect(this, qOverload<int, float>(&Joystick::gimbalPitchStep),    _activeVehicle->gimbalController(), qOverload<int, float>(&GimbalController::gimbalPitchStep));
+            disconnect(this, qOverload<int>(&Joystick::gimbalYawStep),      _activeVehicle->gimbalController(), qOverload<int>(&GimbalController::gimbalYawStep));
+            disconnect(this, qOverload<int, float>(&Joystick::gimbalYawStep),      _activeVehicle->gimbalController(), qOverload<int, float>(&GimbalController::gimbalYawStep));
             disconnect(this, &Joystick::emergencyStop,      _activeVehicle, &Vehicle::emergencyStop);
             disconnect(this, &Joystick::gripperAction,      _activeVehicle, &Vehicle::setGripperAction);
             disconnect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
@@ -962,8 +977,10 @@ void Joystick::startPolling(Vehicle* vehicle)
             connect(this, &Joystick::setFlightMode,      _activeVehicle, &Vehicle::setFlightMode);
             connect(this, &Joystick::gimbalYawLock,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawLock);
             connect(this, &Joystick::centerGimbal,       _activeVehicle->gimbalController(), &GimbalController::centerGimbal);
-            connect(this, &Joystick::gimbalPitchStep,    _activeVehicle->gimbalController(), &GimbalController::gimbalPitchStep);
-            connect(this, &Joystick::gimbalYawStep,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawStep);
+            connect(this, qOverload<int>(&Joystick::gimbalPitchStep),    _activeVehicle->gimbalController(), qOverload<int>(&GimbalController::gimbalPitchStep));
+            connect(this, qOverload<int, float>(&Joystick::gimbalPitchStep),    _activeVehicle->gimbalController(), qOverload<int, float>(&GimbalController::gimbalPitchStep));
+            connect(this, qOverload<int>(&Joystick::gimbalYawStep),      _activeVehicle->gimbalController(), qOverload<int>(&GimbalController::gimbalYawStep));
+            connect(this, qOverload<int, float>(&Joystick::gimbalYawStep),      _activeVehicle->gimbalController(), qOverload<int, float>(&GimbalController::gimbalYawStep));
             connect(this, &Joystick::emergencyStop,      _activeVehicle, &Vehicle::emergencyStop);
             connect(this, &Joystick::gripperAction,      _activeVehicle, &Vehicle::setGripperAction);
             connect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
@@ -986,8 +1003,10 @@ void Joystick::stopPolling(void)
             disconnect(this, &Joystick::setFlightMode,      _activeVehicle, &Vehicle::setFlightMode);
             disconnect(this, &Joystick::gimbalYawLock,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawLock);
             disconnect(this, &Joystick::centerGimbal,       _activeVehicle->gimbalController(), &GimbalController::centerGimbal);
-            disconnect(this, &Joystick::gimbalPitchStep,    _activeVehicle->gimbalController(), &GimbalController::gimbalPitchStep);
-            disconnect(this, &Joystick::gimbalYawStep,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawStep);
+            disconnect(this, qOverload<int>(&Joystick::gimbalPitchStep),    _activeVehicle->gimbalController(), qOverload<int>(&GimbalController::gimbalPitchStep));
+            disconnect(this, qOverload<int, float>(&Joystick::gimbalPitchStep),    _activeVehicle->gimbalController(), qOverload<int, float>(&GimbalController::gimbalPitchStep));
+            disconnect(this, qOverload<int>(&Joystick::gimbalYawStep),      _activeVehicle->gimbalController(), qOverload<int>(&GimbalController::gimbalYawStep));
+            disconnect(this, qOverload<int, float>(&Joystick::gimbalYawStep),      _activeVehicle->gimbalController(), qOverload<int, float>(&GimbalController::gimbalYawStep));
             disconnect(this, &Joystick::gripperAction,      _activeVehicle, &Vehicle::setGripperAction);
             disconnect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
             disconnect(this, &Joystick::landingGearRetract, _activeVehicle, &Vehicle::landingGearRetract);
@@ -1094,6 +1113,38 @@ void Joystick::setButtonAction(int button, const QString& action)
         settings.setValue(QString(_buttonActionRepeatKey).arg(button), _buttonActionArray[button]->repeat);
     }
     emit buttonActionsChanged();
+}
+
+int Joystick::siyiGimbalGain() const
+{
+    return _siyiGimbalGain;
+}
+
+void Joystick::setSiyiGimbalGain(int g)
+{
+    if (_siyiGimbalGain == g) return;
+    _siyiGimbalGain = g;
+    QSettings settings;
+    settings.beginGroup(_settingsGroup);
+    settings.beginGroup(_name);
+    settings.setValue(_siyiGimbalGainSettingsKey, _siyiGimbalGain);
+    emit siyiGimbalGainChanged(_siyiGimbalGain);
+}
+
+int Joystick::mavlinkGimbalGain() const
+{
+    return _mavlinkGimbalGain;
+}
+
+void Joystick::setMavlinkGimbalGain(int g)
+{
+    if (_mavlinkGimbalGain == g) return;
+    _mavlinkGimbalGain = g;
+    QSettings settings;
+    settings.beginGroup(_settingsGroup);
+    settings.beginGroup(_name);
+    settings.setValue(_mavlinkGimbalGainSettingsKey, _mavlinkGimbalGain);
+    emit mavlinkGimbalGainChanged(_mavlinkGimbalGain);
 }
 
 QString Joystick::getButtonAction(int button)
