@@ -425,8 +425,12 @@ bool GimbalController::_yawInVehicleFrame(uint32_t flags)
         return (flags & GIMBAL_DEVICE_FLAGS_YAW_LOCK) == 0;
     }
 }
+void GimbalController::gimbalPitchStep(int direction){
+    gimbalPitchStep(direction, 5.0f);
+}
 
-void GimbalController::gimbalPitchStep(int direction)
+
+void GimbalController::gimbalPitchStep(int direction, float speed = 5.0f)
 {
     if (!_activeGimbal) {
         qCDebug(GimbalLog) << "gimbalStepPitch: active gimbal is nullptr, returning";
@@ -434,13 +438,17 @@ void GimbalController::gimbalPitchStep(int direction)
     }
 
     if (_activeGimbal->yawLock()) {
-        sendPitchAbsoluteYaw(_activeGimbal->absolutePitch()->rawValue().toFloat() + direction * 5, _activeGimbal->absoluteYaw()->rawValue().toFloat(), false);
+        sendPitchAbsoluteYaw(_activeGimbal->absolutePitch()->rawValue().toFloat() + direction * speed, _activeGimbal->absoluteYaw()->rawValue().toFloat(), false);
     } else {
-        sendPitchBodyYaw(_activeGimbal->absolutePitch()->rawValue().toFloat() + direction * 5, _activeGimbal->bodyYaw()->rawValue().toFloat(), false);
+        sendPitchBodyYaw(_activeGimbal->absolutePitch()->rawValue().toFloat() + direction * speed, _activeGimbal->bodyYaw()->rawValue().toFloat(), false);
     }
 }
 
-void GimbalController::gimbalYawStep(int direction)
+void GimbalController::gimbalYawStep(int direction){
+    gimbalYawStep(direction, 5.0f);
+}
+
+void GimbalController::gimbalYawStep(int direction, float speed = 5.0f)
 {
     if (!_activeGimbal) {
         qCDebug(GimbalLog) << "gimbalStepPitch: active gimbal is nullptr, returning";
@@ -448,9 +456,9 @@ void GimbalController::gimbalYawStep(int direction)
     }
 
     if (_activeGimbal->yawLock()) {
-        sendPitchAbsoluteYaw(_activeGimbal->absolutePitch()->rawValue().toFloat(), _activeGimbal->absoluteYaw()->rawValue().toFloat() + direction * 5, false);
+        sendPitchAbsoluteYaw(_activeGimbal->absolutePitch()->rawValue().toFloat(), _activeGimbal->absoluteYaw()->rawValue().toFloat() + direction * speed, false);
     } else {
-        sendPitchBodyYaw(_activeGimbal->absolutePitch()->rawValue().toFloat(), _activeGimbal->bodyYaw()->rawValue().toFloat() + direction * 5, false);
+        sendPitchBodyYaw(_activeGimbal->absolutePitch()->rawValue().toFloat(), _activeGimbal->bodyYaw()->rawValue().toFloat() + direction * speed, false);
     }
 }
 
