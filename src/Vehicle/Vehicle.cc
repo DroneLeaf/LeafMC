@@ -517,6 +517,7 @@ void Vehicle::_commonInit()
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_INNER, QString("LEARNING INNER"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_OUTER, QString("LEARNING OUTER"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_FULL, QString("LEARNING FULL"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_FULL_DATA_COLLECTION, QString("LEARNING FULL - Collect Data"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_INSPECTION, QString("INSPECTION"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_REFINED_TUNING_ONLINE, QString("Refined Tuning"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_REFINED_TUNING_OFFLINE, QString("Refined Tuning - Collect Data"));
