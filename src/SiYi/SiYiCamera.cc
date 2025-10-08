@@ -49,11 +49,11 @@ SiYiCamera::~SiYiCamera()
 
 void SiYiCamera::analyzeIp(QString videoUrl)
 {
-    SiYiTcpClient::analyzeIp(videoUrl);
-    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
-                           + "/config.ini",
-                       QSettings::IniFormat);
-    settings.setValue("siyiCameraIp", ip_);
+    // SiYiTcpClient::analyzeIp(videoUrl);
+    // QSettings settings(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
+    //                        + "/config.ini",
+    //                    QSettings::IniFormat);
+    // settings.setValue("siyiCameraIp", ip_);
 }
 
 bool SiYiCamera::turn(int yaw, int pitch)

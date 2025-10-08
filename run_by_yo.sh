@@ -74,6 +74,8 @@ if [[ ${#PGIDS[@]} -gt 0 ]]; then
     sleep 0.5
 fi
 
+export LD_LIBRARY_PATH=/home/yo/Qt/5.15.2/gcc_64/lib:$LD_LIBRARY_PATH
+
 # Launch the binary in background and stream logs to terminal
 echo "Starting QGroundControl: $BIN"
 "$BIN" "$@" &

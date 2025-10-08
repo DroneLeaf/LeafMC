@@ -96,8 +96,8 @@ const float Joystick::_maxAxisFrequencyHz       = 200.0f;
 const float Joystick::_minButtonFrequencyHz     = 0.25f;
 const float Joystick::_maxButtonFrequencyHz     = 50.0f;
 
-double gain_gimbal_yaw=1.0;
-double gain_gimbal_pitch=1.0;
+// double gain_gimbal_yaw=1.0;
+// double gain_gimbal_pitch=1.0;
 
 AssignedButtonAction::AssignedButtonAction(QObject* parent, const QString name)
     : QObject(parent)
@@ -496,11 +496,11 @@ void Joystick::_loadSettings()
     QString GimbalPitchGain("GimbalPitchGain");
 
     // legacy SiYi gain (float multiplier stored historically)
-    gain_gimbal_yaw = settings.value(GimbalYawGain, 100.0).toDouble(&convertOk);
-    badSettings |= !convertOk;
+    // gain_gimbal_yaw = settings.value(GimbalYawGain, 100.0).toDouble(&convertOk);
+    // badSettings |= !convertOk;
 
-    gain_gimbal_pitch = settings.value(GimbalPitchGain, 100.0).toDouble(&convertOk);
-    badSettings |= !convertOk;
+    // gain_gimbal_pitch = settings.value(GimbalPitchGain, 100.0).toDouble(&convertOk);
+    // badSettings |= !convertOk;
 
     // New persisted settings (integers) for Joystick UI
     _siyiGimbalGain = settings.value(_siyiGimbalGainSettingsKey, 100).toInt(&convertOk);
@@ -836,13 +836,13 @@ void Joystick::_handleAxis()
             if(_axisCount > 4) {
                 axis = _rgFunctionAxis[gimbalPitchFunction];
                 gimbalPitch = _adjustRange(_rgAxisValues[axis], _rgCalibration[axis],_deadband);
-                _siyiCtrlPitch = gimbalPitch * gain_gimbal_pitch;
+                _siyiCtrlPitch = gimbalPitch * _siyiGimbalGain;
             }
 
             if(_axisCount > 5) {
                 axis = _rgFunctionAxis[gimbalYawFunction];
                 gimbalYaw = _adjustRange(_rgAxisValues[axis],   _rgCalibration[axis],_deadband);
-                _siyiCtrlYaw = gimbalYaw * gain_gimbal_yaw;
+                _siyiCtrlYaw = gimbalYaw * _siyiGimbalGain;
             }
 
             if (_accumulator) {
