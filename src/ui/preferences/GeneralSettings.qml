@@ -343,7 +343,6 @@ Rectangle {
                                     visible:                rtspUrlLabel.visible
                                     
                                     onTextChanged: {
-                                        SiYi.camera.analyzeIp(text)
                                     }
                                 }
 

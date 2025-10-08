@@ -31,13 +31,13 @@ SiYiCamera::SiYiCamera(const QString &ip, quint16 port, QObject *parent)
     });
     connect(this, &SiYiCamera::disconnected, this, [=]() { m_laserTimer->stop(); });
 
-    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
-                           + "/config.ini",
-                       QSettings::IniFormat);
-    QString tmp = settings.value("siyiCameraIp").toString();
-    if (!tmp.isEmpty()) {
-        ip_ = tmp;
-    }
+    // QSettings settings(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
+    //                        + "/config.ini",
+    //                    QSettings::IniFormat);
+    // QString tmp = settings.value("siyiCameraIp").toString();
+    // if (!tmp.isEmpty()) {
+    //     ip_ = tmp;
+    // }
     
 
 }
