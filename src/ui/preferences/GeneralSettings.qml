@@ -1127,18 +1127,18 @@ Rectangle {
                         }
                     }
 
-                    Item { width: 1; height: _margins; visible: true }
+                    Item { width: 1; height: _margins; visible: brandImageSectionLabel.visible }
                     QGCLabel {
                         id:         brandImageSectionLabel
                         text:       qsTr("Brand Image")
-                        visible:    true
+                        visible:    QGroundControl.settingsManager.brandImageSettings.visible && !ScreenTools.isMobile
                     }
                     Rectangle {
                         Layout.preferredWidth:  brandImageGrid.width + (_margins * 2)
                         Layout.preferredHeight: brandImageGrid.height + (_margins * 2)
                         Layout.fillWidth:       true
                         color:                  qgcPal.windowShade
-                        visible:                true
+                        visible:                brandImageSectionLabel.visible
 
                         GridLayout {
                             id:                 brandImageGrid

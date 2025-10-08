@@ -31,14 +31,6 @@ SiYiCamera::SiYiCamera(const QString &ip, quint16 port, QObject *parent)
     });
     connect(this, &SiYiCamera::disconnected, this, [=]() { m_laserTimer->stop(); });
 
-    // QSettings settings(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
-    //                        + "/config.ini",
-    //                    QSettings::IniFormat);
-    // QString tmp = settings.value("siyiCameraIp").toString();
-    // if (!tmp.isEmpty()) {
-    //     ip_ = tmp;
-    // }
-    
 
 }
 
@@ -49,11 +41,6 @@ SiYiCamera::~SiYiCamera()
 
 void SiYiCamera::analyzeIp(QString videoUrl)
 {
-    // SiYiTcpClient::analyzeIp(videoUrl);
-    // QSettings settings(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
-    //                        + "/config.ini",
-    //                    QSettings::IniFormat);
-    // settings.setValue("siyiCameraIp", ip_);
 }
 
 bool SiYiCamera::turn(int yaw, int pitch)
@@ -1032,7 +1019,6 @@ void SiYiCamera::messageHandle0x98(const QByteArray &msg)
 
 void SiYiCamera::messageHandle0x9a(const QByteArray &msg)
 {
-    // Nothing to do yet.
 
 }
 void SiYiCamera::messageHandle0x9e(const QByteArray &msg)

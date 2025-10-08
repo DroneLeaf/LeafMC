@@ -147,7 +147,6 @@ private slots:
     void _activeJoystickChanged(Joystick* joystick);
     void _axisValueChanged(int axis, int value);
     void _axisDeadbandChanged(int axis, int value);
-    // void _axisValuesChanged(float roll, float pitch, float yaw, float throttle, float gimbalPitch, float gimbalYaw);
 
 private:
     /// @brief The states of the calibration state machine.
@@ -240,8 +239,6 @@ private:
     stateStickPositions _sticksGimbalYawRight;
 
     QList<qreal> _currentStickPositions;
-    // qreal _gimbalPosX = 0.5;
-    // qreal _gimbalPosY = 0.82;
 
     int _rgFunctionAxisMapping[Joystick::maxFunction]; ///< Maps from joystick function to axis index. _axisMax indicates axis not set for this function.
 

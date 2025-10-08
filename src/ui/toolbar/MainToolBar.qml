@@ -152,7 +152,7 @@ Rectangle {
         anchors.top:            parent.top
         anchors.bottom:         parent.bottom
         anchors.margins:        ScreenTools.defaultFontPixelHeight * 0.66
-        visible:                currentToolbar !== planViewToolbar
+        visible:                currentToolbar !== planViewToolbar && _activeVehicle && !_communicationLost && x > (toolsFlickable.x + toolsFlickable.contentWidth + ScreenTools.defaultFontPixelWidth)
         fillMode:               Image.PreserveAspectFit
         source:                 _outdoorPalette ? _brandImageOutdoor : _brandImageIndoor
         mipmap:                 true
@@ -167,11 +167,11 @@ Rectangle {
         property string _brandImageOutdoor:     brandImageOutdoor()
 
         function brandImageIndoor() {
-            if (_userBrandImageIndoor.length > 0) {
+            if (_userBrandingIndoor) {
                 return _userBrandImageIndoor
             } else {
-                if (_userBrandImageOutdoor.length > 0) {
-                    return _userBrandImageOutdoor
+                if (_userBrandingOutdoor) {
+                    return _userBrandingOutdoor
                 } else {
                     if (_corePluginBranding) {
                         return QGroundControl.corePlugin.brandImageIndoor
@@ -183,11 +183,11 @@ Rectangle {
         }
 
         function brandImageOutdoor() {
-            if (_userBrandImageOutdoor.length > 0) {
+            if (_userBrandingOutdoor) {
                 return _userBrandImageOutdoor
             } else {
-                if (_userBrandImageIndoor.length > 0) {
-                    return _userBrandImageIndoor
+                if (_userBrandingIndoor) {
+                    return _userBrandingIndoor
                 } else {
                     if (_corePluginBranding) {
                         return QGroundControl.corePlugin.brandImageOutdoor

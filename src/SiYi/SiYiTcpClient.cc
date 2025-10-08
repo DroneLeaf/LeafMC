@@ -15,9 +15,6 @@ SiYiTcpClient::SiYiTcpClient(const QString ip, quint16 port, QObject *parent)
     , ip_(ip)
     , port_(port)
 {
-    // IP config and defaults are loaded by concrete transmitters (e.g. SiYiTransmitter)
-    // and passed into this base class via the constructor. This keeps platform
-    // specific configuration logic out of the generic TCP client.
     sequence_ = quint16(QDateTime::currentMSecsSinceEpoch());
     sequence_2 = sequence_;
     // 自动重连
@@ -52,30 +49,6 @@ void SiYiTcpClient::sendmessageUdp(const QByteArray &msg)
 
 void SiYiTcpClient::analyzeIp(QString videoUrl)
 {
-    // qWarning() << videoUrl;
-    // videoUrl = videoUrl.remove(QString("rtsp://"));
-    // QStringList strList = videoUrl.split('/');
-    // if (!strList.isEmpty()) {
-    //     // rtsp://192/168.144.25:8554/video1
-    //     QString ip = strList.first();
-    //     if (ip.contains(":")) {
-    //         if (ip.split(':').length() == 2) {
-    //             ip = ip.split(':').first();
-    //             if (ip.split('.').length() == 4) {
-    //                 resetIp(ip);
-    //             }
-    //         }
-    //     } else {
-    //         // rtsp://192.168.144.60/video0
-    //         if (ip.split('.').length() == 4) {
-    //             resetIp(ip);
-    //         } else {
-    //             qWarning() << "rtsp url is invalid:" << videoUrl;
-    //         }
-    //     }
-    // } else {
-    //     qWarning() << "rtsp url is invalid:" << videoUrl;
-    // }
 }
 
 quint16 SiYiTcpClient::sequence()
@@ -105,7 +78,7 @@ void SiYiTcpClient::run()
     const QString info = QString("[%1:%2]:").arg(ip_, QString::number(port_));
 
     connect(tcpClient, &QTcpSocket::connected, tcpClient, [=](){
-        // qInfo() << info << "Connect to server successfully!";
+        qInfo() << info << "Connect to server successfully!";
 
         heartbeatTimer->start();
         txTimer->start();
@@ -117,7 +90,7 @@ void SiYiTcpClient::run()
     });
 
     connect(udpClient, &QUdpSocket::connected, udpClient, [=](){
-        // qInfo() << info << "Connect to UDP server successfully!";
+        qInfo() << info << "Connect to UDP server successfully!";
 
         u_heartbeatTimer->start();
         u_txTimer->start();
@@ -129,7 +102,7 @@ void SiYiTcpClient::run()
     });
 
     connect(tcpClient, &QTcpSocket::disconnected, tcpClient, [=]() {
-        // qInfo() << info << "Disconnect from server:" << tcpClient->errorString();
+        qInfo() << info << "Disconnect from server:" << tcpClient->errorString();
 
         this->isConnected_ = false;
         this->txMessageVectorMutex_.lock();
@@ -143,7 +116,7 @@ void SiYiTcpClient::run()
     });
 
     connect(udpClient, &QUdpSocket::disconnected, udpClient, [=]() {
-        // qInfo() << info << "Disconnect from UDP server:" << udpClient->errorString();
+        qInfo() << info << "Disconnect from UDP server:" << udpClient->errorString();
 
         this->isUdpConnected_ = false;
         this->u_txMessageVectorMutex_.lock();
