@@ -20,6 +20,14 @@ Item {
 
     focus:      true
 
+    Component.onCompleted: {
+        console.log("[FlyViewVideo] Component completed. visible=", visible, "focus=", focus)
+    }
+
+    onActiveFocusChanged: {
+        console.log("[FlyViewVideo] activeFocus changed:", activeFocus, "focus=", focus)
+    }
+
     Keys.onPressed: {
         console.log("[FlyViewVideo] Keys.onPressed: key=", event.key, "text=", event.text)
         if (event.key == Qt.Key_H) {
@@ -100,17 +108,28 @@ Item {
             easing.type: Easing.InExpo
         }
     }
-    QGCLabel {
-        text:           qsTr("Video Paused. Press \"H\" to Resume")
-        font.pointSize: ScreenTools.largeFontPointSize * 1.5
-        visible:        QGroundControl.videoManager.videoPaused
-        anchors.centerIn: parent
-        color:          "white"
 
-        background: Rectangle {
-            color: "#333333"
-            radius: 6
-            opacity: 0.85
+    /* Paused label with translucent background */
+    Item {
+        anchors.centerIn: parent
+        visible: QGroundControl.videoManager.videoPaused
+
+        Rectangle {
+            id: pausedBg
+            anchors.centerIn: parent
+            width: noVideoLabel.contentWidth + ScreenTools.defaultFontPixelHeight
+            height: noVideoLabel.contentHeight + ScreenTools.defaultFontPixelHeight
+            radius: ScreenTools.defaultFontPointSize / 2
+            color: "black"
+            opacity: 0.5
+        }
+
+        QGCLabel {
+            id: noVideoLabel
+            text: qsTr("Video Paused. Press \"H\" to Resume")
+            font.pointSize: ScreenTools.largeFontPointSize * 1.5
+            color: "white"
+            anchors.centerIn: parent
         }
     }
 

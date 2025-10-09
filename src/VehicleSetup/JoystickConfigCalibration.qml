@@ -115,7 +115,7 @@ Item {
                         // Use same visibility rule as other indicators, but require gimbal entries
                         visible: controller.stickPositions.length >= 6
                         x:  0.0 - (width * 0.5) + (parent.width * controller.stickPositions[4])
-                        y:  0.0 - (height * 0.5) + (parent.height * controller.stickPositions[5])
+                        y:  0.0 - (height * 1.0) + (parent.height * controller.stickPositions[5])
                     }
                     // Map joystick processed axisValues signal to the gimbal indicator so we use the same normalization
                     // No direct joystick connections here; controller updates gimbalPosX/Y
