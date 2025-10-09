@@ -20,14 +20,6 @@ Item {
 
     focus:      true
 
-    Component.onCompleted: {
-        console.log("[FlyViewVideo] Component completed. visible=", visible, "focus=", focus)
-    }
-
-    onActiveFocusChanged: {
-        console.log("[FlyViewVideo] activeFocus changed:", activeFocus, "focus=", focus)
-    }
-
     Keys.onPressed: {
         console.log("[FlyViewVideo] Keys.onPressed: key=", event.key, "text=", event.text)
         if (event.key == Qt.Key_H) {
@@ -108,13 +100,18 @@ Item {
             easing.type: Easing.InExpo
         }
     }
-
     QGCLabel {
-        text:           qsTr("Video Paused")
+        text:           qsTr("Video Paused. Press \"H\" to Resume")
         font.pointSize: ScreenTools.largeFontPointSize * 1.5
         visible:        QGroundControl.videoManager.videoPaused
         anchors.centerIn: parent
-        color:          "yellow"
+        color:          "white"
+
+        background: Rectangle {
+            color: "#333333"
+            radius: 6
+            opacity: 0.85
+        }
     }
 
     OnScreenGimbalController {
@@ -144,9 +141,7 @@ Item {
         onClicked:       onScreenGimbalController.clickControl()
         onDoubleClicked: QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
 
-
         onPressed: {
-            console.log("[FlyViewVideo] MouseArea.onPressed - requesting active focus for root")
             _root.forceActiveFocus()
             onScreenGimbalController.pressControl()
 
@@ -183,7 +178,6 @@ Item {
             }
         }
         onReleased: {
-            console.log("[FlyViewVideo] MouseArea.onReleased")
             onScreenGimbalController.releaseControl()
             
             //if there is already a selection, delete it
