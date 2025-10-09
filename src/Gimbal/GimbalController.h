@@ -164,7 +164,9 @@ public slots:
     Q_INVOKABLE void centerGimbal   (); // Also used by qml
     void gimbalPitchStep            (int direction);
     void gimbalYawStep              (int direction);
-
+    void gimbalPitchStep            (int direction, float steps);
+    void gimbalYawStep              (int direction, float steps);
+    
 signals:
     void    activeGimbalChanged           ();
     void    showAcquireGimbalControlPopup (); // This triggers a popup in QML asking the user for aproval to take control

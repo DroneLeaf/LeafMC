@@ -21,6 +21,11 @@ public:
     static SiYi *instance();
     SiYiCamera *cameraInstance();
     SiYiTransmitter *transmitterInstance();
+    
+    // Add these setter methods for runtime configuration changes
+    void setSiyiGimbalIp(const QString &ip);
+    void setSiyiTransmitterPort(quint16 port);
+    void setSiyiCameraPort(quint16 port);
 private:
     static SiYi *instance_;
     SiYiCamera *camera_;

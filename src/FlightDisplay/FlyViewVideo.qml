@@ -18,6 +18,25 @@ Item {
     id:         _root
     visible:    QGroundControl.videoManager.hasVideo
 
+    focus:      true
+
+    Component.onCompleted: {
+        console.log("[FlyViewVideo] Component completed. visible=", visible, "focus=", focus)
+    }
+
+    onActiveFocusChanged: {
+        console.log("[FlyViewVideo] activeFocus changed:", activeFocus, "focus=", focus)
+    }
+
+    Keys.onPressed: {
+        console.log("[FlyViewVideo] Keys.onPressed: key=", event.key, "text=", event.text)
+        if (event.key == Qt.Key_H) {
+            console.log("[FlyViewVideo] Key H pressed - toggling video paused")
+            QGroundControl.videoManager.toggleVideoPaused()
+            event.accepted = true;
+        }
+    }
+
     property alias iconLeftMargin: siyiController.iconLeftMargin
 
     property int    _track_rec_x:       0
@@ -90,6 +109,30 @@ Item {
         }
     }
 
+    /* Paused label with translucent background */
+    Item {
+        anchors.centerIn: parent
+        visible: QGroundControl.videoManager.videoPaused
+
+        Rectangle {
+            id: pausedBg
+            anchors.centerIn: parent
+            width: noVideoLabel.contentWidth + ScreenTools.defaultFontPixelHeight
+            height: noVideoLabel.contentHeight + ScreenTools.defaultFontPixelHeight
+            radius: ScreenTools.defaultFontPointSize / 2
+            color: "black"
+            opacity: 0.5
+        }
+
+        QGCLabel {
+            id: noVideoLabel
+            text: qsTr("Video Paused. Press \"H\" to Resume")
+            font.pointSize: ScreenTools.largeFontPointSize * 1.5
+            color: "white"
+            anchors.centerIn: parent
+        }
+    }
+
     OnScreenGimbalController {
         id:                      onScreenGimbalController
         anchors.fill:            parent
@@ -117,8 +160,8 @@ Item {
         onClicked:       onScreenGimbalController.clickControl()
         onDoubleClicked: QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
 
-
         onPressed: {
+            _root.forceActiveFocus()
             onScreenGimbalController.pressControl()
 
             _track_rec_x = mouse.x
@@ -134,7 +177,9 @@ Item {
                 }
             }
         }
+
         onPositionChanged: {
+            console.log("[FlyViewVideo] MouseArea.onPositionChanged - mouse.x=", mouse.x, "mouse.y=", mouse.y)
             //on move, update the width of rectangle
             if (trackingROI !== null) {
                 if (mouse.x < trackingROI.x) {

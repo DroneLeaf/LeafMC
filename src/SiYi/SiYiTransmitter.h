@@ -43,7 +43,7 @@ public:
         qint32 channel;
     };
 public:
-    explicit SiYiTransmitter(QObject *parent = nullptr);
+    explicit SiYiTransmitter(const QString &ip, quint16 port, QObject *parent = nullptr);
 protected:
     QByteArray heartbeatMessage() override;
     QByteArray heartbeatMessageUdp() override;

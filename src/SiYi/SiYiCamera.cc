@@ -6,8 +6,8 @@
 
 #include "SiYiCamera.h"
 
-SiYiCamera::SiYiCamera(QObject *parent)
-    : SiYiTcpClient("192.168.144.25", 37256)
+SiYiCamera::SiYiCamera(const QString &ip, quint16 port, QObject *parent)
+    : SiYiTcpClient(ip, port, parent)
 {
     m_laserTimer = new QTimer(this);
     m_laserTimer->setInterval(1000);
@@ -31,14 +31,6 @@ SiYiCamera::SiYiCamera(QObject *parent)
     });
     connect(this, &SiYiCamera::disconnected, this, [=]() { m_laserTimer->stop(); });
 
-    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
-                           + "/config.ini",
-                       QSettings::IniFormat);
-    QString tmp = settings.value("siyiCameraIp").toString();
-    if (!tmp.isEmpty()) {
-        ip_ = tmp;
-    }
-    
 
 }
 
@@ -49,11 +41,6 @@ SiYiCamera::~SiYiCamera()
 
 void SiYiCamera::analyzeIp(QString videoUrl)
 {
-    SiYiTcpClient::analyzeIp(videoUrl);
-    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
-                           + "/config.ini",
-                       QSettings::IniFormat);
-    settings.setValue("siyiCameraIp", ip_);
 }
 
 bool SiYiCamera::turn(int yaw, int pitch)
@@ -456,6 +443,8 @@ void SiYiCamera::analyzeMessage()
                     messageHandle0x94(packet);
                 } else if (msg.header.cmdId == 0x98) {
                     messageHandle0x98(packet);
+                } else if (msg.header.cmdId == 0x9a) {
+                    messageHandle0x9a(packet);
                 } else if (msg.header.cmdId == 0x9e) {
                     messageHandle0x9e(packet);
                 } else if (msg.header.cmdId == 0xa1) {
@@ -1028,6 +1017,10 @@ void SiYiCamera::messageHandle0x98(const QByteArray &msg)
     }
 }
 
+void SiYiCamera::messageHandle0x9a(const QByteArray &msg)
+{
+
+}
 void SiYiCamera::messageHandle0x9e(const QByteArray &msg)
 {
     struct ACK {

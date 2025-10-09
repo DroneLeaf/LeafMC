@@ -1,8 +1,8 @@
 ﻿#include <QtEndian>
 #include "SiYiTransmitter.h"
 
-SiYiTransmitter::SiYiTransmitter(QObject *parent)
-    : SiYiTcpClient{"192.168.144.12", 5864, parent}
+SiYiTransmitter::SiYiTransmitter(const QString &ip, quint16 port, QObject *parent)
+    : SiYiTcpClient{ ip, port, parent }
 {
 
 }

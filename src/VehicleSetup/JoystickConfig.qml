@@ -58,7 +58,12 @@ SetupPage {
 
             JoystickConfigController {
                 id:             controller
+                // Make controller discoverable from parent QML via objectName
+                objectName:     "joystickConfigController"
             }
+
+            // Expose the controller via an alias so loaders can access it directly
+            property alias joystickController: controller
 
             QGCTabBar {
                 id:             bar
