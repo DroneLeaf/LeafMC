@@ -20,8 +20,18 @@ Item {
 
     focus:      true
 
+    Component.onCompleted: {
+        console.log("[FlyViewVideo] Component completed. visible=", visible, "focus=", focus)
+    }
+
+    onActiveFocusChanged: {
+        console.log("[FlyViewVideo] activeFocus changed:", activeFocus, "focus=", focus)
+    }
+
     Keys.onPressed: {
+        console.log("[FlyViewVideo] Keys.onPressed: key=", event.key, "text=", event.text)
         if (event.key == Qt.Key_H) {
+            console.log("[FlyViewVideo] Key H pressed - toggling video paused")
             QGroundControl.videoManager.toggleVideoPaused()
             event.accepted = true;
         }
@@ -136,6 +146,8 @@ Item {
 
 
         onPressed: {
+            console.log("[FlyViewVideo] MouseArea.onPressed - requesting active focus for root")
+            _root.forceActiveFocus()
             onScreenGimbalController.pressControl()
 
             _track_rec_x = mouse.x
@@ -151,7 +163,9 @@ Item {
                 }
             }
         }
+
         onPositionChanged: {
+            console.log("[FlyViewVideo] MouseArea.onPositionChanged - mouse.x=", mouse.x, "mouse.y=", mouse.y)
             //on move, update the width of rectangle
             if (trackingROI !== null) {
                 if (mouse.x < trackingROI.x) {
@@ -169,6 +183,7 @@ Item {
             }
         }
         onReleased: {
+            console.log("[FlyViewVideo] MouseArea.onReleased")
             onScreenGimbalController.releaseControl()
             
             //if there is already a selection, delete it
