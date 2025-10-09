@@ -354,6 +354,29 @@ VideoManager::stopRecording()
 }
 
 void
+VideoManager::setVideoPaused(bool paused)
+{
+    if (_videoPaused == paused) {
+        return;
+    }
+    qCDebug(VideoManagerLog) << "Set Video Paused" << paused;
+    _videoPaused = paused;
+    for (int i = 0; i < 2; i++) {
+        if (_videoReceiver[i]) {
+            _videoReceiver[i]->setPaused(_videoPaused);
+        }
+    }
+    emit videoPausedChanged();
+}
+
+void
+VideoManager::toggleVideoPaused()
+{
+    qCDebug(VideoManagerLog) << "Toggle Video Paused";
+    setVideoPaused(!_videoPaused);
+}
+
+void
 VideoManager::grabImage(const QString& imageFile)
 {
     if (qgcApp()->runningUnitTests()) {

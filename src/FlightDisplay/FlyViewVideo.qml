@@ -18,6 +18,15 @@ Item {
     id:         _root
     visible:    QGroundControl.videoManager.hasVideo
 
+    focus:      true
+
+    Keys.onPressed: {
+        if (event.key == Qt.Key_H) {
+            QGroundControl.videoManager.toggleVideoPaused()
+            event.accepted = true;
+        }
+    }
+
     property alias iconLeftMargin: siyiController.iconLeftMargin
 
     property int    _track_rec_x:       0
@@ -88,6 +97,14 @@ Item {
             to: 0.0
             easing.type: Easing.InExpo
         }
+    }
+
+    QGCLabel {
+        text:           qsTr("Video Paused")
+        font.pointSize: ScreenTools.largeFontPointSize * 1.5
+        visible:        QGroundControl.videoManager.videoPaused
+        anchors.centerIn: parent
+        color:          "yellow"
     }
 
     OnScreenGimbalController {
