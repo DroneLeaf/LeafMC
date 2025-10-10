@@ -272,6 +272,23 @@ GstVideoReceiver::start(const QString& uri, unsigned timeout, int buffer)
 }
 
 void
+GstVideoReceiver::setPaused(bool paused)
+{
+    if (_needDispatch()) {
+        _slotHandler.dispatch([this, paused]() {
+            setPaused(paused);
+        });
+        return;
+    }
+    if (_pipeline == nullptr || !_decoding) {
+        qCDebug(VideoReceiverLog) << "Not decoding!" << _uri;
+        return;
+    }
+    qCDebug(VideoReceiverLog) << "Set Paused" << paused;
+    g_object_set(_decoderValve, "drop", paused, nullptr);
+}
+
+void
 GstVideoReceiver::stop(void)
 {
     if (_needDispatch()) {

@@ -55,6 +55,7 @@ public:
     Q_PROPERTY(bool             streaming               READ    streaming                                   NOTIFY streamingChanged)
     Q_PROPERTY(bool             decoding                READ    decoding                                    NOTIFY decodingChanged)
     Q_PROPERTY(bool             recording               READ    recording                                   NOTIFY recordingChanged)
+    Q_PROPERTY(bool             videoPaused             READ    videoPaused     WRITE   setVideoPaused      NOTIFY videoPausedChanged)
     Q_PROPERTY(QSize            videoSize               READ    videoSize                                   NOTIFY videoSizeChanged)
 
     virtual bool        hasVideo            ();
@@ -79,6 +80,10 @@ public:
         return _decoding;
     }
 
+    bool videoPaused(void) {
+        return _videoPaused;
+    }
+
     bool recording(void) {
         return _recording;
     }
@@ -101,12 +106,14 @@ public:
 
     virtual void        setfullScreen       (bool f);
     virtual void        setIsTaisync        (bool t) { _isTaisync = t;  emit isTaisyncChanged(); }
+    void                setVideoPaused      (bool paused);
 
     // Override from QGCTool
     virtual void        setToolbox          (QGCToolbox *toolbox);
 
-    Q_INVOKABLE void startVideo     ();
-    Q_INVOKABLE void stopVideo      ();
+    Q_INVOKABLE void startVideo         ();
+    Q_INVOKABLE void stopVideo          ();
+    Q_INVOKABLE void toggleVideoPaused  ();
 
     Q_INVOKABLE void startRecording (const QString& videoFile = QString());
     Q_INVOKABLE void stopRecording  ();
@@ -127,6 +134,7 @@ signals:
     void streamingChanged           ();
     void decodingChanged            ();
     void recordingChanged           ();
+    void videoPausedChanged         ();
     void recordingStarted           ();
     void videoSizeChanged           ();
 
@@ -171,6 +179,7 @@ protected:
     QAtomicInteger<bool>    _streaming              = false;
     QAtomicInteger<bool>    _decoding               = false;
     QAtomicInteger<bool>    _recording              = false;
+    bool                    _videoPaused            = false;
     QAtomicInteger<quint32> _videoSize              = 0;
     VideoSettings*          _videoSettings          = nullptr;
     QString                 _uvcVideoSourceID;

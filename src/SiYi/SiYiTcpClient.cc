@@ -49,30 +49,6 @@ void SiYiTcpClient::sendmessageUdp(const QByteArray &msg)
 
 void SiYiTcpClient::analyzeIp(QString videoUrl)
 {
-    qWarning() << videoUrl;
-    videoUrl = videoUrl.remove(QString("rtsp://"));
-    QStringList strList = videoUrl.split('/');
-    if (!strList.isEmpty()) {
-        // rtsp://192/168.144.25:8554/video1
-        QString ip = strList.first();
-        if (ip.contains(":")) {
-            if (ip.split(':').length() == 2) {
-                ip = ip.split(':').first();
-                if (ip.split('.').length() == 4) {
-                    resetIp(ip);
-                }
-            }
-        } else {
-            // rtsp://192.168.144.60/video0
-            if (ip.split('.').length() == 4) {
-                resetIp(ip);
-            } else {
-                qWarning() << "rtsp url is invalid:" << videoUrl;
-            }
-        }
-    } else {
-        qWarning() << "rtsp url is invalid:" << videoUrl;
-    }
 }
 
 quint16 SiYiTcpClient::sequence()

@@ -91,6 +91,7 @@ public:
 public slots:
     virtual void start(const QString& uri, unsigned timeout, int buffer = 0);
     virtual void stop(void);
+    virtual void setPaused(bool paused);
     virtual void startDecoding(void* sink);
     virtual void stopDecoding(void);
     virtual void startRecording(const QString& videoFile, FILE_FORMAT format);

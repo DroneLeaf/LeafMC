@@ -47,7 +47,8 @@ Item {
                     border.color:   qgcPal.text
                     border.width:   ScreenTools.defaultFontPixelWidth * 0.25
                     anchors.horizontalCenter: parent.horizontalCenter
-                    property bool hasStickPositions: controller.stickPositions.length === 4
+                    // stickPositions now contains leftX,leftY,rightX,rightY and optionally gimbalX,gimbalY
+                    property bool hasStickPositions: controller.stickPositions.length >= 4
                     //---------------------------------------------------------
                     //-- Left Stick
                     Rectangle {
@@ -90,6 +91,34 @@ Item {
                         x:      (parent.width  * controller.stickPositions[2]) - (width  * 0.5)
                         y:      (parent.height * controller.stickPositions[3]) - (height * 0.5)
                     }
+                    // Gimbal circle - centered below the main two circles
+                    Rectangle {
+                        // Reduce size by half compared to original and keep it circular
+                        width:      parent.width * 0.175
+                        height:     width
+                        radius:     width * 0.5
+                        color:      qgcPal.window
+                        border.color: qgcPal.text
+                        border.width: ScreenTools.defaultFontPixelWidth * 0.125
+                        // Move a bit lower to avoid overlap with the main center circle
+                        x:          (parent.width * 0.5) - (width * 0.5)
+                        y:          (parent.height * 0.82) - (height * 0.5)
+                        // Show when stick positions are available and gimbal entries are present
+                        visible:    controller.stickPositions.length >= 6
+                    }
+                    // Gimbal indicator (driven by controller.gimbalPosX/Y to match stick behavior)
+                    Rectangle {
+                        color:  qgcPal.colorGreen
+                        width:  parent.width * 0.035
+                        height: width
+                        radius: width * 0.5
+                        // Use same visibility rule as other indicators, but require gimbal entries
+                        visible: controller.stickPositions.length >= 6
+                        x:  0.0 - (width * 0.5) + (parent.width * controller.stickPositions[4])
+                        y:  0.0 - (height * 1.0) + (parent.height * controller.stickPositions[5])
+                    }
+                    // Map joystick processed axisValues signal to the gimbal indicator so we use the same normalization
+                    // No direct joystick connections here; controller updates gimbalPosX/Y
                 }
             }
             //---------------------------------------------------------------------

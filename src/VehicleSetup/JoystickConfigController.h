@@ -45,11 +45,15 @@ public:
     Q_PROPERTY(bool pitchAxisMapped             READ pitchAxisMapped            NOTIFY pitchAxisMappedChanged)
     Q_PROPERTY(bool yawAxisMapped               READ yawAxisMapped              NOTIFY yawAxisMappedChanged)
     Q_PROPERTY(bool throttleAxisMapped          READ throttleAxisMapped         NOTIFY throttleAxisMappedChanged)
+    Q_PROPERTY(bool gimbalPitchAxisMapped       READ gimbalPitchAxisMapped      NOTIFY gimbalPitchAxisMappedChanged)
+    Q_PROPERTY(bool gimbalYawAxisMapped         READ gimbalYawAxisMapped        NOTIFY gimbalYawAxisMappedChanged)
 
     Q_PROPERTY(int  rollAxisReversed            READ rollAxisReversed           NOTIFY rollAxisReversedChanged)
     Q_PROPERTY(int  pitchAxisReversed           READ pitchAxisReversed          NOTIFY pitchAxisReversedChanged)
     Q_PROPERTY(int  yawAxisReversed             READ yawAxisReversed            NOTIFY yawAxisReversedChanged)
     Q_PROPERTY(int  throttleAxisReversed        READ throttleAxisReversed       NOTIFY throttleAxisReversedChanged)
+    Q_PROPERTY(int  gimbalPitchAxisReversed     READ gimbalPitchAxisReversed    NOTIFY gimbalPitchAxisReversedChanged)
+    Q_PROPERTY(int  gimbalYawAxisReversed       READ gimbalYawAxisReversed      NOTIFY gimbalYawAxisReversedChanged)
 
     Q_PROPERTY(bool deadbandToggle              READ getDeadbandToggle          WRITE setDeadbandToggle    NOTIFY deadbandToggled)
 
@@ -59,11 +63,14 @@ public:
     Q_PROPERTY(bool skipEnabled                 READ skipEnabled                NOTIFY skipEnabledChanged)
 
     Q_PROPERTY(QList<qreal> stickPositions      READ stickPositions             NOTIFY stickPositionsChanged)
+    // Q_PROPERTY(qreal gimbalPosX                 READ gimbalPosX                NOTIFY gimbalPositionChanged)
+    // Q_PROPERTY(qreal gimbalPosY                 READ gimbalPosY                NOTIFY gimbalPositionChanged)
 
     Q_INVOKABLE void cancelButtonClicked    ();
     Q_INVOKABLE void skipButtonClicked      ();
     Q_INVOKABLE void nextButtonClicked      ();
     Q_INVOKABLE void start                  ();
+    Q_INVOKABLE void forceStartCalibration  ();
     Q_INVOKABLE void setDeadbandValue       (int axis, int value);
 
     QString statusText                      () { return _statusText; }
@@ -72,11 +79,15 @@ public:
     bool pitchAxisMapped                    () { return _rgFunctionAxisMapping[Joystick::pitchFunction]         != _axisNoAxis; }
     bool yawAxisMapped                      () { return _rgFunctionAxisMapping[Joystick::yawFunction]           != _axisNoAxis; }
     bool throttleAxisMapped                 () { return _rgFunctionAxisMapping[Joystick::throttleFunction]      != _axisNoAxis; }
+    bool gimbalPitchAxisMapped              () { return _rgFunctionAxisMapping[Joystick::gimbalPitchFunction]   != _axisNoAxis; }
+    bool gimbalYawAxisMapped                () { return _rgFunctionAxisMapping[Joystick::gimbalYawFunction]     != _axisNoAxis; }
 
     bool rollAxisReversed                   ();
     bool pitchAxisReversed                  ();
     bool yawAxisReversed                    ();
     bool throttleAxisReversed               ();
+    bool gimbalPitchAxisReversed            ();
+    bool gimbalYawAxisReversed              ();
 
     bool getDeadbandToggle                  ();
     void setDeadbandToggle                  (bool);
@@ -92,11 +103,17 @@ public:
 
     QList<qreal> stickPositions             () { return _currentStickPositions; }
 
+    // Exposed gimbal UI positions (mapped from processed gimbal axes)
+    // qreal gimbalPosX() { return _gimbalPosX; }
+    // qreal gimbalPosY() { return _gimbalPosY; }
+
     struct stateStickPositions {
         qreal   leftX;
         qreal   leftY;
         qreal   rightX;
         qreal   rightY;
+        qreal   gimbalX;
+        qreal   gimbalY;
     };
 
 signals:
@@ -106,16 +123,21 @@ signals:
     void pitchAxisMappedChanged             (bool mapped);
     void yawAxisMappedChanged               (bool mapped);
     void throttleAxisMappedChanged          (bool mapped);
+    void gimbalPitchAxisMappedChanged       (bool mapped);
+    void gimbalYawAxisMappedChanged         (bool mapped);
     void rollAxisReversedChanged            (bool reversed);
     void pitchAxisReversedChanged           (bool reversed);
     void yawAxisReversedChanged             (bool reversed);
     void throttleAxisReversedChanged        (bool reversed);
+    void gimbalPitchAxisReversedChanged     (bool reversed);
+    void gimbalYawAxisReversedChanged       (bool reversed);
     void deadbandToggled                    (bool value);
     void transmitterModeChanged             (int mode);
     void calibratingChanged                 ();
     void nextEnabledChanged                 ();
     void skipEnabledChanged                 ();
     void stickPositionsChanged              ();
+    void gimbalPositionChanged              ();
     void statusTextChanged                  ();
 
     // @brief Signalled when in unit test mode and a message box should be displayed by the next button
@@ -211,6 +233,10 @@ private:
     stateStickPositions _sticksRollRight;
     stateStickPositions _sticksPitchUp;
     stateStickPositions _sticksPitchDown;
+    stateStickPositions _sticksGimbalPitchUp;
+    stateStickPositions _sticksGimbalPitchDown;
+    stateStickPositions _sticksGimbalYawLeft;
+    stateStickPositions _sticksGimbalYawRight;
 
     QList<qreal> _currentStickPositions;
 
