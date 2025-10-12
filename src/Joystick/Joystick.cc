@@ -77,6 +77,12 @@ const char* Joystick::_buttonActionLandingGearRetract=  QT_TR_NOOP("Landing gear
 const char* Joystick::_buttonActionFocusFar =   QT_TR_NOOP("Focus Far");
 const char* Joystick::_buttonActionFocusNear =  QT_TR_NOOP("Focus Near");
 const char* Joystick::_buttonActionAutoFocus =  QT_TR_NOOP("Auto Focus");
+// Leaf & Camera stream actions
+const char* Joystick::_buttonActionLeafIdle =            QT_TR_NOOP("LEAF Idle");
+const char* Joystick::_buttonActionLeafDisarm =          QT_TR_NOOP("LEAF Disarm");
+const char* Joystick::_buttonActionHoldCameraStream =    QT_TR_NOOP("Hold Camera Stream");
+const char* Joystick::_buttonActionContinueCameraStream= QT_TR_NOOP("Continue Camera Stream");
+const char* Joystick::_buttonActionToggleCameraStream =  QT_TR_NOOP("Toggle Camera Stream");
 
 const char* Joystick::_rgFunctionSettingsKey[Joystick::maxFunction] = {
     "RollAxis",
@@ -888,6 +894,12 @@ void Joystick::startPolling(Vehicle* vehicle)
             connect(this, &Joystick::gripperAction,      _activeVehicle, &Vehicle::setGripperAction);
             connect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
             connect(this, &Joystick::landingGearRetract, _activeVehicle, &Vehicle::landingGearRetract);
+            // Leaf-specific and camera stream controls
+            connect(this, &Joystick::leafIdle,               _activeVehicle, &Vehicle::leafArmFC);
+            connect(this, &Joystick::leafDisarm,             _activeVehicle, &Vehicle::leafDisarmFC);
+            connect(this, &Joystick::holdCameraStream,     this, &Joystick::_videoPause);
+            connect(this, &Joystick::continueCameraStream, this, &Joystick::_videoResume);
+            connect(this, &Joystick::toggleCameraStream, this, &Joystick::_toggleVideoPaused);
             connect(_activeVehicle, &Vehicle::flightModesChanged, this, &Joystick::_flightModesChanged);
         }
     }
@@ -913,6 +925,12 @@ void Joystick::stopPolling(void)
             disconnect(this, &Joystick::gripperAction,      _activeVehicle, &Vehicle::setGripperAction);
             disconnect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
             disconnect(this, &Joystick::landingGearRetract, _activeVehicle, &Vehicle::landingGearRetract);
+            // Leaf-specific and camera stream controls
+            disconnect(this, &Joystick::leafIdle,               _activeVehicle, &Vehicle::leafArmFC);
+            disconnect(this, &Joystick::leafDisarm,             _activeVehicle, &Vehicle::leafDisarmFC);
+            disconnect(this, &Joystick::holdCameraStream,     this, &Joystick::_videoPause);
+            disconnect(this, &Joystick::continueCameraStream, this, &Joystick::_videoResume);
+            disconnect(this, &Joystick::toggleCameraStream,   this, &Joystick::_toggleVideoPaused);
             disconnect(_activeVehicle, &Vehicle::flightModesChanged, this, &Joystick::_flightModesChanged);
         }
         _exitThread = true;
@@ -929,6 +947,28 @@ void Joystick::setCalibration(int axis, Calibration_t& calibration)
     _rgCalibration[axis] = calibration;
     _saveSettings();
     emit calibratedChanged(_calibrated);
+}
+
+void Joystick::_videoPause()
+{
+    if (qgcApp()->toolbox()->videoManager()) {
+        qgcApp()->toolbox()->videoManager()->setVideoPaused(true);
+    }
+}
+
+void Joystick::_videoResume()
+{
+    if (qgcApp()->toolbox()->videoManager()) {
+        qgcApp()->toolbox()->videoManager()->setVideoPaused(false);
+    }
+}
+
+void Joystick::_toggleVideoPaused()
+{
+    if (qgcApp()->toolbox()->videoManager()) {
+        qgcApp()->toolbox()->videoManager()->toggleVideoPaused();
+    }
+
 }
 
 Joystick::Calibration_t Joystick::getCalibration(int axis)
@@ -1404,6 +1444,18 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
             }
         }
     }
+    // LEAF and Camera stream actions
+    else if(action == _buttonActionLeafIdle) {
+        if (buttonDown) emit leafIdle();
+    } else if(action == _buttonActionLeafDisarm) {
+        if (buttonDown) emit leafDisarm();
+    } else if(action == _buttonActionHoldCameraStream) {
+        if (buttonDown) emit holdCameraStream();
+    } else if(action == _buttonActionContinueCameraStream) {
+        if (buttonDown) emit continueCameraStream();
+    } else if(action == _buttonActionToggleCameraStream) {
+        if (buttonDown) emit toggleCameraStream();
+    }
     else {
         if (buttonDown && _activeVehicle) {
             for (auto& item : _customMavCommands) {
@@ -1489,6 +1541,13 @@ void Joystick::_buildActionList(Vehicle* activeVehicle)
     _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionFocusFar, true));
     _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionFocusNear, true));
     _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionAutoFocus, true));
+
+    // Leaf-specific and camera stream controls
+    _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionLeafIdle));
+    _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionLeafDisarm));
+    _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionHoldCameraStream));
+    _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionContinueCameraStream));
+    _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionToggleCameraStream));
 
     for (auto& item : _customMavCommands) {
         _assignableButtonActions.append(new AssignableButtonAction(this, item.name()));
