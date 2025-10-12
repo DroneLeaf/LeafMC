@@ -244,6 +244,13 @@ signals:
     void startSiYiCtrl              ();
     void stopSiYiCtrl               ();
 
+    // Leaf & Camera stream actions
+    void leafIdle                   (); // LEAF idle (arm FC into idle state)
+    void leafDisarm                 (); // LEAF disarm
+    void holdCameraStream           (); // Pause/hold camera stream (pipeline)
+    void continueCameraStream       (); // Resume/continue camera stream (pipeline)
+    void toggleCameraStream         (); // Toggle camera stream on/off
+
 protected:
     void    _setDefaultCalibration  ();
     void    _saveSettings           ();
@@ -398,6 +405,13 @@ private:
     static const char* _buttonActionFocusFar;
     static const char* _buttonActionFocusNear;
     static const char* _buttonActionAutoFocus;
+    
+    // Leaf & Camera stream actions
+    static const char* _buttonActionLeafIdle;
+    static const char* _buttonActionLeafDisarm;
+    static const char* _buttonActionHoldCameraStream;
+    static const char* _buttonActionContinueCameraStream;
+    static const char* _buttonActionToggleCameraStream;
 
 private slots:
     void _activeVehicleChanged(Vehicle* activeVehicle);
@@ -412,4 +426,8 @@ private slots:
     void _siyiCtrlTimeout();
     void _siyiCtrlStart();
     void _siyiCtrlStop();
+    // Video pause helpers for joystick -> VideoManager connections
+    void _videoPause();
+    void _videoResume();
+    void _toggleVideoPaused();
 };
