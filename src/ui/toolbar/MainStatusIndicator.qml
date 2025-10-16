@@ -28,120 +28,150 @@ RowLayout {
     property real   _margins:           ScreenTools.defaultFontPixelWidth
     property real   _spacing:           ScreenTools.defaultFontPixelWidth / 2
     property bool   _healthAndArmingChecksSupported: _activeVehicle ? _activeVehicle.healthAndArmingCheckReport.supported : false
-    property string    _leafStatus: _activeVehicle ? _activeVehicle.leafStatus : qsTr("Leaf Not Connected")
+    property string _leafStatus: _activeVehicle ? _activeVehicle.leafStatus : qsTr("Leaf Not Connected")
+    property string _leafMissionStatus: _activeVehicle ? _activeVehicle.leafMissionStatus : qsTr("")
+    property string _leafMode: _activeVehicle ? _activeVehicle.leafMode : qsTr("")
+    
+    ColumnLayout {
+        Layout.alignment: Qt.AlignVCenter
+        spacing: 1
 
-    QGCLabel {
-        id:             mainStatusLabel
-        text:           mainStatusText()
-        font.pointSize: _vehicleInAir ? ScreenTools.defaultFontPointSize : ScreenTools.largeFontPointSize
+        QGCLabel {
+            id:             mainStatusLabel
+            text:           mainStatusText()
+            font.pointSize: _vehicleInAir ? ScreenTools.defaultFontPointSize : ScreenTools.largeFontPointSize
 
-        property string _commLostText:      qsTr("PX4 Communication Lost")
-        property string _readyToFlyText:    qsTr("PX4 Ready To Fly")
-        property string _notReadyToFlyText: qsTr("PX4 Not Ready")
-        property string _disconnectedText:  qsTr("Disconnected")
-        property string _armedText:         qsTr("PX4 Armed")
-        property string _flyingText:        qsTr("PX4 Flying")
-        property string _landingText:       qsTr("PX4 Landing")
-        property string _leafFCDisconnected:       qsTr("FC Disconnected")
+            property string _commLostText:      qsTr("PX4 Communication Lost")
+            property string _readyToFlyText:    qsTr("PX4 Ready To Fly")
+            property string _notReadyToFlyText: qsTr("PX4 Not Ready")
+            property string _disconnectedText:  qsTr("Disconnected")
+            property string _armedText:         qsTr("PX4 Armed")
+            property string _flyingText:        qsTr("PX4 Flying")
+            property string _landingText:       qsTr("PX4 Landing")
+            property string _leafFCDisconnected:       qsTr("FC Disconnected")
 
-        function mainStatusText() {
-            var statusText
-            if (_activeVehicle) {
-                if (_communicationLost) {
-                    _mainStatusBGColor = "red"
-                    return mainStatusLabel._leafFCDisconnected
-                }
-
-
-                if (_activeVehicle.armed) {
-                    if(_activeVehicle.leafMode != "") {
-                        _mainStatusBGColor = "green"
-                        return _root._leafStatus
-                    } else {
+            function mainStatusText() {
+                var statusText
+                if (_activeVehicle) {
+                    if (_communicationLost) {
                         _mainStatusBGColor = "red"
                         return mainStatusLabel._leafFCDisconnected
                     }
 
-                    _mainStatusBGColor = "green"
 
-                    if (_healthAndArmingChecksSupported) {
-                        if (_activeVehicle.healthAndArmingCheckReport.canArm) {
-                            if (_activeVehicle.healthAndArmingCheckReport.hasWarningsOrErrors) {
-                                _mainStatusBGColor = "yellow"
-                            }
+                    if (_activeVehicle.armed) {
+                        if(_activeVehicle.leafMode != "") {
+                            _mainStatusBGColor = "green"
+                            return _root._leafStatus
                         } else {
                             _mainStatusBGColor = "red"
+                            return mainStatusLabel._leafFCDisconnected
                         }
-                    }
 
-                    if (_activeVehicle.flying) {
-                        return mainStatusLabel._flyingText
-                    } else if (_activeVehicle.landing) {
-                        return mainStatusLabel._landingText
+                        _mainStatusBGColor = "green"
+
+                        if (_healthAndArmingChecksSupported) {
+                            if (_activeVehicle.healthAndArmingCheckReport.canArm) {
+                                if (_activeVehicle.healthAndArmingCheckReport.hasWarningsOrErrors) {
+                                    _mainStatusBGColor = "yellow"
+                                }
+                            } else {
+                                _mainStatusBGColor = "red"
+                            }
+                        }
+
+                        if (_activeVehicle.flying) {
+                            return mainStatusLabel._flyingText
+                        } else if (_activeVehicle.landing) {
+                            return mainStatusLabel._landingText
+                        } else {
+                            return mainStatusLabel._armedText
+                        }
                     } else {
-                        return mainStatusLabel._armedText
+                        if (_healthAndArmingChecksSupported) {
+                            if (_activeVehicle.healthAndArmingCheckReport.canArm) {
+                                if(_activeVehicle.leafMode == "") {
+                                    _mainStatusBGColor = "red"
+                                    return mainStatusLabel._leafFCDisconnected
+                                }
+
+                                if (_activeVehicle.healthAndArmingCheckReport.hasWarningsOrErrors) {
+                                    _mainStatusBGColor = "yellow"
+                                } else {
+                                    _mainStatusBGColor = "green"
+                                }
+
+                                return mainStatusLabel._readyToFlyText
+                            } else {
+                                _mainStatusBGColor = "red"
+                                return mainStatusLabel._notReadyToFlyText
+                            }
+                        } else if (_activeVehicle.readyToFlyAvailable) {
+                            if (_activeVehicle.readyToFly) {
+                                if(_activeVehicle.leafMode == "") {
+                                    _mainStatusBGColor = "red"
+                                    return mainStatusLabel._leafFCDisconnected
+                                }
+                                _mainStatusBGColor = "green"
+                                return mainStatusLabel._readyToFlyText
+                            } else {
+                                _mainStatusBGColor = "yellow"
+                                return mainStatusLabel._notReadyToFlyText
+                            }
+                        } else {
+                            // Best we can do is determine readiness based on AutoPilot component setup and health indicators from SYS_STATUS
+                            if (_activeVehicle.allSensorsHealthy && _activeVehicle.autopilot.setupComplete) {
+                                if(_activeVehicle.leafMode == "") {
+                                    _mainStatusBGColor = "red"
+                                    return mainStatusLabel._leafFCDisconnected
+                                }
+                                _mainStatusBGColor = "green"
+                                return mainStatusLabel._readyToFlyText
+                            } else {
+                                _mainStatusBGColor = "yellow"
+                                return mainStatusLabel._notReadyToFlyText
+                            }
+                        }
                     }
                 } else {
-                    if (_healthAndArmingChecksSupported) {
-                        if (_activeVehicle.healthAndArmingCheckReport.canArm) {
-                            if(_activeVehicle.leafMode == "") {
-                                _mainStatusBGColor = "red"
-                                return mainStatusLabel._leafFCDisconnected
-                            }
-
-                            if (_activeVehicle.healthAndArmingCheckReport.hasWarningsOrErrors) {
-                                _mainStatusBGColor = "yellow"
-                            } else {
-                                _mainStatusBGColor = "green"
-                            }
-
-                            return mainStatusLabel._readyToFlyText
-                        } else {
-                            _mainStatusBGColor = "red"
-                            return mainStatusLabel._notReadyToFlyText
-                        }
-                    } else if (_activeVehicle.readyToFlyAvailable) {
-                        if (_activeVehicle.readyToFly) {
-                            if(_activeVehicle.leafMode == "") {
-                                _mainStatusBGColor = "red"
-                                return mainStatusLabel._leafFCDisconnected
-                            }
-                            _mainStatusBGColor = "green"
-                            return mainStatusLabel._readyToFlyText
-                        } else {
-                            _mainStatusBGColor = "yellow"
-                            return mainStatusLabel._notReadyToFlyText
-                        }
-                    } else {
-                        // Best we can do is determine readiness based on AutoPilot component setup and health indicators from SYS_STATUS
-                        if (_activeVehicle.allSensorsHealthy && _activeVehicle.autopilot.setupComplete) {
-                            if(_activeVehicle.leafMode == "") {
-                                _mainStatusBGColor = "red"
-                                return mainStatusLabel._leafFCDisconnected
-                            }
-                            _mainStatusBGColor = "green"
-                            return mainStatusLabel._readyToFlyText
-                        } else {
-                            _mainStatusBGColor = "yellow"
-                            return mainStatusLabel._notReadyToFlyText
-                        }
-                    }
+                    _mainStatusBGColor = qgcPal.brandingPurple
+                    return mainStatusLabel._disconnectedText
                 }
-            } else {
-                _mainStatusBGColor = qgcPal.brandingPurple
-                return mainStatusLabel._disconnectedText
+            }
+
+            QGCMouseArea {
+                anchors.left:           parent.left
+                anchors.right:          parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                height:                 _root.height
+                enabled:                _activeVehicle
+                onClicked:              mainWindow.showIndicatorPopup(mainStatusLabel, sensorStatusInfoComponent)
             }
         }
 
-        QGCMouseArea {
-            anchors.left:           parent.left
-            anchors.right:          parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            height:                 _root.height
-            enabled:                _activeVehicle
-            onClicked:              mainWindow.showIndicatorPopup(mainStatusLabel, sensorStatusInfoComponent)
+        QGCLabel {
+            id: leafMissionStatusLabel
+            text: _root._leafMissionStatus
+            font.pointSize: ScreenTools.defaultFontPointSize
+            color: missionStatusColor(_root._leafMissionStatus)
+            visible: _root._leafMissionStatus != qsTr("") && _root._leafMode.startsWith("LeafSDK Mission")
+
+            function missionStatusColor(status) {
+                if (status === "MISSION STATUS: EXECUTING") {
+                    return "blue"
+                } else if (status === "MISSION STATUS: PAUSED") {
+                    return "purple"
+                } else if (status === "MISSION STATUS: CANCELED") {
+                    return "crimson"
+                } else if (status === "MISSION STATUS: ABORTED") {
+                    return "crimson"
+                }
+                return "black"       // default color
+            }
         }
     }
+
+    
 
     Item {
         Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * ScreenTools.largeFontPointRatio * 1.5

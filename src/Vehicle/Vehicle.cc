@@ -202,6 +202,7 @@ Vehicle::Vehicle(LinkInterface*             link,
 
     connect(this, &Vehicle::leafModeChanged,               this, &Vehicle::_announceLeafModeChanged);
     connect(this, &Vehicle::leafStatusChanged,             this, &Vehicle::_announceLeafStatusChanged);
+    connect(this, &Vehicle::leafMissionStatusChanged,      this, &Vehicle::_announceLeafMissionStatusChanged);
 
 
     connect(_toolbox->multiVehicleManager(), &MultiVehicleManager::parameterReadyVehicleAvailableChanged, this, &Vehicle::_vehicleParamLoaded);
@@ -547,6 +548,16 @@ void Vehicle::_commonInit()
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_MISSION_PAUSED, QString("MISSION PAUSED"));
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_RETURNING_TO_BASE, QString("RETURNING TO BASE"));
 
+    // leafMissionStatusTexts
+    _leafMissionStatusTexts = new QMap<LEAF_MISSION_STATUS, QString>();
+    _leafMissionStatusTexts->insert(LEAF_MISSION_STATUS::LEAF_MISSION_STATUS_IDLE, QString("MISSION STATUS: IDLE"));
+    _leafMissionStatusTexts->insert(LEAF_MISSION_STATUS::LEAF_MISSION_STATUS_READY, QString("MISSION STATUS: READY"));
+    _leafMissionStatusTexts->insert(LEAF_MISSION_STATUS::LEAF_MISSION_STATUS_EXECUTING, QString("MISSION STATUS: EXECUTING"));
+    _leafMissionStatusTexts->insert(LEAF_MISSION_STATUS::LEAF_MISSION_STATUS_PAUSED, QString("MISSION STATUS: PAUSED"));
+    _leafMissionStatusTexts->insert(LEAF_MISSION_STATUS::LEAF_MISSION_STATUS_COMPLETED, QString("MISSION STATUS: COMPLETED"));
+    _leafMissionStatusTexts->insert(LEAF_MISSION_STATUS::LEAF_MISSION_STATUS_CANCELED, QString("MISSION STATUS: CANCELED"));
+    _leafMissionStatusTexts->insert(LEAF_MISSION_STATUS::LEAF_MISSION_STATUS_ABORTED, QString("MISSION STATUS: ABORTED"));
+
 }
 
 Vehicle::~Vehicle()
@@ -839,6 +850,9 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     case MAVLINK_MSG_ID_LEAF_STATUS:
         _handleLeafStatus(message);
         break;
+    case MAVLINK_MSG_ID_LEAF_MISSION_STATUS:
+        _handleLeafMissionStatus(message);
+        break;
     case MAVLINK_MSG_ID_LEAF_MODE:
         _handleLeafMode(message);
         break;
@@ -1114,6 +1128,20 @@ void Vehicle::_handleLeafStatus(mavlink_message_t& message)
             setLeafFCArmed(false);
             emit leafFCArmedChanged(false);
         }
+    }
+}
+
+void Vehicle::_handleLeafMissionStatus(mavlink_message_t& message)
+{
+
+    mavlink_leaf_mission_status_t leafMissionStatus;
+    mavlink_msg_leaf_mission_status_decode(&message, &leafMissionStatus);
+
+    if(_leafMissionStatusTexts->contains((LEAF_MISSION_STATUS)leafMissionStatus.status) &&
+        _leafMissionStatus.compare(_leafMissionStatusTexts->find((LEAF_MISSION_STATUS)leafMissionStatus.status).value()) != 0
+        ) {
+        _leafMissionStatus = _leafMissionStatusTexts->find((LEAF_MISSION_STATUS)leafMissionStatus.status).value();
+        emit leafMissionStatusChanged(_leafMissionStatus);
     }
 }
 
@@ -2935,6 +2963,11 @@ void Vehicle::_announceLeafStatusChanged(QString status)
     _say(QString("%1").arg(tr(status.toStdString().c_str())));
 }
 
+void Vehicle::_announceLeafMissionStatusChanged(QString status)
+{
+    _say(QString("%1").arg(tr(status.toStdString().c_str())));
+}
+
 void Vehicle::_setFlying(bool flying)
 {
     if (_flying != flying) {
@@ -2981,13 +3014,28 @@ QString Vehicle::gotoFlightMode() const
     return _firmwarePlugin->gotoFlightMode();
 }
 
-void Vehicle::guidedModeRTL(bool smartRTL)
+void Vehicle::guidedModeRTL()
 {
     if (!guidedModeSupported()) {
         qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
         return;
     }
-    _firmwarePlugin->guidedModeRTL(this, smartRTL);
+
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedModeRTL: primary link gone!";
+        return;
+    }
+
+    // send rtl message
+    mavlink_message_t rtl_msg;
+    mavlink_msg_leaf_qgc_rtl_pack_chan(_mavlink->getSystemId(),
+                                                    _mavlink->getComponentId(),
+                                                    sharedLink->mavlinkChannel(),
+                                                    &rtl_msg,
+                                                    0);
+                                                            
+    sendMessageOnLinkThreadSafe(sharedLink.get(), rtl_msg);
 }
 
 void Vehicle::guidedModeLand()
@@ -3023,6 +3071,130 @@ void Vehicle::guidedModeLand()
                                                     0);
                                                             
     sendMessageOnLinkThreadSafe(sharedLink.get(), land_msg);
+}
+
+void Vehicle::guidedModeAbort()
+{
+    if (!guidedModeSupported()) {
+        qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedModeAbort: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t abort_msg;
+    mavlink_msg_leaf_qgc_abort_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &abort_msg,
+                                      0);
+                                                            
+    sendMessageOnLinkThreadSafe(sharedLink.get(), abort_msg);
+}
+
+void Vehicle::guidedModePause()
+{
+    if (!guidedModeSupported()) {
+        qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedModePause: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t pause_msg;
+    mavlink_msg_leaf_qgc_control_cmd_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &pause_msg,
+                                      0,
+                                      LEAF_CONTROL_COMMAND::LEAF_CONTROL_PAUSE,
+                                      LEAF_CONTROL_COMMAND_ACTION::LEAF_CONTROL_COMMAND_ACTION_NONE,
+                                    "");
+                                                            
+    sendMessageOnLinkThreadSafe(sharedLink.get(), pause_msg);
+}
+
+void Vehicle::guidedModeResume()
+{
+    if (!guidedModeSupported()) {
+        qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedModeResume: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t resume_msg;
+    mavlink_msg_leaf_qgc_control_cmd_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &resume_msg,
+                                      0,
+                                      LEAF_CONTROL_COMMAND::LEAF_CONTROL_RESUME,
+                                      LEAF_CONTROL_COMMAND_ACTION::LEAF_CONTROL_COMMAND_ACTION_NONE,
+                                    "");
+                                                            
+    sendMessageOnLinkThreadSafe(sharedLink.get(), resume_msg);
+}
+
+void Vehicle::guidedModeCancel()
+{
+    if (!guidedModeSupported()) {
+        qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedModeCancel: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t cancel_msg;
+    mavlink_msg_leaf_qgc_control_cmd_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &cancel_msg,
+                                      0,
+                                      LEAF_CONTROL_COMMAND::LEAF_CONTROL_CANCEL,
+                                      LEAF_CONTROL_COMMAND_ACTION::LEAF_CONTROL_COMMAND_ACTION_STOP,
+                                    "");
+                                                            
+    sendMessageOnLinkThreadSafe(sharedLink.get(), cancel_msg);
+}
+
+void Vehicle::guidedModeStartMission()
+{
+    if (!guidedModeSupported()) {
+        qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedModeStartMission: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t start_msg;
+    mavlink_msg_leaf_qgc_mission_start_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &start_msg,
+                                      0, "");
+                                                            
+    sendMessageOnLinkThreadSafe(sharedLink.get(), start_msg);
 }
 
 void Vehicle::guidedModeTakeoff(double altitudeRelative)
