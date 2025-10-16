@@ -554,9 +554,6 @@ void Vehicle::_commonInit()
     _leafMissionStatusTexts->insert(LEAF_MISSION_STATUS::LEAF_MISSION_STATUS_READY, QString("MISSION STATUS: READY"));
     _leafMissionStatusTexts->insert(LEAF_MISSION_STATUS::LEAF_MISSION_STATUS_EXECUTING, QString("MISSION STATUS: EXECUTING"));
     _leafMissionStatusTexts->insert(LEAF_MISSION_STATUS::LEAF_MISSION_STATUS_PAUSED, QString("MISSION STATUS: PAUSED"));
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATUS::LEAF_MISSION_STATUS_COMPLETED, QString("MISSION STATUS: COMPLETED"));
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATUS::LEAF_MISSION_STATUS_CANCELED, QString("MISSION STATUS: CANCELED"));
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATUS::LEAF_MISSION_STATUS_ABORTED, QString("MISSION STATUS: ABORTED"));
 
 }
 
@@ -3192,7 +3189,7 @@ void Vehicle::guidedModeStartMission()
                                       _mavlink->getComponentId(),
                                       sharedLink->mavlinkChannel(),
                                       &start_msg,
-                                      0, "");
+                                      "");
                                                             
     sendMessageOnLinkThreadSafe(sharedLink.get(), start_msg);
 }
@@ -3384,7 +3381,7 @@ void Vehicle::leafPausePipeline() {
                                       &pause_msg,
                                       0,
                                       LEAF_CONTROL_COMMAND::LEAF_CONTROL_PAUSE,
-                                      LEAF_CONTROL_COMMAND_ACTION::LEAF_CONTROL_COMMAND_ACTION_NONE);
+                                      LEAF_CONTROL_COMMAND_ACTION::LEAF_CONTROL_COMMAND_ACTION_NONE,"");
     sendMessageOnLinkThreadSafe(sharedLink.get(), pause_msg);
 }
 
@@ -3402,7 +3399,7 @@ void Vehicle::leafResumePipeline() {
                                       &resume_msg,
                                       0,
                                       LEAF_CONTROL_COMMAND::LEAF_CONTROL_RESUME,
-                                      LEAF_CONTROL_COMMAND_ACTION::LEAF_CONTROL_COMMAND_ACTION_NONE);
+                                      LEAF_CONTROL_COMMAND_ACTION::LEAF_CONTROL_COMMAND_ACTION_NONE,"");
     sendMessageOnLinkThreadSafe(sharedLink.get(), resume_msg);
     
 }

@@ -15,7 +15,7 @@ GuidedToolStripAction {
     property string leafMissionStatus: _guidedController._activeVehicle.leafMissionStatus
     
     property bool   show_button: leafMode.startsWith("LeafSDK Mission")
-    property bool   disable_button: leafMissionStatus.startsWith("MISSION STATUS: IDLE")
+    property bool   disable_button: leafMissionStatus.startsWith("MISSION STATUS: IDLE") || leafMissionStatus.startsWith("MISSION STATUS: READY")
 
     text:       _guidedController.cancelTitle
     message:    _guidedController.cancelMessage

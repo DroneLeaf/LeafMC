@@ -704,7 +704,7 @@ Item {
         var rgVehicle;
         switch (actionCode) {
         case actionRTL:
-            _activeVehicle.guidedModeRTL(optionChecked)
+            _activeVehicle.guidedModeRTL()
             break
         case actionLand:
             _fcTookOff = false
@@ -732,6 +732,7 @@ Item {
             break
         case actionStartMission:
             _activeVehicle.guidedModeStartMission()
+            break
         case actionContinueMission:
             _activeVehicle.startMission()
             break
