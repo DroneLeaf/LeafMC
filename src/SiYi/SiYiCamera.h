@@ -126,7 +126,7 @@ signals:
     void aiInfoChanged(int x, int y, int w, int h);
 
 public:
-    explicit SiYiCamera(QObject *parent = nullptr);
+    explicit SiYiCamera(const QString &ip, quint16 port, QObject *parent = nullptr);
     ~SiYiCamera();
 
     Q_INVOKABLE void analyzeIp(QString videoUrl) override;
@@ -194,6 +194,7 @@ private:
     void messageHandle0x92(const QByteArray &msg);
     void messageHandle0x94(const QByteArray &msg);
     void messageHandle0x98(const QByteArray &msg);
+    void messageHandle0x9a(const QByteArray &msg);
     void messageHandle0x9e(const QByteArray &msg);
     void messageHandle0xa1(const QByteArray &msg);
     void messageHandle0xa2(const QByteArray &msg);

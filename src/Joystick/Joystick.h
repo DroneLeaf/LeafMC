@@ -115,6 +115,9 @@ public:
     Q_PROPERTY(bool     accumulator             READ accumulator            WRITE setAccumulator        NOTIFY accumulatorChanged)
     Q_PROPERTY(bool     circleCorrection        READ circleCorrection       WRITE setCircleCorrection   NOTIFY circleCorrectionChanged)
 
+    Q_PROPERTY(int      siyiGimbalGain          READ siyiGimbalGain        WRITE setSiyiGimbalGain     NOTIFY siyiGimbalGainChanged)
+    Q_PROPERTY(int      mavlinkGimbalGain       READ mavlinkGimbalGain     WRITE setMavlinkGimbalGain  NOTIFY mavlinkGimbalGainChanged)
+
     Q_INVOKABLE void    setButtonRepeat     (int button, bool repeat);
     Q_INVOKABLE bool    getButtonRepeat     (int button);
     Q_INVOKABLE void    setButtonAction     (int button, const QString& action);
@@ -185,6 +188,13 @@ public:
     /// Set joystick button repeat rate (in Hz)
     void  setButtonFrequency(float val);
 
+    // Gimbal gains
+    int   siyiGimbalGain() const;
+    void  setSiyiGimbalGain(int g);
+
+    int   mavlinkGimbalGain() const;
+    void  setMavlinkGimbalGain(int g);
+
 signals:
     // The raw signals are only meant for use by calibration
     void rawAxisValueChanged        (int index, int value);
@@ -198,10 +208,12 @@ signals:
     void accumulatorChanged         (bool accumulator);
     void enabledChanged             (bool enabled);
     void circleCorrectionChanged    (bool circleCorrection);
-    void axisValues                 (float roll, float pitch, float yaw, float throttle);
+    void axisValues                 (float roll, float pitch, float yaw, float throttle, float gimbalPitch, float gimbalYaw);
 
     void axisFrequencyHzChanged     ();
     void buttonFrequencyHzChanged   ();
+    void siyiGimbalGainChanged      (int g);
+    void mavlinkGimbalGainChanged   (int g);
     void startContinuousZoom        (int direction);
     void stopContinuousZoom         ();
     void stepZoom                   (int direction);
@@ -213,6 +225,9 @@ signals:
     void toggleVideoRecord          ();
     void gimbalPitchStep            (int direction);
     void gimbalYawStep              (int direction);
+    void gimbalPitchStep            (int direction, float steps);
+    void gimbalYawStep              (int direction, float steps);
+
     void centerGimbal               ();
     void gimbalYawLock              (bool lock);
     void setArmed                   (bool arm);
@@ -228,6 +243,13 @@ signals:
     void stopSiYiZoomOut            ();
     void startSiYiCtrl              ();
     void stopSiYiCtrl               ();
+
+    // Leaf & Camera stream actions
+    void leafIdle                   (); // LEAF idle (arm FC into idle state)
+    void leafDisarm                 (); // LEAF disarm
+    void holdCameraStream           (); // Pause/hold camera stream (pipeline)
+    void continueCameraStream       (); // Resume/continue camera stream (pipeline)
+    void toggleCameraStream         (); // Toggle camera stream on/off
 
 protected:
     void    _setDefaultCalibration  ();
@@ -321,6 +343,10 @@ protected:
         _siyiCtrlPitch = 0;
     bool _siyiCtrlSendEnabled = false;
 
+    // Gimbal gain settings
+    int _siyiGimbalGain = 100;    ///< percentage for SiYi control (default 100)
+    int _mavlinkGimbalGain = 5;   ///< step scale for MAVLink gimbal (default 5)
+
 private:
     static const char*  _rgFunctionSettingsKey[maxFunction];
 
@@ -336,6 +362,8 @@ private:
     static const char* _circleCorrectionSettingsKey;
     static const char* _axisFrequencySettingsKey;
     static const char* _buttonFrequencySettingsKey;
+    static const char* _siyiGimbalGainSettingsKey;
+    static const char* _mavlinkGimbalGainSettingsKey;
     static const char* _txModeSettingsKey;
     static const char* _fixedWingTXModeSettingsKey;
     static const char* _multiRotorTXModeSettingsKey;
@@ -377,6 +405,13 @@ private:
     static const char* _buttonActionFocusFar;
     static const char* _buttonActionFocusNear;
     static const char* _buttonActionAutoFocus;
+    
+    // Leaf & Camera stream actions
+    static const char* _buttonActionLeafIdle;
+    static const char* _buttonActionLeafDisarm;
+    static const char* _buttonActionHoldCameraStream;
+    static const char* _buttonActionContinueCameraStream;
+    static const char* _buttonActionToggleCameraStream;
 
 private slots:
     void _activeVehicleChanged(Vehicle* activeVehicle);
@@ -391,4 +426,8 @@ private slots:
     void _siyiCtrlTimeout();
     void _siyiCtrlStart();
     void _siyiCtrlStop();
+    // Video pause helpers for joystick -> VideoManager connections
+    void _videoPause();
+    void _videoResume();
+    void _toggleVideoPaused();
 };

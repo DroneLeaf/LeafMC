@@ -68,6 +68,10 @@
         <file alias="infinite-outline.svg">resources/infinite-outline.svg</file>
         <file alias="inspection.svg">resources/inspection.svg</file>
     </qresource>
+    <qresource prefix="/res/branding">
+        <file alias="Normal-horizental-smallRes.png">resources/branding/Normal-horizental-smallRes.png</file>
+        <file alias="White-horizental-smallRes.png">resources/branding/White-horizental-smallRes.png</file>
+    </qresource>
     <qresource prefix="/res/firmware">
         <file alias="3drradio.png">resources/firmware/3drradio.png</file>
         <file alias="apm.png">resources/firmware/apm.png</file>

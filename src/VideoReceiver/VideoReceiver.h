@@ -70,6 +70,7 @@ public slots:
     //      N - buffer length, ms
     virtual void start(const QString& uri, unsigned timeout, int buffer = 0) = 0;
     virtual void stop(void) = 0;
+    virtual void setPaused(bool paused) = 0;
     virtual void startDecoding(void* sink) = 0;
     virtual void stopDecoding(void) = 0;
     virtual void startRecording(const QString& videoFile, FILE_FORMAT format) = 0;

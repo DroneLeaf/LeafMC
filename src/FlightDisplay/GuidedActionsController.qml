@@ -83,9 +83,9 @@ Item {
 
 
     readonly property string armMessage:                        qsTr("Arm the vehicle.")
-    readonly property string forceArmMessage:                   qsTr("WARNING: This will force arming of the vehicle bypassing any safety checks.")
+    readonly property string forceArmMessage:                   qsTr("WARNING - Inactive: This will force arming of the vehicle bypassing any safety checks.")
     readonly property string disarmMessage:                     qsTr("Disarm the vehicle")
-    readonly property string emergencyStopMessage:              qsTr("WARNING: THIS WILL STOP ALL MOTORS. IF VEHICLE IS CURRENTLY IN THE AIR IT WILL CRASH.")
+    readonly property string emergencyStopMessage:              qsTr("WARNING - Inactive: THIS WILL STOP ALL MOTORS. IF VEHICLE IS CURRENTLY IN THE AIR IT WILL CRASH.")
     readonly property string takeoffMessage:                    qsTr("Takeoff from ground and hold position.")
     readonly property string gripperMessage:                    qsTr("Grab or Release the cargo")
     readonly property string startMissionMessage:               qsTr("Start the current mission.")
@@ -404,18 +404,18 @@ Item {
     }
 
     function armVehicleRequest() {
-        confirmAction(actionArm)
+        confirmAction(actionFCArm)
     }
 
     function forceArmVehicleRequest() {
-        confirmAction(actionForceArm)
+        //confirmAction(actionForceArm)
     }
 
     function disarmVehicleRequest() {
         if (showEmergenyStop) {
-            confirmAction(actionEmergencyStop)
+            //confirmAction(actionEmergencyStop)
         } else {
-            confirmAction(actionDisarm)
+            confirmAction(actionFCDisarm)
         }
 
     }
