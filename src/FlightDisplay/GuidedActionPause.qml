@@ -15,12 +15,26 @@ GuidedToolStripAction {
     property string leafMissionStatus: _guidedController._activeVehicle.leafMissionStatus
     
     property bool   show_button: leafMode.startsWith("LeafSDK Mission")
-    property bool   enable_button: leafMissionStatus.startsWith("MISSION STATUS: EXECUTING")
+    property bool   enable_pause_button: leafMissionStatus.startsWith("MISSION STATUS: EXECUTING")
+    property bool   enable_resume_button: leafMissionStatus.startsWith("MISSION STATUS: PAUSED")
 
-    text:       _guidedController.pauseTitle
-    message:    _guidedController.pauseMessage
-    iconSource: "/res/pause-mission.svg"
-    visible:    show_button
-    enabled:    enable_button
-    actionID:   _guidedController.actionPause
+    text        : enable_pause_button ? _guidedController.pauseTitle
+                : enable_resume_button ? _guidedController.resumeTitle
+                : _guidedController.pauseTitle
+
+    message     : enable_pause_button ? _guidedController.pauseMessage
+                : enable_resume_button ? _guidedController.resumeMessage
+                : _guidedController.pauseMessage
+
+    iconSource  : enable_pause_button ? "/res/pause-mission.svg"
+                : enable_resume_button ? "/res/action.svg"
+                : "/res/pause-mission.svg"
+
+    visible     : show_button
+
+    enabled     : enable_pause_button || enable_resume_button
+
+    actionID    : enable_pause_button ? _guidedController.actionPause
+                : enable_resume_button ? _guidedController.actionResume
+                : _guidedController.actionPause
 }

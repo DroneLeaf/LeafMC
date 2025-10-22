@@ -20,7 +20,7 @@ GuidedToolStripAction {
     text:       _guidedController.resumeTitle
     message:    _guidedController.resumeMessage
     iconSource: "/res/action.svg"
-    visible:    show_button
+    visible:    false
     enabled:    enable_button
     actionID:   _guidedController.actionResume
 }

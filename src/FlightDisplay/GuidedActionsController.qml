@@ -96,7 +96,7 @@ Item {
     readonly property string pauseMessage:                      qsTr("Pause the current running mission.")
     readonly property string resumeMessage:                     qsTr("Resume the current paused mission.")
     readonly property string cancelMessage:                     qsTr("Cancel the current running mission.")
-    readonly property string rtlMessage:                        qsTr("Cancel the current running mission and return to the launch position of the vehicle.")
+    readonly property string rtlMessage:                        qsTr("Return to the launch position of the vehicle.")
     readonly property string changeAltMessage:                  qsTr("Change the altitude of the vehicle up or down.")
     readonly property string changeCruiseSpeedMessage:          qsTr("Change the maximum horizontal cruise speed.")
     readonly property string changeAirspeedMessage:             qsTr("Change the equivalent airspeed setpoint")

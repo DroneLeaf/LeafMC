@@ -12,12 +12,13 @@ import QGroundControl.FlightDisplay 1.0
 GuidedToolStripAction {
     property string leafMode: _guidedController._activeVehicle.leafMode
     property string leafStatus: _guidedController._activeVehicle.leafStatus
-    property bool   hideTakeoff: leafMode.startsWith("RC Stabilized") || leafMode.startsWith("LEARNING INNER") || leafMode == "Refined Tuning Outer - Collect Data"
+    property bool   show_button: !leafMode.startsWith("LeafSDK Mission")
+    property bool   hideTakeoff: leafMode.startsWith("RC Stabilized") || leafMode.startsWith("LEARNING INNER") || leafMode.startsWith("Refined Tuning Outer - Collect Data")
     property bool   isLeafArmed: leafStatus.startsWith("ARMED")
 
     text:       _guidedController.takeoffTitle
     iconSource: "/res/takeoff.svg"
-    visible:    true
+    visible:    show_button
     enabled:    !hideTakeoff && isLeafArmed
     actionID:   _guidedController.actionTakeoff
 }

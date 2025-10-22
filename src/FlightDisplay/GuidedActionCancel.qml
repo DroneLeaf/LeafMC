@@ -20,7 +20,7 @@ GuidedToolStripAction {
     text:       _guidedController.cancelTitle
     message:    _guidedController.cancelMessage
     iconSource: "/res/XDelete.svg"
-    visible:    show_button
+    visible:    false
     enabled:    !disable_button
     actionID:   _guidedController.actionCancel
 }
