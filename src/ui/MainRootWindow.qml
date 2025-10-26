@@ -107,6 +107,8 @@ ApplicationWindow {
     signal vtolTransitionToFwdFlightRequest
     signal vtolTransitionToMRFlightRequest
     signal showPreFlightChecklistIfNeeded
+    signal leafArmVehicleRequested
+    signal leafDisarmVehicleRequested
 
 
     //-------------------------------------------------------------------------

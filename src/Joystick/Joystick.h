@@ -414,6 +414,8 @@ private:
     static const char* _buttonActionToggleCameraStream;
 
 private slots:
+    void _requestLeafIdle();
+    void _requestLeafDisarm();
     void _activeVehicleChanged(Vehicle* activeVehicle);
     void _vehicleCountChanged(int count);
     void _flightModesChanged();

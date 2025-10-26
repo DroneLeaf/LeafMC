@@ -17,6 +17,8 @@
 #include "QGCCameraManager.h"
 #include "QGCCameraControl.h"
 #include "GimbalController.h"
+#include <QMessageBox>
+#include <QQuickWindow>
 
 #include <QSettings>
 // JoystickLog Category declaration moved to QGCLoggingCategory.cc to allow access in Vehicle
@@ -895,8 +897,6 @@ void Joystick::startPolling(Vehicle* vehicle)
             connect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
             connect(this, &Joystick::landingGearRetract, _activeVehicle, &Vehicle::landingGearRetract);
             // Leaf-specific and camera stream controls
-            connect(this, &Joystick::leafIdle,               _activeVehicle, &Vehicle::leafArmFC);
-            connect(this, &Joystick::leafDisarm,             _activeVehicle, &Vehicle::leafDisarmFC);
             connect(this, &Joystick::holdCameraStream,     this, &Joystick::_videoPause);
             connect(this, &Joystick::continueCameraStream, this, &Joystick::_videoResume);
             connect(this, &Joystick::toggleCameraStream, this, &Joystick::_toggleVideoPaused);
@@ -926,8 +926,6 @@ void Joystick::stopPolling(void)
             disconnect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
             disconnect(this, &Joystick::landingGearRetract, _activeVehicle, &Vehicle::landingGearRetract);
             // Leaf-specific and camera stream controls
-            disconnect(this, &Joystick::leafIdle,               _activeVehicle, &Vehicle::leafArmFC);
-            disconnect(this, &Joystick::leafDisarm,             _activeVehicle, &Vehicle::leafDisarmFC);
             disconnect(this, &Joystick::holdCameraStream,     this, &Joystick::_videoPause);
             disconnect(this, &Joystick::continueCameraStream, this, &Joystick::_videoResume);
             disconnect(this, &Joystick::toggleCameraStream,   this, &Joystick::_toggleVideoPaused);
@@ -969,6 +967,66 @@ void Joystick::_toggleVideoPaused()
         qgcApp()->toolbox()->videoManager()->toggleVideoPaused();
     }
 
+}
+
+void Joystick::_requestLeafIdle()
+{
+    QMetaObject::invokeMethod(qgcApp(), [this]() {
+        bool invoked = false;
+        QQmlApplicationEngine* engine = qgcApp()->qmlAppEngine();
+        if (engine) {
+            const auto roots = engine->rootObjects();
+            if (!roots.isEmpty()) {
+                QObject* rootObj = roots.first();
+                if (rootObj) {
+                    if (QMetaObject::invokeMethod(rootObj, "leafArmVehicleRequested", Qt::QueuedConnection)) {
+                        invoked = true;
+                    }
+                }
+            }
+        }
+        if (!invoked) {
+            QMessageBox::StandardButton res = QMessageBox::question(nullptr,
+                tr("Confirm LEAF Idle"),
+                tr("Are you sure you want to put the LEAF into Idle state?"),
+                QMessageBox::Yes | QMessageBox::No);
+            if (res == QMessageBox::Yes) {
+                if (_activeVehicle) {
+                    _activeVehicle->leafArmFC();
+                }
+            }
+        }
+    }, Qt::QueuedConnection);
+}
+
+void Joystick::_requestLeafDisarm()
+{
+    QMetaObject::invokeMethod(qgcApp(), [this]() {
+        bool invoked = false;
+        QQmlApplicationEngine* engine = qgcApp()->qmlAppEngine();
+        if (engine) {
+            const auto roots = engine->rootObjects();
+            if (!roots.isEmpty()) {
+                QObject* rootObj = roots.first();
+                if (rootObj) {
+                    if (QMetaObject::invokeMethod(rootObj, "leafDisarmVehicleRequested", Qt::QueuedConnection)) {
+                        invoked = true;
+                    }
+                }
+            }
+        }
+        if (!invoked) {
+            QMessageBox::StandardButton res = QMessageBox::question(nullptr,
+                tr("Confirm LEAF Disarm"),
+                tr("Are you sure you want to disarm the LEAF (motors will stop)?"),
+                QMessageBox::Yes | QMessageBox::No);
+            if (res == QMessageBox::Yes) {
+                if (_activeVehicle) {
+                    _activeVehicle->leafDisarmFC();
+                }
+            }
+        }
+    }, Qt::QueuedConnection);
 }
 
 Joystick::Calibration_t Joystick::getCalibration(int axis)
@@ -1446,9 +1504,9 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
     }
     // LEAF and Camera stream actions
     else if(action == _buttonActionLeafIdle) {
-        if (buttonDown) emit leafIdle();
+        if (buttonDown) _requestLeafIdle();
     } else if(action == _buttonActionLeafDisarm) {
-        if (buttonDown) emit leafDisarm();
+        if (buttonDown) _requestLeafDisarm();
     } else if(action == _buttonActionHoldCameraStream) {
         if (buttonDown) emit holdCameraStream();
     } else if(action == _buttonActionContinueCameraStream) {
