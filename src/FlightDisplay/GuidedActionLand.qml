@@ -16,7 +16,7 @@ GuidedToolStripAction {
 
     property bool   hideLand: leafMode.startsWith("RC Stabilized") || leafMode.startsWith("LEARNING INNER") || leafMode.startsWith("Refined Tuning Outer - Collect Data")
     property bool   disableLand: leafStatus.startsWith("ARMED") || leafStatus.startsWith("READY TO FLY") || leafStatus.startsWith("NOT READY")
-    property bool   enableLand_leafMission: leafMissionStatus.startsWith("MISSION STATUS: IDLE") && leafMode.startsWith("LeafSDK Mission")
+    property bool   enableLand_leafMission: leafMissionStatus.startsWith("MISSION STATUS: IDLE")
 
     text:       _guidedController.landTitle
     message:    _guidedController.landMessage
