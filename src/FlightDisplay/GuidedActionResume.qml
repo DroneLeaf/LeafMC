@@ -15,11 +15,12 @@ GuidedToolStripAction {
     property string leafMissionStatus: _guidedController._activeVehicle.leafMissionStatus
     
     property bool   show_button: leafMode.startsWith("LeafSDK Mission")
-    property bool   enable_button: leafMissionStatus.startsWith("MISSION STATUS: IDLE") && leafStatus.startsWith("FLYING")
+    property bool   enable_button: leafMissionStatus.startsWith("MISSION STATUS: PAUSED")
 
-    text:       _guidedController.rtlTitle
-    iconSource: "/res/rtl.svg"
-    visible:    show_button
+    text:       _guidedController.resumeTitle
+    message:    _guidedController.resumeMessage
+    iconSource: "/res/action.svg"
+    visible:    false
     enabled:    enable_button
-    actionID:   _guidedController.actionRTL
+    actionID:   _guidedController.actionResume
 }

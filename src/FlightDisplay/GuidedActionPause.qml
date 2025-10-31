@@ -10,9 +10,31 @@
 import QGroundControl.FlightDisplay 1.0
 
 GuidedToolStripAction {
-    text:       _guidedController.pauseTitle
-    iconSource: "/res/pause-mission.svg"
-    visible:    _guidedController.showPause
-    enabled:    _guidedController.showPause
-    actionID:   _guidedController.actionPause
+    property string leafMode: _guidedController._activeVehicle.leafMode
+    property string leafStatus: _guidedController._activeVehicle.leafStatus
+    property string leafMissionStatus: _guidedController._activeVehicle.leafMissionStatus
+    
+    property bool   show_button: leafMode.startsWith("LeafSDK Mission")
+    property bool   enable_pause_button: leafMissionStatus.startsWith("MISSION STATUS: EXECUTING")
+    property bool   enable_resume_button: leafMissionStatus.startsWith("MISSION STATUS: PAUSED")
+
+    text        : enable_pause_button ? _guidedController.pauseTitle
+                : enable_resume_button ? _guidedController.resumeTitle
+                : _guidedController.pauseTitle
+
+    message     : enable_pause_button ? _guidedController.pauseMessage
+                : enable_resume_button ? _guidedController.resumeMessage
+                : _guidedController.pauseMessage
+
+    iconSource  : enable_pause_button ? "/res/pause-mission.svg"
+                : enable_resume_button ? "/res/action.svg"
+                : "/res/pause-mission.svg"
+
+    visible     : show_button
+
+    enabled     : enable_pause_button || enable_resume_button
+
+    actionID    : enable_pause_button ? _guidedController.actionPause
+                : enable_resume_button ? _guidedController.actionResume
+                : _guidedController.actionPause
 }

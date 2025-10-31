@@ -14,7 +14,7 @@ GuidedToolStripAction {
     property bool isLeafArmed: _guidedController._activeVehicle.leafFCArmed
 
     text:       _guidedController.disarmFCTitle
-    iconSource: "/res/action.svg"
+    iconSource: "/res/PowerButton.svg"
     visible:    (isLeafArmed) && leafMode.length > 0
     enabled:    true
     actionID:   _guidedController.actionFCDisarm
