@@ -20,8 +20,12 @@ add_custom_target(FligthDisplayQml
 		GuidedActionActionList.qml
 		GuidedActionConfirm.qml
 		GuidedActionLand.qml
+		GuidedActionAbort.qml
 		GuidedActionList.qml
 		GuidedActionPause.qml
+		GuidedActionResume.qml
+		GuidedActionCancel.qml
+		GuidedActionStartMission.qml
 		GuidedActionRTL.qml
 		GuidedActionsController.qml
 		GuidedActionTakeoff.qml

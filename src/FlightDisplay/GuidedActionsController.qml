@@ -41,11 +41,14 @@ Item {
     readonly property string takeoffTitle:                  qsTr("Takeoff")
     readonly property string gripperTitle:                  qsTr("Gripper Function")
     readonly property string landTitle:                     qsTr("Land")
+    readonly property string abortTitle:                    qsTr("Abort")
+    readonly property string pauseTitle:                    qsTr("Pause")
+    readonly property string resumeTitle:                   qsTr("Resume")
+    readonly property string cancelTitle:                   qsTr("Cancel")
     readonly property string startMissionTitle:             qsTr("Start Mission")
     readonly property string mvStartMissionTitle:           qsTr("Start Mission (MV)")
     readonly property string continueMissionTitle:          qsTr("Continue Mission")
     readonly property string resumeMissionUploadFailTitle:  qsTr("Resume FAILED")
-    readonly property string pauseTitle:                    qsTr("Pause")
     readonly property string mvPauseTitle:                  qsTr("Pause (MV)")
     readonly property string changeAltTitle:                qsTr("Change Altitude")
     readonly property string changeCruiseSpeedTitle:        qsTr("Change Max Ground Speed")
@@ -84,11 +87,15 @@ Item {
     readonly property string disarmMessage:                     qsTr("Disarm the vehicle")
     readonly property string emergencyStopMessage:              qsTr("WARNING - Inactive: THIS WILL STOP ALL MOTORS. IF VEHICLE IS CURRENTLY IN THE AIR IT WILL CRASH.")
     readonly property string takeoffMessage:                    qsTr("Takeoff from ground and hold position.")
-    readonly property string gripperMessage:                       qsTr("Grab or Release the cargo")
-    readonly property string startMissionMessage:               qsTr("Takeoff from ground and start the current mission.")
+    readonly property string gripperMessage:                    qsTr("Grab or Release the cargo")
+    readonly property string startMissionMessage:               qsTr("Start the current mission.")
     readonly property string continueMissionMessage:            qsTr("Continue the mission from the current waypoint.")
     readonly property string resumeMissionUploadFailMessage:    qsTr("Upload of resume mission failed. Confirm to retry upload")
     readonly property string landMessage:                       qsTr("Land the vehicle at the current position.")
+    readonly property string abortMessage:                      qsTr("Abort the current running mission.")
+    readonly property string pauseMessage:                      qsTr("Pause the current running mission.")
+    readonly property string resumeMessage:                     qsTr("Resume the current paused mission.")
+    readonly property string cancelMessage:                     qsTr("Cancel the current running mission.")
     readonly property string rtlMessage:                        qsTr("Return to the launch position of the vehicle.")
     readonly property string changeAltMessage:                  qsTr("Change the altitude of the vehicle up or down.")
     readonly property string changeCruiseSpeedMessage:          qsTr("Change the maximum horizontal cruise speed.")
@@ -97,7 +104,6 @@ Item {
              property string setWaypointMessage:                qsTr("Adjust current waypoint to %1.").arg(_actionData)
     readonly property string orbitMessage:                      qsTr("Orbit the vehicle around the specified location.")
     readonly property string landAbortMessage:                  qsTr("Abort the landing sequence.")
-    readonly property string pauseMessage:                      qsTr("Pause the vehicle at it's current position, adjusting altitude up or down as needed.")
     readonly property string mvPauseMessage:                    qsTr("Pause all vehicles at their current position.")
     readonly property string vtolTransitionFwdMessage:          qsTr("Transition VTOL to fixed wing flight.")
     readonly property string vtolTransitionMRMessage:           qsTr("Transition VTOL to multi-rotor flight.")
@@ -115,8 +121,8 @@ Item {
     readonly property string toggleMRFTXOffMessage:             qsTr("Switch X Learning OFF")
     readonly property string toggleMRFTYOnMessage:              qsTr("Switch Y Learning ON")
     readonly property string toggleMRFTYOffMessage:             qsTr("Switch Y Learning OFF")
-    readonly property string armFCMessage:                      qsTr("Arm FC")
-    readonly property string disarmFCMessage:                   qsTr("Disarm FC")
+    readonly property string armFCMessage:                      qsTr("Idle")
+    readonly property string disarmFCMessage:                   qsTr("Disarm")
     readonly property string inspectSlap1Message:               qsTr("Inspect North Face")
     readonly property string inspectSlap2Message:               qsTr("Inspect South Face")
     readonly property string inspectSlapsMessage:               qsTr("Inspect All Around")
@@ -164,6 +170,9 @@ Item {
     readonly property int actionInspectSlaps:               39
     readonly property int actionPausePipeline:              40
     readonly property int actionResumePipeline:             41
+    readonly property int actionAbort:                      42
+    readonly property int actionResume:                     43
+    readonly property int actionCancel:                     44
 
     property var    _activeVehicle:             QGroundControl.multiVehicleManager.activeVehicle
     property bool   _useChecklist:              QGroundControl.settingsManager.appSettings.useChecklist.rawValue && QGroundControl.corePlugin.options.preFlightChecklistUrl.toString().length
@@ -474,10 +483,8 @@ Item {
             guidedValueSlider.visible = true
             break;
         case actionStartMission:
-            showImmediate = false
             confirmDialog.title = startMissionTitle
             confirmDialog.message = startMissionMessage
-            confirmDialog.hideTrigger = Qt.binding(function() { return !showStartMission })
             break;
         case actionMVStartMission:
             confirmDialog.title = mvStartMissionTitle
@@ -503,14 +510,25 @@ Item {
             confirmDialog.message = landMessage
             confirmDialog.hideTrigger = Qt.binding(function() { return !showLand })
             break;
+        case actionAbort:
+            confirmDialog.title = abortTitle
+            confirmDialog.message = abortMessage
+            break;
+        case actionPause:
+            confirmDialog.title = pauseTitle
+            confirmDialog.message = pauseMessage
+            break;
+        case actionResume:
+            confirmDialog.title = resumeTitle
+            confirmDialog.message = resumeMessage
+            break;
+        case actionCancel:
+            confirmDialog.title = cancelTitle
+            confirmDialog.message = cancelMessage
+            break;
         case actionRTL:
             confirmDialog.title = rtlTitle
             confirmDialog.message = rtlMessage
-            if (_activeVehicle.supportsSmartRTL) {
-                confirmDialog.optionText = qsTr("Smart RTL")
-                confirmDialog.optionChecked = false
-            }
-            confirmDialog.hideTrigger = Qt.binding(function() { return !showRTL })
             break;
         case actionChangeAlt:
             confirmDialog.title = changeAltTitle
@@ -537,12 +555,6 @@ Item {
             confirmDialog.title = landAbortTitle
             confirmDialog.message = landAbortMessage
             confirmDialog.hideTrigger = Qt.binding(function() { return !showLandAbort })
-            break;
-        case actionPause:
-            confirmDialog.title = pauseTitle
-            confirmDialog.message = pauseMessage
-            confirmDialog.hideTrigger = Qt.binding(function() { return !showPause })
-            guidedValueSlider.visible = true
             break;
         case actionMVPause:
             confirmDialog.title = mvPauseTitle
@@ -694,7 +706,7 @@ Item {
         var rgVehicle;
         switch (actionCode) {
         case actionRTL:
-            _activeVehicle.guidedModeRTL(optionChecked)
+            _activeVehicle.guidedModeRTL()
             break
         case actionLand:
             _fcTookOff = false
@@ -704,11 +716,25 @@ Item {
             _fcTookOff = true
             _activeVehicle.guidedModeTakeoff(sliderOutputValue)
             break
+        case actionAbort:
+            _activeVehicle.guidedModeAbort()
+            break
+        case actionPause:
+            _activeVehicle.guidedModePause()
+            break
+        case actionResume:
+            _activeVehicle.guidedModeResume()
+            break
+        case actionCancel:
+            _activeVehicle.guidedModeCancel()
+            break
         case actionResumeMission:
         case actionResumeMissionUploadFail:
             missionController.resumeMission(missionController.resumeMissionIndex)
             break
         case actionStartMission:
+            _activeVehicle.guidedModeStartMission()
+            break
         case actionContinueMission:
             _activeVehicle.startMission()
             break
@@ -744,9 +770,6 @@ Item {
             break
         case actionLandAbort:
             _activeVehicle.abortLanding(50)     // hardcoded value for climbOutAltitude that is currently ignored
-            breakactionExecuteCircleTraj
-        case actionPause:
-            _activeVehicle.guidedModeChangeAltitude(sliderOutputValue, true /* pauseVehicle */)
             break
         case actionMVPause:
             rgVehicle = QGroundControl.multiVehicleManager.vehicles

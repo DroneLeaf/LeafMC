@@ -279,16 +279,17 @@ public:
     Q_PROPERTY(bool     haveFWSpeedLimits       READ haveFWSpeedLimits                              NOTIFY haveFWSpeedLimChanged)
 
     // DronLeaf STATUS
-    Q_PROPERTY(QString                 leafStatus                       READ leafStatus                                 NOTIFY leafStatusChanged)
-    Q_PROPERTY(QString                 leafMode                         READ leafMode         WRITE setLeafMode       NOTIFY leafModeChanged)
-    Q_PROPERTY(QStringList             leafModes                        READ leafModes                                  NOTIFY leafModesChanged)
-    Q_PROPERTY(QString                 leafClientName                   READ leafClientName         WRITE setLeafClientName       NOTIFY leafClientNameChanged)
+    Q_PROPERTY(QString                  leafStatus                      READ leafStatus                                         NOTIFY leafStatusChanged)
+    Q_PROPERTY(QString                  leafMissionStatus               READ leafMissionStatus                                  NOTIFY leafMissionStatusChanged)
+    Q_PROPERTY(QString                  leafMode                        READ leafMode               WRITE setLeafMode           NOTIFY leafModeChanged)
+    Q_PROPERTY(QStringList              leafModes                       READ leafModes                                          NOTIFY leafModesChanged)
+    Q_PROPERTY(QString                  leafClientName                  READ leafClientName         WRITE setLeafClientName     NOTIFY leafClientNameChanged)
     Q_PROPERTY(bool                     leafMRFTRoll                    READ leafMRFTRoll           WRITE setLeafMRFTRoll       NOTIFY leafMRFTRollChanged)
     Q_PROPERTY(bool                     leafMRFTPitch                   READ leafMRFTPitch          WRITE setLeafMRFTPitch      NOTIFY leafMRFTPitchChanged)
     Q_PROPERTY(bool                     leafMRFTAlt                     READ leafMRFTAlt            WRITE setLeafMRFTAlt        NOTIFY leafMRFTAltChanged)
     Q_PROPERTY(bool                     leafMRFTX                       READ leafMRFTX              WRITE setLeafMRFTX          NOTIFY leafMRFTXChanged)
     Q_PROPERTY(bool                     leafMRFTY                       READ leafMRFTY              WRITE setLeafMRFTY          NOTIFY leafMRFTYChanged)
-    Q_PROPERTY(QString                  leafProfile                   READ leafProfile         WRITE setLeafProfile       NOTIFY leafProfileChanged)
+    Q_PROPERTY(QString                  leafProfile                     READ leafProfile            WRITE setLeafProfile        NOTIFY leafProfileChanged)
     Q_PROPERTY(bool                     leafFCArmed                     READ leafFCArmed            WRITE setLeafFCArmed        NOTIFY leafFCArmedChanged)
 
 
@@ -371,10 +372,21 @@ public:
     Q_INVOKABLE void virtualTabletJoystickValue(double roll, double pitch, double yaw, double thrust);
 
     /// Command vehicle to return to launch
-    Q_INVOKABLE void guidedModeRTL(bool smartRTL);
+    Q_INVOKABLE void guidedModeRTL();
 
     /// Command vehicle to land at current location
     Q_INVOKABLE void guidedModeLand();
+
+    /// Command vehicle to abort current mission
+    Q_INVOKABLE void guidedModeAbort();
+    /// Command vehicle to pause current mission
+    Q_INVOKABLE void guidedModePause();
+    /// Command vehicle to resume current mission
+    Q_INVOKABLE void guidedModeResume();
+    /// Command vehicle to cancel current mission
+    Q_INVOKABLE void guidedModeCancel();
+    // Command vehicle to start the uploaded mission
+    Q_INVOKABLE void guidedModeStartMission();
 
     /// Command vehicle to takeoff from current location
     Q_INVOKABLE void guidedModeTakeoff(double altitudeRelative);
@@ -695,6 +707,7 @@ public:
     bool            hilMode                     () const { return _base_mode & MAV_MODE_FLAG_HIL_ENABLED; }
     Actuators*      actuators                   () const { return _actuators; }
     QString         leafStatus                  () const { return _leafStatus; }
+    QString         leafMissionStatus           () const { return _leafMissionStatus; }
     QString         leafMode                    () const { return _leafMode; }
     QString         leafClientName              () const { return _leafClientName; }
     QString         leafProfile                 () const { return _leafProfile; }
@@ -1043,6 +1056,7 @@ signals:
     void haveFWSpeedLimChanged          ();
 
     void leafStatusChanged                   (QString leafStatus);
+    void leafMissionStatusChanged            (QString leafMissionStatus);
     void leafModeChanged                     (QString leafMode);
     void leafClientNameChanged               (QString leafClientName);
     void leafMRFTRollChanged                 (bool roll);
@@ -1105,6 +1119,7 @@ private slots:
     void _announceArmedChanged              (bool armed);
     void _announceLeafModeChanged           (QString mode);
     void _announceLeafStatusChanged         (QString status);
+    void _announceLeafMissionStatusChanged  (QString status);
     void _offlineCruiseSpeedSettingChanged  (QVariant value);
     void _offlineHoverSpeedSettingChanged   (QVariant value);
     void _handleTextMessage                 (int newCount);
@@ -1151,6 +1166,7 @@ private:
     void _handleAltitude                (mavlink_message_t& message);
     void _handleVfrHud                  (mavlink_message_t& message);
     void _handleLeafStatus              (mavlink_message_t& message);
+    void _handleLeafMissionStatus       (mavlink_message_t& message);
     void _handleLeafMode                (mavlink_message_t& message);
     void _handleLeafClientName          (mavlink_message_t& message);
     void _handleLeafHeartbeat           (mavlink_message_t& message);
@@ -1267,6 +1283,7 @@ private:
     bool            _readyToFly                             = false;
     bool            _allSensorsHealthy                      = true;
     QString         _leafStatus = "";
+    QString         _leafMissionStatus = "";
     QString         _leafMode = "";
     QString         _leafClientName = "";
     QString         _leafProfile = "";
@@ -1517,18 +1534,19 @@ private:
 
     TerrainProtocolHandler* _terrainProtocolHandler = nullptr;
 
-    MissionManager*                 _missionManager             = nullptr;
-    GeoFenceManager*                _geoFenceManager            = nullptr;
-    RallyPointManager*              _rallyPointManager          = nullptr;
-    VehicleLinkManager*             _vehicleLinkManager         = nullptr;
-    FTPManager*                     _ftpManager                 = nullptr;
-    ImageProtocolManager*           _imageProtocolManager       = nullptr;
-    InitialConnectStateMachine*     _initialConnectStateMachine = nullptr;
-    Actuators*                      _actuators                  = nullptr;
-    RemoteIDManager*                _remoteIDManager            = nullptr;
-    StandardModes*                  _standardModes              = nullptr;
-    QMap<int, QString>*             _leafModeNames              = nullptr;
-    QMap<LEAF_STATUS, QString>*     _leafStatusTexts            = nullptr;
+    MissionManager*                     _missionManager             = nullptr;
+    GeoFenceManager*                    _geoFenceManager            = nullptr;
+    RallyPointManager*                  _rallyPointManager          = nullptr;
+    VehicleLinkManager*                 _vehicleLinkManager         = nullptr;
+    FTPManager*                         _ftpManager                 = nullptr;
+    ImageProtocolManager*               _imageProtocolManager       = nullptr;
+    InitialConnectStateMachine*         _initialConnectStateMachine = nullptr;
+    Actuators*                          _actuators                  = nullptr;
+    RemoteIDManager*                    _remoteIDManager            = nullptr;
+    StandardModes*                      _standardModes              = nullptr;
+    QMap<int, QString>*                 _leafModeNames              = nullptr;
+    QMap<LEAF_STATUS, QString>*         _leafStatusTexts            = nullptr;
+    QMap<LEAF_MISSION_STATUS, QString>* _leafMissionStatusTexts     = nullptr;
 
     static const char* _rollFactName;
     static const char* _pitchFactName;

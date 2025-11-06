@@ -38,11 +38,14 @@ ToolStripActionList {
         GuidedActionInspectSlap1 { },
         GuidedActionInspectSlap2 { },
         GuidedActionInspectSlaps { },
+        GuidedActionResumePipeline { },
+        GuidedActionRTL { },
+        GuidedActionStartMission { },
+        GuidedActionPause { },
+        GuidedActionResume { },
+        GuidedActionCancel { },
+        GuidedActionAbort { }
         // GuidedActionPausePipeline { },
-        GuidedActionResumePipeline { }
-        // GuidedActionAbort { },
-        // GuidedActionRTL { },
-        // GuidedActionPause { }
         // GuidedActionActionList { },
         // GuidedActionGripper { }
     ]
