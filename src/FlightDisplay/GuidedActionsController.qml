@@ -401,6 +401,8 @@ Item {
         function onDisarmVehicleRequest() { disarmVehicleRequest() }
         function onVtolTransitionToFwdFlightRequest() { vtolTransitionToFwdFlightRequest() }
         function onVtolTransitionToMRFlightRequest() { vtolTransitionToMRFlightRequest() }
+        function onLeafArmVehicleRequested() { leafArmVehicleRequest() }
+        function onLeafDisarmVehicleRequested() { leafDisarmVehicleRequest() }
     }
 
     function armVehicleRequest() {
