@@ -430,6 +430,14 @@ Item {
         confirmAction(actionVtolTransitionToMRFlight)
     }
 
+    function leafArmVehicleRequest() {
+        confirmAction(actionFCArm)
+    }
+
+    function leafDisarmVehicleRequest() {
+        confirmAction(actionFCDisarm)
+    }
+
     function closeAll() {
         confirmDialog.visible =     false
         actionList.visible =        false
