@@ -682,6 +682,30 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         qCDebug(VehicleLog) << "_mavlinkMessageReceived Link already running Mavlink v2. Setting _maxProtoVersion" << _maxProtoVersion;
     }
 
+    if (message.sysid == Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_SYS_ID) { //Added logic to consider messages from Petal App Manager as from PX4
+        // switch (message.msgid) {
+        //     case MAVLINK_MSG_ID_MISSION_COUNT:
+        //     case MAVLINK_MSG_ID_MISSION_ITEM_INT:
+        //     case MAVLINK_MSG_ID_MISSION_REQUEST_INT:
+        //     case MAVLINK_MSG_ID_MISSION_ACK:
+        //     case MAVLINK_MSG_ID_MISSION_ITEM_REACHED:
+        //     case MAVLINK_MSG_ID_MISSION_CURRENT:
+        //     case MAVLINK_MSG_ID_MISSION_REQUEST_LIST:
+        //     case MAVLINK_MSG_ID_MISSION_REQUEST:
+        //     case MAVLINK_MSG_ID_MISSION_ITEM:
+        //     case MAVLINK_MSG_ID_FENCE_POINT:
+        //     case MAVLINK_MSG_ID_FENCE_FETCH_POINT:
+        //     case MAVLINK_MSG_ID_RALLY_POINT:
+        //     case MAVLINK_MSG_ID_RALLY_FETCH_POINT:
+        //     case MAVLINK_MSG_ID_COMMAND_ACK:
+        //         message.sysid = _id;
+        //         break;
+        //     default:
+        //         break;
+        // }
+        message.sysid = _id; //accepting all type of messages
+    }
+
     if (message.sysid != _id && message.sysid != 0) {
         // We allow RADIO_STATUS messages which come from a link the vehicle is using to pass through and be handled
         if (!(message.msgid == MAVLINK_MSG_ID_RADIO_STATUS && _vehicleLinkManager->containsLink(link))) {
@@ -5157,7 +5181,7 @@ void Vehicle::sendJoystickDataThreadSafe(float roll, float pitch, float yaw, flo
                 static_cast<uint8_t>(_mavlink->getComponentId()),
                 sharedLink->mavlinkChannel(),
                 &message,
-                static_cast<uint8_t>(_id),
+                static_cast<uint8_t>(0), //_id
                 static_cast<int16_t>(newPitchCommand),
                 static_cast<int16_t>(newRollCommand),
                 static_cast<int16_t>(newThrustCommand),

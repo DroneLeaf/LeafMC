@@ -89,7 +89,7 @@ signals:
     void resumeMissionUploadFail    (void);
 
 private slots:
-    void _mavlinkMessageReceived(const mavlink_message_t& message);
+    void _mavlinkMessageReceived(LinkInterface* link, const mavlink_message_t& message);
     void _ackTimeout(void);
 
 protected:

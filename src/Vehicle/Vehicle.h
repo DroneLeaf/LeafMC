@@ -112,7 +112,9 @@ public:
     // Pass these into the offline constructor to create an offline vehicle which tracks the offline vehicle settings
     static const MAV_AUTOPILOT    MAV_AUTOPILOT_TRACK = static_cast<MAV_AUTOPILOT>(-1);
     static const MAV_TYPE         MAV_TYPE_TRACK = static_cast<MAV_TYPE>(-1);
-
+    // static const int             LEAF_PETAL_MAVLINK_PROXY_SYS_ID = 2; // System ID used for LeafPetalAppMavlinkProxy
+    static const int              DRONE_LEAF_PETAL_APP_MANAGER_SYS_ID = 2;
+    static const int              DRONE_LEAF_PETAL_APP_MANAGER_COMPONENT_ID = 140;
     // The following is used to create a disconnected Vehicle for use while offline editing.
     Vehicle(MAV_AUTOPILOT           firmwareType,
             MAV_TYPE                vehicleType,

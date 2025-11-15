@@ -111,8 +111,8 @@ void PlanManager::_writeMissionCount(void)
                                             qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),
                                             sharedLink->mavlinkChannel(),
                                             &message,
-                                            _vehicle->id(),
-                                            MAV_COMP_ID_AUTOPILOT1,
+                                            Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_SYS_ID, 
+                                            Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_COMPONENT_ID,
                                             _writeMissionItems.count(),
                                             _planType);
 
@@ -157,8 +157,8 @@ void PlanManager::_requestList(void)
                                                    qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),
                                                    sharedLink->mavlinkChannel(),
                                                    &message,
-                                                   _vehicle->id(),
-                                                   MAV_COMP_ID_AUTOPILOT1,
+                                                   Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_SYS_ID,
+                                                   Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_COMPONENT_ID,
                                                    _planType);
 
         _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), message);
@@ -300,8 +300,8 @@ void PlanManager::_readTransactionComplete(void)
                                           qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),
                                           sharedLink->mavlinkChannel(),
                                           &message,
-                                          _vehicle->id(),
-                                          MAV_COMP_ID_AUTOPILOT1,
+                                          Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_SYS_ID,
+                                          Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_COMPONENT_ID,
                                           MAV_MISSION_ACCEPTED,
                                           _planType);
 
@@ -362,8 +362,8 @@ void PlanManager::_requestNextMissionItem(void)
                                                   qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),
                                                   sharedLink->mavlinkChannel(),
                                                   &message,
-                                                  _vehicle->id(),
-                                                  MAV_COMP_ID_AUTOPILOT1,
+                                                  Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_SYS_ID,
+                                                  Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_COMPONENT_ID,
                                                   _itemIndicesToRead[0],
                                                   _planType);
         _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), message);
@@ -532,8 +532,8 @@ void PlanManager::_handleMissionRequest(const mavlink_message_t& message)
                                                qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),
                                                sharedLink->mavlinkChannel(),
                                                &messageOut,
-                                               _vehicle->id(),
-                                               MAV_COMP_ID_AUTOPILOT1,
+                                               Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_SYS_ID,
+                                               Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_COMPONENT_ID,
                                                missionRequestSeq,
                                                item->frame(),
                                                item->command(),
@@ -640,8 +640,14 @@ void PlanManager::_handleMissionAck(const mavlink_message_t& message)
 }
 
 /// Called when a new mavlink message for out vehicle is received
-void PlanManager::_mavlinkMessageReceived(const mavlink_message_t& message)
+void PlanManager::_mavlinkMessageReceived(LinkInterface* link, const mavlink_message_t& message)
 {
+    Q_UNUSED(link);
+
+    // if (message.sysid != Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_SYS_ID) {
+//        return;
+    // }
+
     switch (message.msgid) {
     case MAVLINK_MSG_ID_MISSION_COUNT:
         _handleMissionCount(message);
@@ -883,8 +889,8 @@ void PlanManager::_removeAllWorker(void)
                                                 qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),
                                                 sharedLink->mavlinkChannel(),
                                                 &message,
-                                                _vehicle->id(),
-                                                MAV_COMP_ID_AUTOPILOT1,
+                                                Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_SYS_ID,
+                                                Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_COMPONENT_ID,
                                                 _planType);
         _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), message);
     }
@@ -935,12 +941,12 @@ void PlanManager::_clearAndDeleteWriteMissionItems(void)
 
 void PlanManager::_connectToMavlink(void)
 {
-    connect(_vehicle, &Vehicle::mavlinkMessageReceived, this, &PlanManager::_mavlinkMessageReceived);
+    connect(qgcApp()->toolbox()->mavlinkProtocol(), &MAVLinkProtocol::messageReceived, this, &PlanManager::_mavlinkMessageReceived);
 }
 
 void PlanManager::_disconnectFromMavlink(void)
 {
-    disconnect(_vehicle, &Vehicle::mavlinkMessageReceived, this, &PlanManager::_mavlinkMessageReceived);
+    disconnect(qgcApp()->toolbox()->mavlinkProtocol(), &MAVLinkProtocol::messageReceived, this, &PlanManager::_mavlinkMessageReceived);
 }
 
 QString PlanManager::_planTypeString(void)

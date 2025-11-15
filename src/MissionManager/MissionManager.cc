@@ -48,8 +48,9 @@ void MissionManager::writeArduPilotGuidedMissionItem(const QGeoCoordinate& gotoC
         mavlink_mission_item_t  missionItem;
 
         memset(&missionItem, 0, sizeof(missionItem));
-        missionItem.target_system =     _vehicle->id();
-        missionItem.target_component =  _vehicle->defaultComponentId();
+        // missionItem.target_system =     _vehicle->id(); // YO: USE leafPetalAppMavlinkProxySysId()?
+        missionItem.target_system =     Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_SYS_ID;
+        missionItem.target_component =  Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_COMPONENT_ID;
         missionItem.seq =               0;
         missionItem.command =           MAV_CMD_NAV_WAYPOINT;
         missionItem.param1 =            0;
@@ -63,7 +64,7 @@ void MissionManager::writeArduPilotGuidedMissionItem(const QGeoCoordinate& gotoC
         missionItem.current =           altChangeOnly ? 3 : 2;
         missionItem.autocontinue =      true;
 
-        mavlink_msg_mission_item_encode_chan(qgcApp()->toolbox()->mavlinkProtocol()->getSystemId(),
+        mavlink_msg_mission_item_encode_chan(qgcApp()->toolbox()->mavlinkProtocol()->getSystemId(), // YO: this is QGC system id
                                              qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),
                                              sharedLink->mavlinkChannel(),
                                              &messageOut,
