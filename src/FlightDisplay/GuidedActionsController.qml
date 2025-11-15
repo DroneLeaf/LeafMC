@@ -401,6 +401,8 @@ Item {
         function onDisarmVehicleRequest() { disarmVehicleRequest() }
         function onVtolTransitionToFwdFlightRequest() { vtolTransitionToFwdFlightRequest() }
         function onVtolTransitionToMRFlightRequest() { vtolTransitionToMRFlightRequest() }
+        function onLeafArmVehicleRequested() { leafArmVehicleRequest() }
+        function onLeafDisarmVehicleRequested() { leafDisarmVehicleRequest() }
     }
 
     function armVehicleRequest() {
@@ -426,6 +428,14 @@ Item {
 
     function vtolTransitionToMRFlightRequest() {
         confirmAction(actionVtolTransitionToMRFlight)
+    }
+
+    function leafArmVehicleRequest() {
+        confirmAction(actionFCArm)
+    }
+
+    function leafDisarmVehicleRequest() {
+        confirmAction(actionFCDisarm)
     }
 
     function closeAll() {
