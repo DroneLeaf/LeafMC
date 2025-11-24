@@ -98,3 +98,4 @@ CMakeCache.txt
 
 # App images
 *.AppImage
+/feature/
