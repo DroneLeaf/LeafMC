@@ -10,7 +10,7 @@
 import QGroundControl.FlightDisplay 1.0
 
 GuidedToolStripAction {
-    property string leafMode: _guidedController._activeVehicle.leafMode
+    property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
 
     text:       _guidedController.inspectSlapsTitle
     iconSource: "/res/inspection.svg"
