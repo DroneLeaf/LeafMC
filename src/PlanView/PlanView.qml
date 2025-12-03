@@ -189,12 +189,28 @@ Item {
             if (!checkReadyForSaveUpload(false /* save */)) {
                 return
             }
+
             switch (_missionController.sendToVehiclePreCheck()) {
                 case MissionController.SendToVehiclePreCheckStateOk:
                     sendToVehicle()
                     break
                 case MissionController.SendToVehiclePreCheckStateActiveMission:
                     mainWindow.showMessageDialog(qsTr("Send To Vehicle"), qsTr("Current mission must be paused prior to uploading a new Plan"))
+                    break
+                case MissionController.SendToVehiclePreCheckStateLeafMissionActive:
+                    mainWindow.showMessageDialog(
+                        qsTr("Abort Current Mission"),
+                        qsTr("A Leaf mission is currently loaded (ready/executing/paused). Uploading a new mission will abort the current one and clear it. Continue?"),
+                        StandardButton.Yes | StandardButton.No,
+                        function() {
+                            // User confirmed - abort current mission then upload
+                            if (_planMasterController.managerVehicle) {
+                                _planMasterController.managerVehicle.guidedModeAbort()
+                                // Wait a bit for abort to process, then send mission
+                                abortAndUploadTimer.start()
+                            }
+                        }
+                    )
                     break
                 case MissionController.SendToVehiclePreCheckStateFirwmareVehicleMismatch:
                     mainWindow.showMessageDialog(qsTr("Plan Upload"),
@@ -252,6 +268,14 @@ Item {
             }
             _missionController.setCurrentPlanViewSeqNum(0, true)
         }
+    }
+
+    // Timer to delay mission upload after abort
+    Timer {
+        id: abortAndUploadTimer
+        interval: 1000
+        repeat: false
+        onTriggered: upload()
     }
 
     function insertSimpleItemAfterCurrent(coordinate) {

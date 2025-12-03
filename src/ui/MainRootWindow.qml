@@ -109,6 +109,15 @@ ApplicationWindow {
     signal showPreFlightChecklistIfNeeded
     signal leafArmVehicleRequested
     signal leafDisarmVehicleRequested
+    // Leaf Mission signals from joystick
+    signal leafMissionIdleAndStartRequested
+    signal leafMissionPauseRequested
+    signal leafMissionResumeRequested
+    signal leafMissionAbortRequested
+    signal leafMissionAbortImmediateRequested  // Bypass confirmation (developer mode)
+    // Confirmation popup trigger signals (hold to confirm)
+    signal confirmActionStarted
+    signal confirmActionStopped
 
 
     //-------------------------------------------------------------------------

@@ -57,16 +57,13 @@
         <file alias="XDelete.svg">resources/XDelete.svg</file>
         <file alias="XDeleteBlack.svg">resources/XDeleteBlack.svg</file>
         <file alias="waypoint.svg">resources/waypoint.svg</file>
-        <file alias="Gripper.svg">resources/Gripper.svg</file>
-        <file alias="GripperRelease.svg">resources/GripperRelease.svg</file>
-        <file alias="GripperGrab.svg">resources/GripperGrab.svg</file>
         <file>resources/icons/qgroundcontrol.ico</file>
         <file alias="up-down.svg">resources/up-down.svg</file>
         <file alias="left-right.svg">resources/left-right.svg</file>
         <file alias="leaf-logo.png">resources/leaf-logo.png</file>
         <file alias="circle-arrows.svg">resources/circle-arrows.svg</file>
         <file alias="infinite-outline.svg">resources/infinite-outline.svg</file>
-        <file alias="inspection.svg">resources/inspection.svg</file>
+        <file alias="check.svg">resources/check.svg</file>
     </qresource>
     <qresource prefix="/res/branding">
         <file alias="Normal-horizental-smallRes.png">resources/branding/Normal-horizental-smallRes.png</file>

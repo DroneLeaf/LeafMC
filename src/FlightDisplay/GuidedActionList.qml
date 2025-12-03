@@ -69,12 +69,6 @@ Rectangle {
             text:       guidedController.changeSpeedMessage,
             action:     guidedController.actionChangeSpeed,
             visible:    guidedController.showChangeSpeed
-        },
-        {
-            title:      guidedController.gripperTitle,
-            text:       guidedController.gripperMessage,
-            action:     guidedController.actionGripper,
-            visible:    guidedController.showGripper
         }
     ]
 

@@ -75,11 +75,6 @@ Item {
     readonly property string toggleMRFTYOffTitle:           qsTr("Learn-Y ON")
     readonly property string armFCTitle:                    qsTr("Idle")
     readonly property string disarmFCTitle:                 qsTr("Disarm")
-    readonly property string inspectSlap1Title:             qsTr("Inspect N")
-    readonly property string inspectSlap2Title:             qsTr("Inspect S")
-    readonly property string inspectSlapsTitle:             qsTr("Inspect All")
-    readonly property string pausePipelineTitle:            qsTr("Pause")
-    readonly property string resumePipelineTitle:           qsTr("Resume")
     readonly property string idleAndStartTitle:             qsTr("Idle and Start")
 
 
@@ -88,7 +83,6 @@ Item {
     readonly property string disarmMessage:                     qsTr("Disarm the vehicle")
     readonly property string emergencyStopMessage:              qsTr("WARNING - Inactive: THIS WILL STOP ALL MOTORS. IF VEHICLE IS CURRENTLY IN THE AIR IT WILL CRASH.")
     readonly property string takeoffMessage:                    qsTr("Takeoff from ground and hold position.")
-    readonly property string gripperMessage:                    qsTr("Grab or Release the cargo")
     readonly property string startMissionMessage:               qsTr("Start the current mission.")
     readonly property string continueMissionMessage:            qsTr("Continue the mission from the current waypoint.")
     readonly property string resumeMissionUploadFailMessage:    qsTr("Upload of resume mission failed. Confirm to retry upload")
@@ -124,11 +118,6 @@ Item {
     readonly property string toggleMRFTYOffMessage:             qsTr("Switch Y Learning OFF")
     readonly property string armFCMessage:                      qsTr("Idle")
     readonly property string disarmFCMessage:                   qsTr("Disarm")
-    readonly property string inspectSlap1Message:           qsTr("Inspect Slap 1")
-    readonly property string inspectSlap2Message:           qsTr("Inspect Slap 2")
-    readonly property string inspectSlapsMessage:           qsTr("Inspect All Slaps")
-    readonly property string pausePipelineMessage:          qsTr("Pause the pipeline")
-    readonly property string resumePipelineMessage:         qsTr("Resume the pipeline")
     readonly property string idleAndStartMessage:           qsTr("This will leafidle and start the leaf mission.")
 
     readonly property int actionRTL:                        1
@@ -156,7 +145,6 @@ Item {
     readonly property int actionActionList:                 23
     readonly property int actionForceArm:                   24
     readonly property int actionChangeSpeed:                25
-    readonly property int actionGripper:                    26
     readonly property int actionSetHome:                    27
     readonly property int actionExecuteCircleTraj:          28
     readonly property int actionExecuteFig8Traj:            29
@@ -167,11 +155,6 @@ Item {
     readonly property int actionMRFTYToggle:                34
     readonly property int actionFCArm:                      35
     readonly property int actionFCDisarm:                   36
-    readonly property int actionInspectSlap1:               37
-    readonly property int actionInspectSlap2:               38
-    readonly property int actionInspectSlaps:               39
-    readonly property int actionPausePipeline:              40
-    readonly property int actionResumePipeline:             41
     readonly property int actionAbort:                      42
     readonly property int actionResume:                     43
     readonly property int actionCancel:                     44
@@ -204,7 +187,7 @@ Item {
     property bool showGotoLocation:     _guidedActionsEnabled && _vehicleFlying
     property bool showSetHome:          _guidedActionsEnabled
     property bool showActionList:       _guidedActionsEnabled && (showStartMission || showResumeMission || showChangeAlt || showLandAbort || actionList.hasCustomActions)
-    property bool showGripper:          _initialConnectComplete ? _activeVehicle.hasGripper : false
+
     property string changeSpeedTitle:   _fixedWing ? changeAirspeedTitle : changeCruiseSpeedTitle
     property string changeSpeedMessage: _fixedWing ? changeAirspeedMessage : changeCruiseSpeedMessage
 
@@ -413,6 +396,15 @@ Item {
         function onVtolTransitionToMRFlightRequest() { vtolTransitionToMRFlightRequest() }
         function onLeafArmVehicleRequested() { leafArmVehicleRequest() }
         function onLeafDisarmVehicleRequested() { leafDisarmVehicleRequest() }
+        // Leaf Mission signals from joystick
+        function onLeafMissionIdleAndStartRequested() { confirmAction(actionIdleAndStart) }
+        function onLeafMissionPauseRequested() { confirmAction(actionPause) }
+        function onLeafMissionResumeRequested() { confirmAction(actionResume) }
+        function onLeafMissionAbortRequested() { confirmAction(actionAbort) }
+        function onLeafMissionAbortImmediateRequested() { executeAction(actionAbort, undefined, 1, false) }  // Developer mode - bypass confirmation
+        // Confirmation popup trigger (hold to confirm like spacebar)
+        function onConfirmActionStarted() { confirmDialog.startConfirmSliding() }
+        function onConfirmActionStopped() { confirmDialog.stopConfirmSliding() }
     }
 
     function armVehicleRequest() {
@@ -603,12 +595,6 @@ Item {
             confirmDialog.message = changeSpeedMessage
             guidedValueSlider.visible = true
             break
-        case actionGripper:
-            confirmDialog.hideTrigger = true
-            confirmDialog.title = gripperTitle
-            confirmDialog.message = gripperMessage
-            _widgetLayer._gripperMenu.createObject(mainWindow).open()
-            break
         case actionSetHome:
             confirmDialog.title = setHomeTitle
             confirmDialog.message = setHomeMessage
@@ -680,37 +666,6 @@ Item {
             confirmDialog.message = _fcMRFTYOn ? toggleMRFTYOffMessage : toggleMRFTYOnMessage
             confirmDialog.hideTrigger = true
             break
-
-        case actionInspectSlap1:
-            confirmDialog.title = inspectSlap1Title
-            confirmDialog.message = inspectSlap1Message
-            confirmDialog.hideTrigger = true
-            break
-
-        case actionInspectSlap2:
-            confirmDialog.title = inspectSlap2Title
-            confirmDialog.message = inspectSlap2Message
-            confirmDialog.hideTrigger = true
-            break
-
-        case actionInspectSlaps:
-            confirmDialog.title = inspectSlapsTitle
-            confirmDialog.message = inspectSlapsMessage
-            confirmDialog.hideTrigger = true
-            break
-
-        case actionPausePipeline:
-            confirmDialog.title = pausePipelineTitle
-            confirmDialog.message = pausePipelineMessage
-            confirmDialog.hideTrigger = true
-            break
-
-        case actionResumePipeline:
-            confirmDialog.title = resumePipelineTitle
-            confirmDialog.message = resumePipelineMessage
-            confirmDialog.hideTrigger = true
-            break
-
         case actionIdleAndStart:
             confirmDialog.title = idleAndStartTitle
             confirmDialog.message = idleAndStartMessage
@@ -753,6 +708,10 @@ Item {
             _activeVehicle.guidedModeCancel()
             break
         case actionIdleAndStart:
+            // Switch to LeafSDK Mission mode if not already in it
+            if (!_activeVehicle.leafMode.startsWith("LeafSDK Mission")) {
+                _activeVehicle.setLeafMode("LeafSDK Mission")
+            }
             _activeVehicle.leafArmFC()
             if (_idleAndStartTimer) {
                 _idleAndStartTimer.start()
@@ -827,9 +786,6 @@ Item {
                 }
             }
             break
-        case actionGripper:           
-            _gripperFunction === undefined ? _activeVehicle.sendGripperAction(Vehicle.Invalid_option) : _activeVehicle.sendGripperAction(_gripperFunction)
-            break
         case actionSetHome:
             _activeVehicle.doSetHome(actionData)
             break
@@ -862,28 +818,6 @@ Item {
         case actionMRFTYToggle:
             _activeVehicle.leafMRFTYToggle(_fcMRFTYOn)
             break
-        case actionInspectSlap1:
-            _activeVehicle.leafInspectSlap(1)
-            break
-        
-        case actionInspectSlap2:
-            _activeVehicle.leafInspectSlap(2)
-            break
-        
-        case actionInspectSlaps:
-            _activeVehicle.leafInspectSlap(0)
-            break
-
-        case actionPausePipeline:
-            _fcPipelinePaused = true
-            _activeVehicle.leafPausePipeline()
-            break
-
-        case actionResumePipeline:
-            _fcPipelinePaused = false
-            _activeVehicle.leafResumePipeline()
-            break
-
         default:
             console.warn(qsTr("Internal error: unknown actionCode"), actionCode)
             break

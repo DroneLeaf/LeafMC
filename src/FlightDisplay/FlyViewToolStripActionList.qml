@@ -24,7 +24,7 @@ ToolStripActionList {
             onTriggered:    mainWindow.showPlanView()
         },
         PreFlightCheckListShowAction { onTriggered: displayPreFlightChecklist() },
-        GuidedActionFCArmToggle { },
+        GuidedActionIdleAndStart { },
         GuidedActionFCDisarmToggle { },
         GuidedActionTakeoff { },
         GuidedActionLand { },
@@ -35,19 +35,10 @@ ToolStripActionList {
         GuidedActionToggleMRFTAlt { },
         GuidedActionToggleMRFTX { },
         GuidedActionToggleMRFTY { },
-        GuidedActionInspectSlap1 { },
-        GuidedActionInspectSlap2 { },
-        GuidedActionInspectSlaps { },
-        GuidedActionResumePipeline { },
         GuidedActionRTL { },
-        GuidedActionStartMission { },
-        GuidedActionIdleAndStart { },
         GuidedActionPause { },
         GuidedActionResume { },
         GuidedActionCancel { },
         GuidedActionAbort { }
-        // GuidedActionPausePipeline { },
-        // GuidedActionActionList { },
-        // GuidedActionGripper { }
     ]
 }

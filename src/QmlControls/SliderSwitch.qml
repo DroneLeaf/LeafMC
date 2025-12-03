@@ -43,6 +43,26 @@ Rectangle {
         slider.reset()
     }
 
+    // Start sliding confirmation programmatically (e.g., from joystick button held)
+    // Simulates the first spacebar auto-repeat press
+    function startSliding() {
+        if (visible && !sliderDragArea.drag.active && !_waitingForLastAutoRepeat) {
+            sliderAnimation.start()
+            spaceBarTimout.restart()
+        }
+    }
+
+    // Stop sliding (e.g., from joystick button released)
+    // Simulates the final spacebar auto-repeat that triggers accept
+    function stopSliding() {
+        if (_waitingForLastAutoRepeat) {
+            resetSpaceBarSliding()
+            accept()
+        } else {
+            resetSpaceBarSliding()
+        }
+    }
+
     Timer {
         id:             spaceBarTimout
         interval:       200

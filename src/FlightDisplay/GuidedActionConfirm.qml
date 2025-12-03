@@ -73,6 +73,27 @@ Rectangle {
         }
     }
 
+    // Force confirmation programmatically (e.g., from joystick button)
+    function forceConfirm() {
+        if (visible) {
+            slider.forceAccept()
+        }
+    }
+
+    // Start sliding confirmation (called when joystick button is pressed)
+    function startConfirmSliding() {
+        if (visible) {
+            slider.startSliding()
+        }
+    }
+
+    // Stop sliding confirmation (called when joystick button is released)
+    function stopConfirmSliding() {
+        if (visible) {
+            slider.stopSliding()
+        }
+    }
+
     Timer {
         id:             visibleTimer
         interval:       1000

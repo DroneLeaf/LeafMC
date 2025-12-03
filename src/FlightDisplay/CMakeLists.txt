@@ -30,7 +30,6 @@ add_custom_target(FligthDisplayQml
 		GuidedActionRTL.qml
 		GuidedActionsController.qml
 		GuidedActionTakeoff.qml
-		GuidedActionGripper.qml
 		GuidedActionFCArmToggle.qml
 		GuidedActionFCDisarmToggle.qml
 		GuidedActionExecuteCircleTraj.qml
@@ -40,13 +39,7 @@ add_custom_target(FligthDisplayQml
 		GuidedActionToggleMRFTAlt.qml
 		GuidedActionToggleMRFTX.qml
 		GuidedActionToggleMRFTY.qml
-		GuidedActionInspectSlap1.qml
-		GuidedActionInspectSlap2.qml
-		GuidedActionInspectSlaps.qml
-		GuidedActionPausePipeline.qml
-		GuidedActionResumePipeline.qml
 		GuidedActionIdleAndStart.qml
-		GripperMenu.qml
 		GuidedValueSlider.qml
 		GuidedToolStripAction.qml
 		MultiRotorChecklist.qml

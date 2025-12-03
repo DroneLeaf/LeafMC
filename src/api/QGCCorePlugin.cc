@@ -13,6 +13,7 @@
 #include "QmlComponentInfo.h"
 #include "FactMetaData.h"
 #include "SettingsManager.h"
+#include "AppSettings.h"
 #include "AppMessages.h"
 #include "QmlObjectListModel.h"
 #include "VideoManager.h"
@@ -110,6 +111,7 @@ QGCCorePlugin::QGCCorePlugin(QGCApplication *app, QGCToolbox* toolbox)
     : QGCTool(app, toolbox)
     , _showTouchAreas(false)
     , _showAdvancedUI(true)
+    , _showDeveloperUI(false)
 {
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
     _p = new QGCCorePlugin_p;
@@ -122,6 +124,17 @@ void QGCCorePlugin::setToolbox(QGCToolbox *toolbox)
     qmlRegisterUncreatableType<QGCCorePlugin>       ("QGroundControl", 1, 0, "QGCCorePlugin",       "Reference only");
     qmlRegisterUncreatableType<QGCOptions>          ("QGroundControl", 1, 0, "QGCOptions",          "Reference only");
     qmlRegisterUncreatableType<QGCFlyViewOptions>   ("QGroundControl", 1, 0, "QGCFlyViewOptions",   "Reference only");
+
+    // Load showDeveloperUI from settings and connect to changes
+    AppSettings* appSettings = toolbox->settingsManager()->appSettings();
+    _showDeveloperUI = appSettings->showDeveloperUI()->rawValue().toBool();
+    connect(appSettings->showDeveloperUI(), &Fact::rawValueChanged, this, [this](QVariant value) {
+        bool newValue = value.toBool();
+        if (_showDeveloperUI != newValue) {
+            _showDeveloperUI = newValue;
+            emit showDeveloperUIChanged(newValue);
+        }
+    });
 }
 
 QVariantList &QGCCorePlugin::settingsPages()

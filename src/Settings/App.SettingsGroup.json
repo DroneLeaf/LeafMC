@@ -340,6 +340,13 @@
     "longDesc":  "Ardupilot Support server to forward mavlink to. i.e: support.ardupilot.org:xxxx",
     "type":      "string",
     "default":   "support.ardupilot.org:xxxx"
+},
+{
+    "name":             "showDeveloperUI",
+    "shortDesc":        "Enable Developer UI",
+    "longDesc":         "When enabled, developer features are shown and confirmation dialogs are bypassed for certain actions like mission abort.",
+    "type":             "bool",
+    "default":          false
 }
 ]
 }

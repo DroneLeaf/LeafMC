@@ -54,6 +54,7 @@ public:
     Q_PROPERTY(bool                 showTouchAreas                  READ showTouchAreas         WRITE setShowTouchAreas NOTIFY showTouchAreasChanged)
     Q_PROPERTY(bool                 showAdvancedUI                  READ showAdvancedUI         WRITE setShowAdvancedUI NOTIFY showAdvancedUIChanged)
     Q_PROPERTY(QString              showAdvancedUIMessage           READ showAdvancedUIMessage                          CONSTANT)
+    Q_PROPERTY(bool                 showDeveloperUI                 READ showDeveloperUI                                NOTIFY showDeveloperUIChanged)
     Q_PROPERTY(QString              brandImageIndoor                READ brandImageIndoor                               CONSTANT)
     Q_PROPERTY(QString              brandImageOutdoor               READ brandImageOutdoor                              CONSTANT)
     Q_PROPERTY(QmlObjectListModel*  customMapItems                  READ customMapItems                                 CONSTANT)
@@ -188,6 +189,7 @@ public:
 
     bool showTouchAreas() const { return _showTouchAreas; }
     bool showAdvancedUI() const { return _showAdvancedUI; }
+    bool showDeveloperUI() const { return _showDeveloperUI; }
     void setShowTouchAreas(bool show);
     void setShowAdvancedUI(bool show);
 
@@ -206,11 +208,13 @@ signals:
     void analyzePagesChanged        ();
     void showTouchAreasChanged      (bool showTouchAreas);
     void showAdvancedUIChanged      (bool showAdvancedUI);
+    void showDeveloperUIChanged     (bool showDeveloperUI);
     void toolBarIndicatorsChanged   ();
 
 protected:
     bool                _showTouchAreas;
     bool                _showAdvancedUI;
+    bool                _showDeveloperUI;
     Vehicle*            _activeVehicle  = nullptr;
     QGCCameraManager*   _cameraManager  = nullptr;
     QGCCameraControl*   _currentCamera  = nullptr;

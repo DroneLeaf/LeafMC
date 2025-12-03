@@ -16,9 +16,7 @@ GuidedToolStripAction {
     property bool   _vehicleArmed: _guidedController._activeVehicle ? _guidedController._activeVehicle.armed : false
     property bool   _missionActive: _guidedController._missionActive
     
-    property bool   show_button: leafMode.startsWith("LeafSDK Mission") && 
-                                 (leafMissionStatus.startsWith("MISSION STATUS: READY") || leafMissionStatus.startsWith("MISSION STATUS: IDLE")) && 
-                                 !_missionActive
+    property bool   show_button: leafMode.startsWith("LeafSDK Mission") || leafMode.startsWith("RC POSITION")
 
     text:       _guidedController.idleAndStartTitle
     message:    _guidedController.idleAndStartMessage

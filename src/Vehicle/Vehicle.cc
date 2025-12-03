@@ -518,7 +518,7 @@ void Vehicle::_commonInit()
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_INNER, QString("LEARNING INNER"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_OUTER, QString("LEARNING OUTER"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_FULL, QString("LEARNING FULL"));
-    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_INSPECTION, QString("INSPECTION"));
+
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_REFINED_TUNING_ONLINE, QString("Refined Tuning"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_REFINED_TUNING_OFFLINE, QString("Refined Tuning - Collect Data"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_REFINED_TUNING_OUTER, QString("Refined Tuning Outer - Collect Data"));
@@ -536,15 +536,7 @@ void Vehicle::_commonInit()
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_ARMED, QString("ARMED"));
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_DISARMED, QString("DISARMED"));
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_NOT_READY, QString("NOT READY"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTION_READY, QString("INSPECTION READY"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_GOING_TO_NORTH_FACE, QString("GOING TO NORTH FACE"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_GOING_TO_SOUTH_FACE, QString("GOING TO SOUTH FACE"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTING_NORTH_FACE, QString("INSPECTING NORTH FACE"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTING_SOUTH_FACE, QString("INSPECTING SOUTH FACE"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTION_NORTH_FACE_FINISHED, QString("INSPECTION NORTH FACE FINISHED"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTION_SOUTH_FACE_FINISHED, QString("INSPECTION SOUTH FACE FINISHED"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTION_FINISHED, QString("INSPECTION FINISHED"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_INSPECTION_ABORTED, QString("INSPECTION ABORTED"));
+
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_MISSION_PAUSED, QString("MISSION PAUSED"));
     _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_RETURNING_TO_BASE, QString("RETURNING TO BASE"));
 
@@ -1161,8 +1153,18 @@ void Vehicle::_handleLeafMissionStatus(mavlink_message_t& message)
     if(_leafMissionStatusTexts->contains((LEAF_MISSION_STATUS)leafMissionStatus.status) &&
         _leafMissionStatus.compare(_leafMissionStatusTexts->find((LEAF_MISSION_STATUS)leafMissionStatus.status).value()) != 0
         ) {
+        QString previousStatus = _leafMissionStatus;
         _leafMissionStatus = _leafMissionStatusTexts->find((LEAF_MISSION_STATUS)leafMissionStatus.status).value();
         emit leafMissionStatusChanged(_leafMissionStatus);
+        
+        // Auto-switch to LeafSDK Mission mode when mission becomes READY
+        // Only switch if: 1) status changed to READY, 2) not already in LeafSDK Mission mode, 3) previous status was IDLE (prevents loops)
+        if (_leafMissionStatus.startsWith("MISSION STATUS: READY") && 
+            !_leafMode.startsWith("LeafSDK Mission") &&
+            previousStatus.startsWith("MISSION STATUS: IDLE")) {
+            qCDebug(VehicleLog) << "Auto-switching to LeafSDK Mission mode - leaf mission is READY";
+            setLeafMode("LeafSDK Mission");
+        }
     }
 }
 
@@ -2451,15 +2453,8 @@ QStringList Vehicle::leafModes()
 {
     QStringList ret;
 
-    if(_leafClientName.compare("ENEC") == 0) {
-        ret += (QString)_leafModeNames->value(LEAF_MODE::LEAF_MODE_RC_POSITION);
-        ret += (QString)_leafModeNames->value(LEAF_MODE::LEAF_MODE_INSPECTION);
-        return ret;
-    } else {
-        for(auto k : _leafModeNames->keys()) {
-            if(k == LEAF_MODE::LEAF_MODE_INSPECTION) continue;
-            ret += (QString)_leafModeNames->value(k);
-        }
+    for(auto k : _leafModeNames->keys()) {
+        ret += (QString)_leafModeNames->value(k);
     }
     return ret;
 }
@@ -3372,60 +3367,6 @@ void Vehicle::leafMRFTYToggle(bool state) {
                                       0,
                                       enable);
     sendMessageOnLinkThreadSafe(sharedLink.get(), mrft_y_switch_msg);
-}
-
-void Vehicle::leafInspectSlap(int slap) {
-    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
-    if (!sharedLink) {
-        qCDebug(VehicleLog) << "guidedActionInspectSlap: primary link gone!";
-        return;
-    }
-
-    mavlink_message_t inspect_slap_msg;
-    mavlink_msg_leaf_do_inspect_pack_chan(_mavlink->getSystemId(),
-                                      _mavlink->getComponentId(),
-                                      sharedLink->mavlinkChannel(),
-                                      &inspect_slap_msg,
-                                      0,
-                                      slap);
-    sendMessageOnLinkThreadSafe(sharedLink.get(), inspect_slap_msg);
-}
-
-void Vehicle::leafPausePipeline() {
-    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
-    if (!sharedLink) {
-        qCDebug(VehicleLog) << "guidedActionPausePipeline: primary link gone!";
-        return;
-    }
-
-    mavlink_message_t pause_msg;
-    mavlink_msg_leaf_control_cmd_pack_chan(_mavlink->getSystemId(),
-                                      _mavlink->getComponentId(),
-                                      sharedLink->mavlinkChannel(),
-                                      &pause_msg,
-                                      0,
-                                      LEAF_CONTROL_COMMAND::LEAF_CONTROL_PAUSE,
-                                      LEAF_CONTROL_COMMAND_ACTION::LEAF_CONTROL_COMMAND_ACTION_NONE,"");
-    sendMessageOnLinkThreadSafe(sharedLink.get(), pause_msg);
-}
-
-void Vehicle::leafResumePipeline() {
-    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
-    if (!sharedLink) {
-        qCDebug(VehicleLog) << "guidedActionResumePipeline: primary link gone!";
-        return;
-    }
-
-    mavlink_message_t resume_msg;
-    mavlink_msg_leaf_control_cmd_pack_chan(_mavlink->getSystemId(),
-                                      _mavlink->getComponentId(),
-                                      sharedLink->mavlinkChannel(),
-                                      &resume_msg,
-                                      0,
-                                      LEAF_CONTROL_COMMAND::LEAF_CONTROL_RESUME,
-                                      LEAF_CONTROL_COMMAND_ACTION::LEAF_CONTROL_COMMAND_ACTION_NONE,"");
-    sendMessageOnLinkThreadSafe(sharedLink.get(), resume_msg);
-    
 }
 
 

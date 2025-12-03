@@ -48,7 +48,6 @@ Item {
     property real   _toolsMargin:           ScreenTools.defaultFontPixelWidth * 0.75
     property rect   _centerViewport:        Qt.rect(0, 0, width, height)
     property real   _rightPanelWidth:       ScreenTools.defaultFontPixelWidth * 30
-    property alias  _gripperMenu:           gripperOptions
 
     property var siyi: SiYi
     property SiYiCamera camera: siyi.camera
@@ -379,10 +378,6 @@ Item {
 
         property real topEdgeLeftInset: visible ? y + height : 0
         property real leftEdgeTopInset: visible ? x + width : 0
-    }
-
-    GripperMenu {
-        id: gripperOptions
     }
 
     VehicleWarnings {
