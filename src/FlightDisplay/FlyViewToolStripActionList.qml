@@ -41,6 +41,7 @@ ToolStripActionList {
         GuidedActionResumePipeline { },
         GuidedActionRTL { },
         GuidedActionStartMission { },
+        GuidedActionIdleAndStart { },
         GuidedActionPause { },
         GuidedActionResume { },
         GuidedActionCancel { },

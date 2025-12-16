@@ -11,6 +11,7 @@ add_custom_target(FligthDisplayQml
 		FlyViewInstrumentPanel.qml
 		FlyViewMap.qml
 		FlyViewMissionCompleteDialog.qml
+		FlyViewLeafMissionCompleteDialog.qml
 		FlyViewPreFlightChecklistPopup.qml
 		FlyView.qml
 		FlyViewToolStripActionList.qml
@@ -44,6 +45,7 @@ add_custom_target(FligthDisplayQml
 		GuidedActionInspectSlaps.qml
 		GuidedActionPausePipeline.qml
 		GuidedActionResumePipeline.qml
+		GuidedActionIdleAndStart.qml
 		GripperMenu.qml
 		GuidedValueSlider.qml
 		GuidedToolStripAction.qml

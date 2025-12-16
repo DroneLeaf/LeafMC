@@ -80,6 +80,7 @@ Item {
     readonly property string inspectSlapsTitle:             qsTr("Inspect All")
     readonly property string pausePipelineTitle:            qsTr("Pause")
     readonly property string resumePipelineTitle:           qsTr("Resume")
+    readonly property string idleAndStartTitle:             qsTr("Idle and Start")
 
 
     readonly property string armMessage:                        qsTr("Arm the vehicle.")
@@ -128,6 +129,7 @@ Item {
     readonly property string inspectSlapsMessage:               qsTr("Inspect All Around")
     readonly property string pausePipelineMessage:              qsTr("Pause Mission")
     readonly property string resumePipelineMessage:             qsTr("Resume Mission")
+    readonly property string idleAndStartMessage:               qsTr("This will leafidle and start the leaf mission.")
 
     readonly property int actionRTL:                        1
     readonly property int actionLand:                       2
@@ -173,6 +175,7 @@ Item {
     readonly property int actionAbort:                      42
     readonly property int actionResume:                     43
     readonly property int actionCancel:                     44
+    readonly property int actionIdleAndStart:               45
 
     property var    _activeVehicle:             QGroundControl.multiVehicleManager.activeVehicle
     property bool   _useChecklist:              QGroundControl.settingsManager.appSettings.useChecklist.rawValue && QGroundControl.corePlugin.options.preFlightChecklistUrl.toString().length
@@ -252,6 +255,18 @@ Item {
     property bool   _fcMRFTXOn:             _activeVehicle ? _activeVehicle.leafMRFTX : false
     property bool   _fcMRFTYOn:             _activeVehicle ? _activeVehicle.leafMRFTY : false
     property bool   _fcPipelinePaused:      false
+
+    // Timer for idle and start sequence
+    Timer {
+        id: _idleAndStartTimer
+        interval: 2000
+        repeat: false
+        onTriggered: {
+            if (_activeVehicle) {
+                _activeVehicle.guidedModeStartMission()
+            }
+        }
+    }
 
     function _outputState() {
         if (_corePlugin.guidedActionsControllerLogging()) {
@@ -701,6 +716,12 @@ Item {
             confirmDialog.hideTrigger = true
             break
 
+        case actionIdleAndStart:
+            confirmDialog.title = idleAndStartTitle
+            confirmDialog.message = idleAndStartMessage
+            confirmDialog.hideTrigger = true
+            break
+
         default:
             console.warn("Unknown actionCode", actionCode)
             return
@@ -735,6 +756,10 @@ Item {
             break
         case actionCancel:
             _activeVehicle.guidedModeCancel()
+            break
+        case actionIdleAndStart:
+            _activeVehicle.leafArmFC()
+            _idleAndStartTimer.start()
             break
         case actionResumeMission:
         case actionResumeMissionUploadFail:

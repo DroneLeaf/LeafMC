@@ -351,6 +351,8 @@
         <file alias="QGroundControl/FlightDisplay/GuidedActionCancel.qml">src/FlightDisplay/GuidedActionCancel.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionResume.qml">src/FlightDisplay/GuidedActionResume.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionStartMission.qml">src/FlightDisplay/GuidedActionStartMission.qml</file>
+        <file alias="QGroundControl/FlightDisplay/GuidedActionIdleAndStart.qml">src/FlightDisplay/GuidedActionIdleAndStart.qml</file>
+        <file alias="QGroundControl/FlightDisplay/FlyViewLeafMissionCompleteDialog.qml">src/FlightDisplay/FlyViewLeafMissionCompleteDialog.qml</file>
     </qresource>
     <qresource prefix="/FirstRunPromptDialogs">
         <file alias="UnitsFirstRunPrompt.qml">src/FirstRunPromptDialogs/UnitsFirstRunPrompt.qml</file>
