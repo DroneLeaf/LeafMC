@@ -18,7 +18,11 @@ import QtQuick.Layouts          1.2
 import QGroundControl                           1.0
 import QGroundControl.ScreenTools               1.0
 import QGroundControl.Controls                  1.0
+import QGroundControl.FlightDisplay             1.0
+import QGroundControl.FlightMap                 1.0
 import QGroundControl.Palette                   1.0
+import QGroundControl.ScreenTools               1.0
+import QGroundControl.FactSystem                1.0
 import QGroundControl.Vehicle                   1.0
 import QGroundControl.FlightMap                 1.0
 
@@ -722,8 +726,8 @@ Item {
             break
         case actionIdleAndStart:
             // Switch to LeafSDK Mission mode if not already in it
-            if (!_activeVehicle.leafMode.startsWith("LeafSDK Mission")) {
-                _activeVehicle.setLeafMode("LeafSDK Mission")
+            if (!_activeVehicle.leafMode.startsWith(LeafConstants.modeLeafSDKMission)) {
+                _activeVehicle.setLeafMode(LeafConstants.modeLeafSDKMission)
             }
             _activeVehicle.leafArmFC()
             _idleAndStartTimer.start()

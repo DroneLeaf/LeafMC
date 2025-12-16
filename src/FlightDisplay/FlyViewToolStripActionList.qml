@@ -25,7 +25,6 @@ ToolStripActionList {
         },
         PreFlightCheckListShowAction { onTriggered: displayPreFlightChecklist() },
         GuidedActionIdleAndStart { },
-        GuidedActionFCDisarmToggle { },
         GuidedActionTakeoff { },
         GuidedActionLand { },
         GuidedActionExecuteCircleTraj { },

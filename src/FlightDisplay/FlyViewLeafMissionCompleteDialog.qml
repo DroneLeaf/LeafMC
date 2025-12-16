@@ -16,6 +16,7 @@ import QGroundControl               1.0
 import QGroundControl.Controls      1.0
 import QGroundControl.Palette       1.0
 import QGroundControl.ScreenTools   1.0
+import QGroundControl.Vehicle       1.0
 
 /// Dialog which shows up when a Leaf mission completes
 Item {
@@ -32,7 +33,7 @@ Item {
         target: missionController
 
         function onLeafMissionCompleted() {
-            if (activeVehicle && activeVehicle.leafMode.startsWith("LeafSDK Mission")) {
+            if (activeVehicle && activeVehicle.leafMode.startsWith(LeafConstants.modeLeafSDKMission)) {
                 leafMissionCompleteDialogComponent.createObject(mainWindow).open()
             }
         }
@@ -45,7 +46,7 @@ Item {
                 _wasArmed = true
             } else {
                 // Disarmed
-                if (_wasArmed && _wasExecuting && activeVehicle.leafMode.startsWith("LeafSDK Mission")) {
+                if (_wasArmed && _wasExecuting && activeVehicle.leafMode.startsWith(LeafConstants.modeLeafSDKMission)) {
                      // Check if we are at the last waypoint (or passed it)
                      if (missionController.currentMissionIndex >= missionController.visualItems.count - 1) {
                          leafMissionCompleteDialogComponent.createObject(mainWindow).open()
@@ -56,7 +57,7 @@ Item {
             }
         }
         onLeafMissionStatusChanged: {
-            if (activeVehicle.leafMissionStatus.startsWith("MISSION STATUS: EXECUTING")) {
+            if (activeVehicle.leafMissionStatus.startsWith(LeafConstants.missionStatusExecuting)) {
                 _wasExecuting = true
             }
         }

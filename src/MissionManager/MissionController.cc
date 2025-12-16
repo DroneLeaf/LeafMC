@@ -32,6 +32,7 @@
 #include "QGCCorePlugin.h"
 #include "TakeoffMissionItem.h"
 #include "PlanViewSettings.h"
+#include "LeafConstants.h"
 
 #define UPDATE_TIMEOUT 5000 ///< How often we check for bounding box changes
 
@@ -2191,7 +2192,7 @@ void MissionController::_currentMissionIndexChanged(int sequenceNumber)
         // Check for mission completion (Leaf-specific)
         if (_controllerVehicle && _visualItems->count() > 1) {
             QString leafMode = _controllerVehicle->leafMode();
-            if (leafMode.startsWith("LeafSDK Mission")) {
+            if (leafMode.startsWith(LeafConstants::modeLeafSDKMission())) {
                 // Check if we've reached the last mission item
                 int lastItemIndex = _visualItems->count() - 1;
                 VisualMissionItem* lastItem = qobject_cast<VisualMissionItem*>(_visualItems->get(lastItemIndex));
@@ -2701,9 +2702,9 @@ MissionController::SendToVehiclePreCheckState MissionController::sendToVehiclePr
     }
     
     QString leafMissionStatus = _managerVehicle->leafMissionStatus();
-    if (leafMissionStatus.startsWith("MISSION STATUS: EXECUTING") ||
-        leafMissionStatus.startsWith("MISSION STATUS: PAUSED") ||
-        leafMissionStatus.startsWith("MISSION STATUS: READY")) {
+    if (leafMissionStatus.startsWith(LeafConstants::missionStatusExecuting()) ||
+        leafMissionStatus.startsWith(LeafConstants::missionStatusPaused()) ||
+        leafMissionStatus.startsWith(LeafConstants::missionStatusReady())) {
         return SendToVehiclePreCheckStateLeafMissionActive;
     }
 

@@ -8,6 +8,7 @@
  ****************************************************************************/
 
 import QGroundControl.FlightDisplay 1.0
+import QGroundControl.Vehicle 1.0
 
 GuidedToolStripAction {
     property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
@@ -16,8 +17,8 @@ GuidedToolStripAction {
     property bool   _vehicleArmed: _guidedController._activeVehicle ? _guidedController._activeVehicle.armed : false
     property bool   _missionActive: _guidedController._missionActive
     
-    property bool   show_button: leafMode.startsWith("LeafSDK Mission") && 
-                                 (leafMissionStatus.startsWith("MISSION STATUS: READY") || leafMissionStatus.startsWith("MISSION STATUS: IDLE")) && 
+    property bool   show_button: leafMode.startsWith(LeafConstants.modeLeafSDKMission) && 
+                                 (leafMissionStatus.startsWith(LeafConstants.missionStatusReady) || leafMissionStatus.startsWith(LeafConstants.missionStatusIdle)) && 
                                  !_missionActive
 
     text:       _guidedController.idleAndStartTitle

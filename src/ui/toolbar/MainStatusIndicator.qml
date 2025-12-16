@@ -16,6 +16,7 @@ import QGroundControl.MultiVehicleManager   1.0
 import QGroundControl.ScreenTools           1.0
 import QGroundControl.Palette               1.0
 import QGroundControl.FactSystem            1.0
+import QGroundControl.Vehicle               1.0
 
 RowLayout {
     id:         _root
@@ -154,16 +155,16 @@ RowLayout {
             text: _root._leafMissionStatus
             font.pointSize: ScreenTools.defaultFontPointSize
             color: missionStatusColor(_root._leafMissionStatus)
-            visible: _root._leafMissionStatus != qsTr("") && _root._leafMode.startsWith("LeafSDK Mission")
+            visible: _root._leafMissionStatus != qsTr("") && _root._leafMode.startsWith(LeafConstants.modeLeafSDKMission)
 
             function missionStatusColor(status) {
-                if (status === "MISSION STATUS: EXECUTING") {
+                if (status === LeafConstants.missionStatusExecuting) {
                     return "blue"
-                } else if (status === "MISSION STATUS: PAUSED") {
+                } else if (status === LeafConstants.missionStatusPaused) {
                     return "purple"
-                } else if (status === "MISSION STATUS: CANCELED") {
+                } else if (status === LeafConstants.missionStatusCanceled) {
                     return "crimson"
-                } else if (status === "MISSION STATUS: ABORTED") {
+                } else if (status === LeafConstants.missionStatusAborted) {
                     return "crimson"
                 }
                 return "black"       // default color
