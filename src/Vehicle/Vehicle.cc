@@ -682,6 +682,9 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         _maxProtoVersion = mavlinkVersion;
         qCDebug(VehicleLog) << "_mavlinkMessageReceived Link already running Mavlink v2. Setting _maxProtoVersion" << _maxProtoVersion;
     }
+    if (message.sysid == Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_SYS_ID) { //Added logic to consider messages from Petal App Manager as from PX4
+        message.sysid = _id; //accepting all type of messages
+    }
 
     if (message.sysid != _id && message.sysid != 0) {
         // We allow RADIO_STATUS messages which come from a link the vehicle is using to pass through and be handled
@@ -5158,7 +5161,7 @@ void Vehicle::sendJoystickDataThreadSafe(float roll, float pitch, float yaw, flo
                 static_cast<uint8_t>(_mavlink->getComponentId()),
                 sharedLink->mavlinkChannel(),
                 &message,
-                static_cast<uint8_t>(_id),
+                static_cast<uint8_t>(0), //_id
                 static_cast<int16_t>(newPitchCommand),
                 static_cast<int16_t>(newRollCommand),
                 static_cast<int16_t>(newThrustCommand),
