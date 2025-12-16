@@ -10,8 +10,8 @@
 import QGroundControl.FlightDisplay 1.0
 
 GuidedToolStripAction {
-    property string leafMode: _guidedController._activeVehicle.leafMode
-    property bool isLeafArmed: _guidedController._activeVehicle.leafFCArmed
+    property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
+    property bool isLeafArmed: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafFCArmed : false
 
     text:       _guidedController.disarmFCTitle
     iconSource: "/res/PowerButton.svg"

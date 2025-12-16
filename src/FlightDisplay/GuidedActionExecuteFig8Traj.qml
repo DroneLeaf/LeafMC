@@ -10,7 +10,7 @@
 import QGroundControl.FlightDisplay 1.0
 
 GuidedToolStripAction {
-    property string leafMode: _guidedController._activeVehicle.leafMode
+    property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
     property bool showTraj: leafMode.startsWith("Refined")
 
     text:       _guidedController.executeFig8TrajTitle

@@ -10,7 +10,7 @@
 import QGroundControl.FlightDisplay 1.0
 
 GuidedToolStripAction {
-    property string leafMode: _guidedController._activeVehicle.leafMode
+    property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
     property bool   hideMRFTAlt: !_guidedController._fcMRFTPitchOn && !_guidedController._fcMRFTRollOn && !_guidedController._fcMRFTXOn && !_guidedController._fcMRFTYOn
 
     text:       _guidedController._fcMRFTAltOn ? _guidedController.toggleMRFTAltOffTitle : _guidedController.toggleMRFTAltOnTitle

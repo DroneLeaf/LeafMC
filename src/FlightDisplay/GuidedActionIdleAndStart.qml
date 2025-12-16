@@ -13,15 +13,17 @@ GuidedToolStripAction {
     property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
     property string leafStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafStatus : ""
     property string leafMissionStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMissionStatus : ""
+    property bool   _vehicleArmed: _guidedController._activeVehicle ? _guidedController._activeVehicle.armed : false
+    property bool   _missionActive: _guidedController._missionActive
+    
+    property bool   show_button: leafMode.startsWith("LeafSDK Mission") && 
+                                 (leafMissionStatus.startsWith("MISSION STATUS: READY") || leafMissionStatus.startsWith("MISSION STATUS: IDLE")) && 
+                                 !_missionActive
 
-    property bool   hideLand: leafMode.startsWith("RC Stabilized") || leafMode.startsWith("LEARNING INNER") || leafMode.startsWith("Refined Tuning Outer - Collect Data")
-    property bool   disableLand: leafStatus.startsWith("ARMED") || leafStatus.startsWith("READY TO FLY") || leafStatus.startsWith("NOT READY")
-    property bool   enableLand_leafMission: leafMissionStatus.startsWith("MISSION STATUS: IDLE")
-
-    text:       _guidedController.landTitle
-    message:    _guidedController.landMessage
-    iconSource: "/res/land.svg"
-    visible:    true
-    enabled:    !disableLand && !hideLand && enableLand_leafMission
-    actionID:   _guidedController.actionLand
+    text:       _guidedController.idleAndStartTitle
+    message:    _guidedController.idleAndStartMessage
+    iconSource: "/res/check.svg"
+    visible:    show_button
+    enabled:    show_button
+    actionID:   _guidedController.actionIdleAndStart
 }
