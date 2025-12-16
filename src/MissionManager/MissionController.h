@@ -179,6 +179,7 @@ public:
         SendToVehiclePreCheckStateNoActiveVehicle,          // There is no active vehicle
         SendToVehiclePreCheckStateFirwmareVehicleMismatch,  // Firmware/Vehicle type for plan mismatch with actual vehicle
         SendToVehiclePreCheckStateActiveMission,            // Vehicle is currently flying a mission
+        SendToVehiclePreCheckStateLeafMissionActive,        // Leaf Mission is currently active
     };
     Q_ENUM(SendToVehiclePreCheckState)
 
@@ -278,7 +279,6 @@ signals:
     void batteriesRequiredChanged           (int batteriesRequired);
     void plannedHomePositionChanged         (QGeoCoordinate plannedHomePosition);
     void progressPctChanged                 (double progressPct);
-    void leafMissionAbortRequired           (void);
     void leafMissionCompleted               (void);
     void currentMissionIndexChanged         (int currentMissionIndex);
     void currentPlanViewSeqNumChanged       (void);
