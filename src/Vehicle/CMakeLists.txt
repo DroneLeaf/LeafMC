@@ -69,6 +69,8 @@ add_library(Vehicle
 	VehicleBatteryFactGroup.cc
 	VehicleBatteryFactGroup.h
 	Vehicle.cc
+	LeafConstants.cc
+	LeafConstants.h
 	VehicleClockFactGroup.cc
 	VehicleClockFactGroup.h
 	VehicleDistanceSensorFactGroup.cc
