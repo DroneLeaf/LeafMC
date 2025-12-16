@@ -342,11 +342,6 @@
         <file alias="QGroundControl/FlightDisplay/GuidedActionToggleMRFTY.qml">src/FlightDisplay/GuidedActionToggleMRFTY.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewVideoSiYiController.qml">src/FlightDisplay/FlyViewVideoSiYiController.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewVideoSiYiControllerAiSettings.qml">src/FlightDisplay/FlyViewVideoSiYiControllerAiSettings.qml</file>
-        <file alias="QGroundControl/FlightDisplay/GuidedActionInspectSlap1.qml">src/FlightDisplay/GuidedActionInspectSlap1.qml</file>
-        <file alias="QGroundControl/FlightDisplay/GuidedActionInspectSlap2.qml">src/FlightDisplay/GuidedActionInspectSlap2.qml</file>
-        <file alias="QGroundControl/FlightDisplay/GuidedActionInspectSlaps.qml">src/FlightDisplay/GuidedActionInspectSlaps.qml</file>
-        <file alias="QGroundControl/FlightDisplay/GuidedActionPausePipeline.qml">src/FlightDisplay/GuidedActionPausePipeline.qml</file>
-        <file alias="QGroundControl/FlightDisplay/GuidedActionResumePipeline.qml">src/FlightDisplay/GuidedActionResumePipeline.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionAbort.qml">src/FlightDisplay/GuidedActionAbort.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionCancel.qml">src/FlightDisplay/GuidedActionCancel.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionResume.qml">src/FlightDisplay/GuidedActionResume.qml</file>

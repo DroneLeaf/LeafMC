@@ -35,11 +35,7 @@ GuidedActionToggleMRFTRoll      1.0 GuidedActionToggleMRFTRoll.qml
 GuidedActionToggleMRFTAlt       1.0 GuidedActionToggleMRFTAlt.qml
 GuidedActionToggleMRFTX         1.0 GuidedActionToggleMRFTX.qml
 GuidedActionToggleMRFTY         1.0 GuidedActionToggleMRFTY.qml
-GuidedActionInspectSlap1        1.0 GuidedActionInspectSlap1.qml
-GuidedActionInspectSlap2        1.0 GuidedActionInspectSlap2.qml
-GuidedActionInspectSlaps        1.0 GuidedActionInspectSlaps.qml
-GuidedActionPausePipeline       1.0 GuidedActionPausePipeline.qml
-GuidedActionResumePipeline      1.0 GuidedActionResumePipeline.qml
+
 GuidedActionIdleAndStart        1.0 GuidedActionIdleAndStart.qml
 GuidedToolStripAction           1.0 GuidedToolStripAction.qml
 FlyViewLeafMissionCompleteDialog 1.0 FlyViewLeafMissionCompleteDialog.qml
