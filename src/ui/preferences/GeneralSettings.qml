@@ -1212,6 +1212,13 @@ Rectangle {
                         text:               QGroundControl.qgcVersion
                         Layout.alignment:   Qt.AlignHCenter
                     }
+                    QGCLabel {
+                        text:               qsTr("Developer Mode")
+                        color:              qgcPal.warningText
+                        font.bold:          true
+                        visible:            QGroundControl.corePlugin.showDeveloperUI
+                        Layout.alignment:   Qt.AlignHCenter
+                    }
                 } // settingsColumn
             }
     }

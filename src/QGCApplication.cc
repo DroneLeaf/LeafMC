@@ -106,6 +106,7 @@
 #include "CustomAction.h"
 #include "CustomActionManager.h"
 #include "GimbalController.h"
+#include "LeafConstants.h"
 #include "SiYi/SiYi.h"
 
 #if defined(QGC_ENABLE_PAIRING)
@@ -547,6 +548,11 @@ void QGCApplication::_initCommon()
     });
     qmlRegisterUncreatableType<SiYiCamera>("SiYi.Object", 1, 0, "SiYiCamera", kRefOnly);
     qmlRegisterUncreatableType<SiYiTransmitter>("SiYi.Object", 1, 0, "SiYiTransmitter", kRefOnly);
+
+    // LeafConstants singleton for Leaf mode/status string constants
+    qmlRegisterSingletonType<LeafConstants>(kQGCVehicle, 1, 0, "LeafConstants", [](QQmlEngine*, QJSEngine*)->QObject*{
+        return LeafConstants::instance();
+    });
 
     // Although this should really be in _initForNormalAppBoot putting it here allowws us to create unit tests which pop up more easily
     if(QFontDatabase::addApplicationFont(":/fonts/opensans") < 0) {
