@@ -23,7 +23,7 @@ public:
         RCStabilized,           // LEAF_MODE_RC_Stabilized
         RCPosition,             // LEAF_MODE_RC_POSITION
         LeafSDKMission,         // LEAF_MODE_MISSION
-        LearningInner,          // LEAF_MODE_LEARNING_INNER
+        RollPitchLearning,      // LEAF_MODE_ROLL_PITCH_LEARNING
         LearningOuter,          // LEAF_MODE_LEARNING_OUTER
         LearningFull,           // LEAF_MODE_LEARNING_FULL
         RefinedTuning,          // LEAF_MODE_REFINED_TUNING_ONLINE
@@ -74,7 +74,7 @@ public:
     static const QString& modeRCStabilized();
     static const QString& modeRCPosition();
     static const QString& modeLeafSDKMission();
-    static const QString& modeLearningInner();
+    static const QString& modeRollPitchLearning();
     static const QString& modeLearningOuter();
     static const QString& modeLearningFull();
     static const QString& modeRefinedTuning();
@@ -116,7 +116,7 @@ public:
     Q_PROPERTY(QString modeRCStabilized READ qmlModeRCStabilized CONSTANT)
     Q_PROPERTY(QString modeRCPosition READ qmlModeRCPosition CONSTANT)
     Q_PROPERTY(QString modeLeafSDKMission READ qmlModeLeafSDKMission CONSTANT)
-    Q_PROPERTY(QString modeLearningInner READ qmlModeLearningInner CONSTANT)
+    Q_PROPERTY(QString modeRollPitchLearning READ qmlModeRollPitchLearning CONSTANT)
     Q_PROPERTY(QString modeLearningOuter READ qmlModeLearningOuter CONSTANT)
     Q_PROPERTY(QString modeLearningFull READ qmlModeLearningFull CONSTANT)
     Q_PROPERTY(QString modeRefinedTuning READ qmlModeRefinedTuning CONSTANT)
@@ -145,7 +145,7 @@ private:
     QString qmlModeRCStabilized() const { return modeRCStabilized(); }
     QString qmlModeRCPosition() const { return modeRCPosition(); }
     QString qmlModeLeafSDKMission() const { return modeLeafSDKMission(); }
-    QString qmlModeLearningInner() const { return modeLearningInner(); }
+    QString qmlModeRollPitchLearning() const { return modeRollPitchLearning(); }
     QString qmlModeLearningOuter() const { return modeLearningOuter(); }
     QString qmlModeLearningFull() const { return modeLearningFull(); }
     QString qmlModeRefinedTuning() const { return modeRefinedTuning(); }

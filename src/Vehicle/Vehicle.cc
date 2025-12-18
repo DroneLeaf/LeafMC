@@ -515,7 +515,7 @@ void Vehicle::_commonInit()
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_RC_Stabilized, QString("RC Stabilized"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_RC_POSITION, QString("RC POSITION"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_MISSION, QString("LeafSDK Mission"));
-    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_INNER, QString("LEARNING INNER"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_ROLL_PITCH_LEARNING, QString("Roll/Pitch Learning"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_OUTER, QString("LEARNING OUTER"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_FULL, QString("LEARNING FULL"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_FULL_DATA_COLLECTION, QString("LEARNING FULL - Collect Data"));
@@ -1154,10 +1154,14 @@ void Vehicle::_handleLeafMode(mavlink_message_t& message)
     mavlink_leaf_mode_t leafMode;
     mavlink_msg_leaf_mode_decode(&message, &leafMode);
 
+    qCDebug(VehicleLog) << "Received LEAF_MODE from FC: mode =" << leafMode.mode 
+                        << "current _leafMode =" << _leafMode;
+
     if(_leafModeNames->contains(static_cast<LEAF_MODE>(leafMode.mode)) &&
         _leafMode.compare(_leafModeNames->find(static_cast<LEAF_MODE>(leafMode.mode)).value()) != 0
     ) {
         _leafMode = _leafModeNames->find(static_cast<LEAF_MODE>(leafMode.mode)).value();
+        qCDebug(VehicleLog) << "LeafMode changed to:" << _leafMode;
         emit leafModeChanged(_leafMode);
     }
 }
@@ -2500,6 +2504,8 @@ void Vehicle::setFlightMode(const QString& flightMode)
 
 void Vehicle::setLeafMode(const QString& leafMode)
 {
+    qCDebug(VehicleLog) << "setLeafMode called with:" << leafMode << "current _leafMode:" << _leafMode;
+    
     LEAF_MODE     mode;
     bool leafModeFound = false;
     for(auto k : _leafModeNames->keys()) {
@@ -2515,7 +2521,7 @@ void Vehicle::setLeafMode(const QString& leafMode)
         return;
     }
 
-    qCWarning(VehicleLog) << "mode" << mode;
+    qCWarning(VehicleLog) << "mode" << mode  << "(" << leafMode << ")";;
     
     SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
     if (!sharedLink) {
@@ -2524,13 +2530,6 @@ void Vehicle::setLeafMode(const QString& leafMode)
     }
 
     mavlink_message_t msg;
-    // mavlink_msg_leaf_set_mode_pack_chan(_mavlink->getSystemId(),
-    //                                _mavlink->getComponentId(),
-    //                                sharedLink->mavlinkChannel(),
-    //                                &msg,
-    //                                id(),
-    //                                LEAF_MODE_RC_POSITION);
-
     mavlink_msg_leaf_set_mode_pack_chan(_mavlink->getSystemId(),
                                    _mavlink->getComponentId(),
                                    sharedLink->mavlinkChannel(),
@@ -2540,6 +2539,7 @@ void Vehicle::setLeafMode(const QString& leafMode)
 
                                    
     sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+    qCDebug(VehicleLog) << "LEAF_SET_MODE message sent to vehicle" << id();
 }
 
 void Vehicle::setLeafClientName(const QString& leafClientName){

@@ -11,7 +11,7 @@ import QGroundControl.FlightDisplay 1.0
 
 GuidedToolStripAction {
     property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
-    property bool leafArmOnly: leafMode.startsWith("RC Stabilized") || leafMode.startsWith("LEARNING INNER")
+    property bool leafArmOnly: leafMode.startsWith("RC Stabilized") || leafMode.startsWith("Roll/Pitch Learning")
     property bool isLeafArmed: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafFCArmed : false
 
     text:       leafArmOnly ? "Arm" : _guidedController.armFCTitle

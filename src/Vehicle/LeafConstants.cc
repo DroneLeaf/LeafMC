@@ -42,9 +42,9 @@ const QString& LeafConstants::modeLeafSDKMission()
     return s;
 }
 
-const QString& LeafConstants::modeLearningInner()
+const QString& LeafConstants::modeRollPitchLearning()
 {
-    static const QString s = QStringLiteral("LEARNING INNER");
+    static const QString s = QStringLiteral("Roll/Pitch Learning");
     return s;
 }
 
@@ -216,7 +216,7 @@ const QMap<int, QString>& LeafConstants::modeNames()
         { static_cast<int>(LeafMode::RCStabilized),        modeRCStabilized() },
         { static_cast<int>(LeafMode::RCPosition),          modeRCPosition() },
         { static_cast<int>(LeafMode::LeafSDKMission),      modeLeafSDKMission() },
-        { static_cast<int>(LeafMode::LearningInner),       modeLearningInner() },
+        { static_cast<int>(LeafMode::RollPitchLearning),   modeRollPitchLearning() },
         { static_cast<int>(LeafMode::LearningOuter),       modeLearningOuter() },
         { static_cast<int>(LeafMode::LearningFull),        modeLearningFull() },
         { static_cast<int>(LeafMode::RefinedTuning),       modeRefinedTuning() },
