@@ -73,6 +73,13 @@ Rectangle {
         }
     }
 
+    // Force confirmation programmatically (e.g., from joystick button)
+    // function forceConfirm() {
+    //     if (visible) {
+    //         slider.forceAccept()
+    //     }
+    // }
+
     Timer {
         id:             visibleTimer
         interval:       1000

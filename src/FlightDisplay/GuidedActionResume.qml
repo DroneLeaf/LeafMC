@@ -8,14 +8,15 @@
  ****************************************************************************/
 
 import QGroundControl.FlightDisplay 1.0
+import QGroundControl.Vehicle 1.0
 
 GuidedToolStripAction {
-    property string leafMode: _guidedController._activeVehicle.leafMode
-    property string leafStatus: _guidedController._activeVehicle.leafStatus
-    property string leafMissionStatus: _guidedController._activeVehicle.leafMissionStatus
+    property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
+    property string leafStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafStatus : ""
+    property string leafMissionStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMissionStatus : ""
     
-    property bool   show_button: leafMode.startsWith("LeafSDK Mission")
-    property bool   enable_button: leafMissionStatus.startsWith("MISSION STATUS: PAUSED")
+    property bool   show_button: leafMode.startsWith(LeafConstants.modeLeafSDKMission)
+    property bool   enable_button: leafMissionStatus.startsWith(LeafConstants.missionStatusPaused)
 
     text:       _guidedController.resumeTitle
     message:    _guidedController.resumeMessage

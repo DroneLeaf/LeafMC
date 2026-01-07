@@ -109,6 +109,11 @@ ApplicationWindow {
     signal showPreFlightChecklistIfNeeded
     signal leafArmVehicleRequested
     signal leafDisarmVehicleRequested
+    // Leaf Mission signals from joystick
+    signal leafMissionIdleAndStartRequested
+    signal leafMissionPauseRequested
+    signal leafMissionResumeRequested
+    signal leafMissionAbortRequested
 
 
     //-------------------------------------------------------------------------

@@ -250,6 +250,12 @@ signals:
     void holdCameraStream           (); // Pause/hold camera stream (pipeline)
     void continueCameraStream       (); // Resume/continue camera stream (pipeline)
     void toggleCameraStream         (); // Toggle camera stream on/off
+    // Leaf Mission signals
+    void leafMissionIdleAndStart    (); // LEAF Mission idle and start
+    void leafMissionPause           (); // LEAF Mission pause
+    void leafMissionResume          (); // LEAF Mission resume
+    void leafMissionAbort           (); // LEAF Mission abort
+    // Confirmation popup signals (hold to confirm like spacebar)
 
 protected:
     void    _setDefaultCalibration  ();
@@ -412,10 +418,21 @@ private:
     static const char* _buttonActionHoldCameraStream;
     static const char* _buttonActionContinueCameraStream;
     static const char* _buttonActionToggleCameraStream;
+    // Leaf Mission actions
+    static const char* _buttonActionLeafMissionIdleAndStart;
+    static const char* _buttonActionLeafMissionPause;
+    static const char* _buttonActionLeafMissionResume;
+    static const char* _buttonActionLeafMissionAbort;
+    // Confirmation popup action
+    static const char* _buttonActionConfirmAction;
 
 private slots:
     void _requestLeafIdle();
     void _requestLeafDisarm();
+    void _requestLeafMissionIdleAndStart();
+    void _requestLeafMissionPause();
+    void _requestLeafMissionResume();
+    void _requestLeafMissionAbort();
     void _activeVehicleChanged(Vehicle* activeVehicle);
     void _vehicleCountChanged(int count);
     void _flightModesChanged();

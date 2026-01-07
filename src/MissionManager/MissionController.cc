@@ -32,6 +32,7 @@
 #include "QGCCorePlugin.h"
 #include "TakeoffMissionItem.h"
 #include "PlanViewSettings.h"
+#include "LeafConstants.h"
 
 #define UPDATE_TIMEOUT 5000 ///< How often we check for bounding box changes
 
@@ -209,6 +210,16 @@ void MissionController::_newMissionItemsAvailableFromVehicle(bool removeAllReque
         _initAllVisualItems();
         _updateContainsItems();
         emit newItemsFromVehicle();
+
+        // Auto-switch to LeafSDK Mission mode when mission items are downloaded from vehicle
+        // Only switch if the mission contains items (more than just settings) and not already in LeafSDK Mission mode
+        // if (_controllerVehicle && _visualItems->count() > 1) {
+        //     QString leafMode = _controllerVehicle->leafMode();
+        //     if (!leafMode.startsWith("LeafSDK Mission")) {
+        //         qCDebug(MissionControllerLog) << "Auto-switching to LeafSDK Mission mode after mission download";
+        //         _controllerVehicle->setLeafMode("LeafSDK Mission");
+        //     }
+        // }
     }
     _itemsRequested = false;
 }
@@ -2177,6 +2188,22 @@ void MissionController::_currentMissionIndexChanged(int sequenceNumber)
             item->setIsCurrentItem(item->sequenceNumber() == sequenceNumber);
         }
         emit currentMissionIndexChanged(currentMissionIndex());
+
+        // Check for mission completion (Leaf-specific)
+        if (_controllerVehicle && _visualItems->count() > 1) {
+            QString leafMode = _controllerVehicle->leafMode();
+            if (leafMode.startsWith(LeafConstants::modeLeafSDKMission())) {
+                // Check if we've reached the last mission item
+                int lastItemIndex = _visualItems->count() - 1;
+                VisualMissionItem* lastItem = qobject_cast<VisualMissionItem*>(_visualItems->get(lastItemIndex));
+                qCDebug(MissionControllerLog) << "Leaf mission check: seq" << sequenceNumber << "last" << (lastItem ? lastItem->sequenceNumber() : -1);
+                // Check if we've passed the last item (mission complete)
+                if (sequenceNumber >= lastItemIndex) {
+                     qCDebug(MissionControllerLog) << "Leaf mission completed - passed last item";
+                     emit leafMissionCompleted();
+                }
+            }
+        }
     }
 }
 
@@ -2673,6 +2700,14 @@ MissionController::SendToVehiclePreCheckState MissionController::sendToVehiclePr
     if (_managerVehicle->armed() && _managerVehicle->flightMode() == _managerVehicle->missionFlightMode()) {
         return SendToVehiclePreCheckStateActiveMission;
     }
+    
+    QString leafMissionStatus = _managerVehicle->leafMissionStatus();
+    if (leafMissionStatus.startsWith(LeafConstants::missionStatusExecuting()) ||
+        leafMissionStatus.startsWith(LeafConstants::missionStatusPaused()) ||
+        leafMissionStatus.startsWith(LeafConstants::missionStatusReady())) {
+        return SendToVehiclePreCheckStateLeafMissionActive;
+    }
+
     if (_controllerVehicle->firmwareType() != _managerVehicle->firmwareType() || QGCMAVLink::vehicleClass(_controllerVehicle->vehicleType()) != QGCMAVLink::vehicleClass(_managerVehicle->vehicleType())) {
         return SendToVehiclePreCheckStateFirwmareVehicleMismatch;
     }

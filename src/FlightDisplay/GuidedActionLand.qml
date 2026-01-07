@@ -8,15 +8,16 @@
  ****************************************************************************/
 
 import QGroundControl.FlightDisplay 1.0
+import QGroundControl.Vehicle 1.0
 
 GuidedToolStripAction {
-    property string leafMode: _guidedController._activeVehicle.leafMode
-    property string leafStatus: _guidedController._activeVehicle.leafStatus
-    property string leafMissionStatus: _guidedController._activeVehicle.leafMissionStatus
+    property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
+    property string leafStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafStatus : ""
+    property string leafMissionStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMissionStatus : ""
 
-    property bool   hideLand: leafMode.startsWith("RC Stabilized") || leafMode.startsWith("LEARNING INNER") || leafMode.startsWith("Refined Tuning Outer - Collect Data")
-    property bool   disableLand: leafStatus.startsWith("ARMED") || leafStatus.startsWith("READY TO FLY") || leafStatus.startsWith("NOT READY")
-    property bool   enableLand_leafMission: leafMissionStatus.startsWith("MISSION STATUS: IDLE")
+    property bool   hideLand: leafMode.startsWith(LeafConstants.modeRCStabilized) || leafMode.startsWith(LeafConstants.modeRollPitchLearning) || leafMode.startsWith(LeafConstants.modeRefinedTuningOuter)
+    property bool   disableLand: leafStatus.startsWith(LeafConstants.statusArmed) || leafStatus.startsWith(LeafConstants.statusReadyToFly) || leafStatus.startsWith(LeafConstants.statusNotReady)
+    property bool   enableLand_leafMission: leafMissionStatus.startsWith(LeafConstants.missionStatusIdle)
 
     text:       _guidedController.landTitle
     message:    _guidedController.landMessage

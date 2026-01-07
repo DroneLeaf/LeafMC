@@ -85,6 +85,13 @@ const char* Joystick::_buttonActionLeafDisarm =          QT_TR_NOOP("LEAF Disarm
 const char* Joystick::_buttonActionHoldCameraStream =    QT_TR_NOOP("Hold Camera Stream");
 const char* Joystick::_buttonActionContinueCameraStream= QT_TR_NOOP("Continue Camera Stream");
 const char* Joystick::_buttonActionToggleCameraStream =  QT_TR_NOOP("Toggle Camera Stream");
+// Leaf Mission actions
+const char* Joystick::_buttonActionLeafMissionIdleAndStart = QT_TR_NOOP("LEAF Mission Idle and Start");
+const char* Joystick::_buttonActionLeafMissionPause =        QT_TR_NOOP("LEAF Mission Pause");
+const char* Joystick::_buttonActionLeafMissionResume =       QT_TR_NOOP("LEAF Mission Resume");
+const char* Joystick::_buttonActionLeafMissionAbort =        QT_TR_NOOP("LEAF Mission Abort");
+// Confirmation popup action
+const char* Joystick::_buttonActionConfirmAction =           QT_TR_NOOP("Confirm Action (Slide)");
 
 const char* Joystick::_rgFunctionSettingsKey[Joystick::maxFunction] = {
     "RollAxis",
@@ -1029,6 +1036,76 @@ void Joystick::_requestLeafDisarm()
     }, Qt::QueuedConnection);
 }
 
+void Joystick::_requestLeafMissionIdleAndStart()
+{
+    QMetaObject::invokeMethod(qgcApp(), []() {
+        QQmlApplicationEngine* engine = qgcApp()->qmlAppEngine();
+        if (engine) {
+            const auto roots = engine->rootObjects();
+            if (!roots.isEmpty()) {
+                QObject* rootObj = roots.first();
+                if (rootObj) {
+                    QMetaObject::invokeMethod(rootObj, "leafMissionIdleAndStartRequested", Qt::QueuedConnection);
+                }
+            }
+        }
+    }, Qt::QueuedConnection);
+}
+
+void Joystick::_requestLeafMissionPause()
+{
+    QMetaObject::invokeMethod(qgcApp(), []() {
+        QQmlApplicationEngine* engine = qgcApp()->qmlAppEngine();
+        if (engine) {
+            const auto roots = engine->rootObjects();
+            if (!roots.isEmpty()) {
+                QObject* rootObj = roots.first();
+                if (rootObj) {
+                    QMetaObject::invokeMethod(rootObj, "leafMissionPauseRequested", Qt::QueuedConnection);
+                }
+            }
+        }
+    }, Qt::QueuedConnection);
+}
+
+void Joystick::_requestLeafMissionResume()
+{
+    QMetaObject::invokeMethod(qgcApp(), []() {
+        QQmlApplicationEngine* engine = qgcApp()->qmlAppEngine();
+        if (engine) {
+            const auto roots = engine->rootObjects();
+            if (!roots.isEmpty()) {
+                QObject* rootObj = roots.first();
+                if (rootObj) {
+                    QMetaObject::invokeMethod(rootObj, "leafMissionResumeRequested", Qt::QueuedConnection);
+                }
+            }
+        }
+    }, Qt::QueuedConnection);
+}
+
+void Joystick::_requestLeafMissionAbort()
+{
+    QMetaObject::invokeMethod(qgcApp(), []() {
+        QQmlApplicationEngine* engine = qgcApp()->qmlAppEngine();
+        if (engine) {
+            const auto roots = engine->rootObjects();
+            if (!roots.isEmpty()) {
+                QObject* rootObj = roots.first();
+                if (rootObj) {
+                    // Check if developer mode is enabled - bypass confirmation
+                    // bool developerMode = qgcApp()->toolbox()->corePlugin()->showDeveloperUI();
+                    // if (developerMode) {
+                    //     QMetaObject::invokeMethod(rootObj, "leafMissionAbortImmediateRequested", Qt::QueuedConnection);
+                    // } else {
+                        QMetaObject::invokeMethod(rootObj, "leafMissionAbortRequested", Qt::QueuedConnection);
+                    // }
+                }
+            }
+        }
+    }, Qt::QueuedConnection);
+}
+
 Joystick::Calibration_t Joystick::getCalibration(int axis)
 {
     if (!_validAxis(axis)) {
@@ -1514,6 +1591,16 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
     } else if(action == _buttonActionToggleCameraStream) {
         if (buttonDown) emit toggleCameraStream();
     }
+    // LEAF Mission actions
+    else if(action == _buttonActionLeafMissionIdleAndStart) {
+        if (buttonDown) _requestLeafMissionIdleAndStart();
+    } else if(action == _buttonActionLeafMissionPause) {
+        if (buttonDown) _requestLeafMissionPause();
+    } else if(action == _buttonActionLeafMissionResume) {
+        if (buttonDown) _requestLeafMissionResume();
+    } else if(action == _buttonActionLeafMissionAbort) {
+        if (buttonDown) _requestLeafMissionAbort();
+    }
     else {
         if (buttonDown && _activeVehicle) {
             for (auto& item : _customMavCommands) {
@@ -1606,6 +1693,13 @@ void Joystick::_buildActionList(Vehicle* activeVehicle)
     _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionHoldCameraStream));
     _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionContinueCameraStream));
     _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionToggleCameraStream));
+    // Leaf Mission controls
+    _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionLeafMissionIdleAndStart));
+    _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionLeafMissionPause));
+    _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionLeafMissionResume));
+    _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionLeafMissionAbort));
+    // Confirmation popup action
+    _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionConfirmAction));
 
     for (auto& item : _customMavCommands) {
         _assignableButtonActions.append(new AssignableButtonAction(this, item.name()));

@@ -48,8 +48,8 @@ void MissionManager::writeArduPilotGuidedMissionItem(const QGeoCoordinate& gotoC
         mavlink_mission_item_t  missionItem;
 
         memset(&missionItem, 0, sizeof(missionItem));
-        missionItem.target_system =     _vehicle->id();
-        missionItem.target_component =  _vehicle->defaultComponentId();
+        missionItem.target_system =     Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_SYS_ID;
+        missionItem.target_component =  Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_COMPONENT_ID;
         missionItem.seq =               0;
         missionItem.command =           MAV_CMD_NAV_WAYPOINT;
         missionItem.param1 =            0;

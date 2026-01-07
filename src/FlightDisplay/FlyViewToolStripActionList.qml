@@ -18,14 +18,13 @@ ToolStripActionList {
     signal displayPreFlightChecklist
 
     model: [
-        // ToolStripAction {
-        //     text:           qsTr("Plan")
-        //     iconSource:     "/qmlimages/Plan.svg"
-        //     onTriggered:    mainWindow.showPlanView()
-        // },
+        ToolStripAction {
+            text:           qsTr("Plan")
+            iconSource:     "/qmlimages/Plan.svg"
+            onTriggered:    mainWindow.showPlanView()
+        },
         PreFlightCheckListShowAction { onTriggered: displayPreFlightChecklist() },
-        GuidedActionFCArmToggle { },
-        GuidedActionFCDisarmToggle { },
+        GuidedActionIdleAndStart { },
         GuidedActionTakeoff { },
         GuidedActionLand { },
         GuidedActionExecuteCircleTraj { },
@@ -35,18 +34,10 @@ ToolStripActionList {
         GuidedActionToggleMRFTAlt { },
         GuidedActionToggleMRFTX { },
         GuidedActionToggleMRFTY { },
-        GuidedActionInspectSlap1 { },
-        GuidedActionInspectSlap2 { },
-        GuidedActionInspectSlaps { },
-        GuidedActionResumePipeline { },
         GuidedActionRTL { },
-        GuidedActionStartMission { },
         GuidedActionPause { },
         GuidedActionResume { },
         GuidedActionCancel { },
         GuidedActionAbort { }
-        // GuidedActionPausePipeline { },
-        // GuidedActionActionList { },
-        // GuidedActionGripper { }
     ]
 }

@@ -15,6 +15,7 @@ import QGroundControl.Controls 1.0
 import QGroundControl.MultiVehicleManager 1.0
 import QGroundControl.ScreenTools 1.0
 import QGroundControl.Palette 1.0
+import QGroundControl.Vehicle 1.0
 
 Item {
     id:                     _root
@@ -45,7 +46,17 @@ Item {
                 contentWidth: mainLayout.width
 
                 property real _fullWindowHeight: mainWindow.contentItem.height - (indicatorPopup.padding * 2) - (ScreenTools.defaultFontPixelWidth * 2)
-
+                
+                // Current mode and mission status for mode switch restrictions
+                property string _currentMode: activeVehicle ? activeVehicle.leafMode : ""
+                property string _missionStatus: activeVehicle ? activeVehicle.leafMissionStatus : ""
+                property bool _inLeafSDKMissionMode: _currentMode.startsWith(LeafConstants.modeLeafSDKMission)
+                property bool _inRCPositionMode: _currentMode.startsWith(LeafConstants.modeRCPosition)
+                
+                // Drone is NOT flying = mission status is IDLE, READY, or empty (safe to switch modes)
+                property bool _notFlying: _missionStatus.length === 0 || 
+                                          _missionStatus.startsWith(LeafConstants.missionStatusIdle) || 
+                                          _missionStatus.startsWith(LeafConstants.missionStatusReady)
                 ColumnLayout {
                     id: mainLayout
                     spacing: ScreenTools.defaultFontPixelWidth / 2
@@ -54,8 +65,17 @@ Item {
                         model: activeVehicle ? activeVehicle.leafModes : []
 
                         QGCButton {
+                            property bool _isRCPosition: modelData.startsWith(LeafConstants.modeRCPosition)
+                            property bool _isLeafSDKMission: modelData.startsWith(LeafConstants.modeLeafSDKMission)
+                            // Disable switching between LeafSDK Mission <-> RC Position when flying
+                            property bool _shouldDisable: !flickable._notFlying && (
+                                (_isRCPosition && flickable._inLeafSDKMissionMode) ||
+                                (_isLeafSDKMission && flickable._inRCPositionMode)
+                            )
                             text: modelData
                             Layout.fillWidth: true
+                            enabled: !_shouldDisable
+                            opacity: enabled ? 1.0 : 0.5
                             onClicked: {
                                 activeVehicle.leafMode = text
                                 mainWindow.hideIndicatorPopup()
