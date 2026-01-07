@@ -243,7 +243,6 @@ Item {
     property bool   _fcMRFTAltOn:           _activeVehicle ? _activeVehicle.leafMRFTAlt : false
     property bool   _fcMRFTXOn:             _activeVehicle ? _activeVehicle.leafMRFTX : false
     property bool   _fcMRFTYOn:             _activeVehicle ? _activeVehicle.leafMRFTY : false
-    property bool   _fcPipelinePaused:      false
 
     // Timer for idle and start sequence
     Timer {

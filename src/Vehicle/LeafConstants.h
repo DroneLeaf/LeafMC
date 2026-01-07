@@ -24,10 +24,10 @@ public:
         RCPosition,             // LEAF_MODE_RC_POSITION
         LeafSDKMission,         // LEAF_MODE_MISSION
         RollPitchLearning,      // LEAF_MODE_ROLL_PITCH_LEARNING
-        LearningOuter,          // LEAF_MODE_LEARNING_OUTER
-        LearningFull,           // LEAF_MODE_LEARNING_FULL
-        RefinedTuning,          // LEAF_MODE_REFINED_TUNING_ONLINE
-        RefinedTuningCollect,   // LEAF_MODE_REFINED_TUNING_OFFLINE
+        LearningOuter,          // LEAF_MODE_SELECTIVE_X_Y_ALTITUDE_LEARNING
+        LearningFull,           // LEAF_MODE_FULL_LEARNING
+        RefinedTuning,          // LEAF_MODE_RC_STABILIZE_HOVER_THRUST_ID
+        RefinedTuningCollect,   // LEAF_MODE_REFINED_TUNING_COLLECT_DATA
         RefinedTuningOuter      // LEAF_MODE_REFINED_TUNING_OUTER
     };
     Q_ENUM(LeafMode)

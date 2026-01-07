@@ -50,19 +50,19 @@ const QString& LeafConstants::modeRollPitchLearning()
 
 const QString& LeafConstants::modeLearningOuter()
 {
-    static const QString s = QStringLiteral("LEARNING OUTER");
+    static const QString s = QStringLiteral("Selective X/Y/Altitude Learning");
     return s;
 }
 
 const QString& LeafConstants::modeLearningFull()
 {
-    static const QString s = QStringLiteral("LEARNING FULL");
+    static const QString s = QStringLiteral("Full Learning");
     return s;
 }
 
 const QString& LeafConstants::modeRefinedTuning()
 {
-    static const QString s = QStringLiteral("Refined Tuning");
+    static const QString s = QStringLiteral("RC Stabilize Hover Thrust ID");
     return s;
 }
 

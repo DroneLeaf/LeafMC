@@ -516,12 +516,11 @@ void Vehicle::_commonInit()
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_RC_POSITION, QString("RC POSITION"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_MISSION, QString("LeafSDK Mission"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_ROLL_PITCH_LEARNING, QString("Roll/Pitch Learning"));
-    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_OUTER, QString("LEARNING OUTER"));
-    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_FULL, QString("LEARNING FULL"));
-    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_FULL_DATA_COLLECTION, QString("LEARNING FULL - Collect Data"));
-    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_INSPECTION, QString("INSPECTION"));
-    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_REFINED_TUNING_ONLINE, QString("Refined Tuning"));
-    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_REFINED_TUNING_OFFLINE, QString("Refined Tuning - Collect Data"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_SELECTIVE_X_Y_ALTITUDE_LEARNING, QString("Selective X/Y/Altitude Learning"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_FULL_LEARNING, QString("Full Learning"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_LEARNING_FULL_DATA_COLLECTION, QString("Full Learning - Collect Data"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_RC_STABILIZE_HOVER_THRUST_ID, QString("RC Stabilize Hover Thrust ID"));
+    _leafModeNames->insert(LEAF_MODE::LEAF_MODE_REFINED_TUNING_COLLECT_DATA, QString("Refined Tuning - Collect Data"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_REFINED_TUNING_OUTER, QString("Refined Tuning Outer - Collect Data"));
 
     // leafStatusTexts
