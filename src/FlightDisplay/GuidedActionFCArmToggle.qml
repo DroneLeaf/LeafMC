@@ -8,6 +8,7 @@
  ****************************************************************************/
 
 import QGroundControl.FlightDisplay 1.0
+import QGroundControl.Vehicle 1.0
 
 GuidedToolStripAction {
     property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
@@ -16,7 +17,7 @@ GuidedToolStripAction {
 
     text:       leafArmOnly ? "Arm" : _guidedController.armFCTitle
     iconSource: "/res/PowerButton.svg"
-    visible:    (!isLeafArmed) && leafMode.length > 0
+    visible:    (!isLeafArmed) && leafMode.length > 0 && !leafMode.startsWith(LeafConstants.modeLeafSDKMission)
     enabled:    true
     actionID:   _guidedController.actionFCArm
 }

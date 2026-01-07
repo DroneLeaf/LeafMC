@@ -17,14 +17,13 @@ GuidedToolStripAction {
     property bool   _vehicleArmed: _guidedController._activeVehicle ? _guidedController._activeVehicle.armed : false
     property bool   _missionActive: _guidedController._missionActive
     
-    property bool   show_button: leafMode.startsWith(LeafConstants.modeLeafSDKMission) && 
-                                 (leafMissionStatus.startsWith(LeafConstants.missionStatusReady) || leafMissionStatus.startsWith(LeafConstants.missionStatusIdle)) && 
-                                 !_missionActive
-
+    property bool   show_button: leafMode.startsWith(LeafConstants.modeLeafSDKMission)
+    property bool   enable_button: leafMissionStatus.startsWith(LeafConstants.missionStatusReady)
+    
     text:       _guidedController.idleAndStartTitle
     message:    _guidedController.idleAndStartMessage
     iconSource: "/res/check.svg"
     visible:    show_button
-    enabled:    show_button
+    enabled:    enable_button
     actionID:   _guidedController.actionIdleAndStart
 }
