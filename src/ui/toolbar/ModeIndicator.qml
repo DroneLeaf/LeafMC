@@ -26,11 +26,13 @@ QGCComboBox {
     font.pointSize:         ScreenTools.mediumFontPointSize
     currentIndex:           -1
     sizeToContents:         true
+    enabled:                _modeChangeAllowed
 
     property bool showIndicator: true
 
     property var _activeVehicle:    QGroundControl.multiVehicleManager.activeVehicle
     property var _leafModes:        _activeVehicle ? _activeVehicle.leafModes : [ ]
+    property bool _modeChangeAllowed: _activeVehicle ? _activeVehicle.modeChangeAllowed : true
 
     onActivated: {
         _activeVehicle.leafMode = _leafModes[index]

@@ -70,11 +70,12 @@ Item {
         bottomEdgeRightInset:   virtualJoystickMultiTouch.visible ? virtualJoystickMultiTouch.bottomEdgeRightInset : parentToolInsets.bottomEdgeRightInset
     }
 
-    FlyViewMissionCompleteDialog {
-        missionController:      _missionController
-        geoFenceController:     _geoFenceController
-        rallyPointController:   _rallyPointController
-    }
+    // Mission complete dialog disabled - callback functions updated but not needed for now
+    // FlyViewMissionCompleteDialog {
+    //     missionController:      _missionController
+    //     geoFenceController:     _geoFenceController
+    //     rallyPointController:   _rallyPointController
+    // }
 
     Row {
         id:                 multiVehiclePanelSelector

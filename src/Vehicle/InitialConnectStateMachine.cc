@@ -351,59 +351,26 @@ void InitialConnectStateMachine::_stateRequestGeoFence(StateMachine* stateMachin
 {
     InitialConnectStateMachine* connectMachine  = static_cast<InitialConnectStateMachine*>(stateMachine);
     Vehicle*                    vehicle         = connectMachine->_vehicle;
-    SharedLinkInterfacePtr      sharedLink      = vehicle->vehicleLinkManager()->primaryLink().lock();
 
     disconnect(vehicle->_missionManager, &MissionManager::progressPct, connectMachine,
                &InitialConnectStateMachine::gotProgressUpdate);
 
-    if (!sharedLink) {
-        qCDebug(InitialConnectStateMachineLog) << "_stateRequestGeoFence: Skipping first geofence load request due to no primary link";
-        connectMachine->advance();
-    } else {
-        if (sharedLink->linkConfiguration()->isHighLatency() || sharedLink->isPX4Flow() || sharedLink->isLogReplay()) {
-            qCDebug(InitialConnectStateMachineLog) << "_stateRequestGeoFence: Skipping first geofence load request due to link type";
-            vehicle->_firstGeoFenceLoadComplete();
-        } else {
-            if (vehicle->_geoFenceManager->supported()) {
-                qCDebug(InitialConnectStateMachineLog) << "_stateRequestGeoFence";
-                vehicle->_geoFenceManager->loadFromVehicle();
-                connect(vehicle->_geoFenceManager, &GeoFenceManager::progressPct, connectMachine,
-                        &InitialConnectStateMachine::gotProgressUpdate);
-            } else {
-                qCDebug(InitialConnectStateMachineLog) << "_stateRequestGeoFence: skipped due to no support";
-                vehicle->_firstGeoFenceLoadComplete();
-            }
-        }
-    }
+    // Skip geofence request - not needed for LeafMC
+    qCDebug(InitialConnectStateMachineLog) << "_stateRequestGeoFence: Skipping geofence load request";
+    vehicle->_firstGeoFenceLoadComplete();
 }
 
 void InitialConnectStateMachine::_stateRequestRallyPoints(StateMachine* stateMachine)
 {
     InitialConnectStateMachine* connectMachine  = static_cast<InitialConnectStateMachine*>(stateMachine);
     Vehicle*                    vehicle         = connectMachine->_vehicle;
-    SharedLinkInterfacePtr      sharedLink      = vehicle->vehicleLinkManager()->primaryLink().lock();
 
     disconnect(vehicle->_geoFenceManager, &GeoFenceManager::progressPct, connectMachine,
                &InitialConnectStateMachine::gotProgressUpdate);
 
-    if (!sharedLink) {
-        qCDebug(InitialConnectStateMachineLog) << "_stateRequestRallyPoints: Skipping first rally point load request due to no primary link";
-        connectMachine->advance();
-    } else {
-        if (sharedLink->linkConfiguration()->isHighLatency() || sharedLink->isPX4Flow() || sharedLink->isLogReplay()) {
-            qCDebug(InitialConnectStateMachineLog) << "_stateRequestRallyPoints: Skipping first rally point load request due to link type";
-            vehicle->_firstRallyPointLoadComplete();
-        } else {
-            if (vehicle->_rallyPointManager->supported()) {
-                vehicle->_rallyPointManager->loadFromVehicle();
-                connect(vehicle->_rallyPointManager, &RallyPointManager::progressPct, connectMachine,
-                        &InitialConnectStateMachine::gotProgressUpdate);
-            } else {
-                qCDebug(InitialConnectStateMachineLog) << "_stateRequestRallyPoints: skipping due to no support";
-                vehicle->_firstRallyPointLoadComplete();
-            }
-        }
-    }
+    // Skip rally points request - not needed for LeafMC
+    qCDebug(InitialConnectStateMachineLog) << "_stateRequestRallyPoints: Skipping rally point load request";
+    vehicle->_firstRallyPointLoadComplete();
 }
 
 void InitialConnectStateMachine::_stateSignalInitialConnectComplete(StateMachine* stateMachine)

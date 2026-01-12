@@ -31,7 +31,7 @@ ToolStripActionList {
         PreFlightCheckListShowAction { onTriggered: displayPreFlightChecklist() },
         GuidedActionFCArmToggle { },
         GuidedActionFCDisarmToggle { },
-        GuidedActionIdleAndStart { },
+        GuidedActionMissionIdleAndStart { },
         GuidedActionTakeoff { },
         GuidedActionLand { },
         GuidedActionExecuteCircleTraj { },
@@ -41,10 +41,10 @@ ToolStripActionList {
         GuidedActionToggleMRFTAlt { },
         GuidedActionToggleMRFTX { },
         GuidedActionToggleMRFTY { },
-        GuidedActionRTL { },
-        GuidedActionPause { },
-        GuidedActionResume { },
-        GuidedActionCancel { },
-        GuidedActionAbort { }
+        GuidedActionMissionRTL { },
+        GuidedActionMissionPause { },
+        GuidedActionMissionResume { },
+        GuidedActionMissionAbort { },
+        GuidedActionMissionLand { }
     ]
 }

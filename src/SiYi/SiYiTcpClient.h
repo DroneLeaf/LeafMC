@@ -53,6 +53,7 @@ signals:
     void ipChanged();
 private:
     bool isConnected_{false}, isUdpConnected_{false};
+    bool _shuttingDown{false};
 
     Q_SIGNAL void isConnectedChanged();
     Q_SIGNAL void isUdpConnectedChanged();

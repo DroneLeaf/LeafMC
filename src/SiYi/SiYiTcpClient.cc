@@ -17,15 +17,24 @@ SiYiTcpClient::SiYiTcpClient(const QString ip, quint16 port, QObject *parent)
 {
     sequence_ = quint16(QDateTime::currentMSecsSinceEpoch());
     sequence_2 = sequence_;
-    // 自动重连
-    connect(this, &SiYiTcpClient::finished, this, [=]() { start(); });
+    // Auto-reconnect (only if not shutting down)
+    connect(this, &SiYiTcpClient::finished, this, [=]() { 
+        if (!_shuttingDown) {
+            start(); 
+        }
+    });
 }
 
 SiYiTcpClient::~SiYiTcpClient()
 {
+    _shuttingDown = true;
     if (isRunning()) {
         exit();
-        wait();
+        wait(5000); // Wait up to 5 seconds for clean shutdown
+        if (isRunning()) {
+            terminate(); // Force terminate if still running
+            wait();
+        }
     }
 }
 

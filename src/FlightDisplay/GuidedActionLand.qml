@@ -14,6 +14,7 @@ GuidedToolStripAction {
     property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
     property string leafStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafStatus : ""
     property string leafMissionStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMissionStatus : ""
+    property bool   _heartbeatStale: _guidedController._activeVehicle ? _guidedController._activeVehicle.missionHeartbeatStale : true
 
     property bool   hideLand: leafMode.startsWith(LeafConstants.modeRCStabilized) || leafMode.startsWith(LeafConstants.modeRollPitchLearning) || leafMode.startsWith(LeafConstants.modeRefinedTuningOuter)
     property bool   disableLand: leafStatus.startsWith(LeafConstants.statusArmed) || leafStatus.startsWith(LeafConstants.statusReadyToFly) || leafStatus.startsWith(LeafConstants.statusNotReady)
@@ -22,7 +23,7 @@ GuidedToolStripAction {
     text:       _guidedController.landTitle
     message:    _guidedController.landMessage
     iconSource: "/res/land.svg"
-    visible:    true
+    visible:    !leafMode.startsWith(LeafConstants.modeLeafSDKMission) || _heartbeatStale
     enabled:    !disableLand && !hideLand && enableLand_leafMission
     actionID:   _guidedController.actionLand
 }
