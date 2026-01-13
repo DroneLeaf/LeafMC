@@ -116,11 +116,11 @@ Item {
         guidedValueSlider:     _guidedValueSlider
     }
 
-    FlyViewLeafMissionCompleteDialog {
+    /*FlyViewLeafMissionCompleteDialog {
         missionController:      _missionController
         planMasterController:   _planController
         activeVehicle:          _activeVehicle
-    }
+    }*/
 
     /*GuidedActionConfirm {
         id:                         guidedActionConfirm

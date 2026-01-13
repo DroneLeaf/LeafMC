@@ -155,7 +155,7 @@ RowLayout {
             text: _root._leafMissionStatus
             font.pointSize: ScreenTools.defaultFontPointSize
             color: missionStatusColor(_root._leafMissionStatus)
-            visible: _root._leafMissionStatus != qsTr("") && _root._leafMode.startsWith(LeafConstants.modeLeafSDKMission)
+            visible: false // _root._leafMissionStatus != qsTr("") && _root._leafMode.startsWith(LeafConstants.modeLeafSDKMission)
 
             function missionStatusColor(status) {
                 if (status === LeafConstants.missionStatusExecuting) {

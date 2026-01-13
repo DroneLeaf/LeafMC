@@ -465,6 +465,9 @@ Item {
     }
 
     // Called when an action is about to be executed in order to confirm
+    // [ANTIGRAVITY] Toggle to show/hide sliding confirmation for specific actions
+    property bool _showSlidingConfirmation: false
+
     function confirmAction(actionCode, actionData, mapIndicator) {
         var showImmediate = true
         closeAll()
@@ -511,6 +514,11 @@ Item {
             guidedValueSlider.visible = true
             break;
         case actionStartMission:
+            if (!_showSlidingConfirmation) {
+                executeAction(actionCode, actionData, 0, false)
+                if (mapIndicator) { mapIndicator.actionConfirmed() }
+                return
+            }
             confirmDialog.title = startMissionTitle
             confirmDialog.message = startMissionMessage
             break;
@@ -520,6 +528,11 @@ Item {
             confirmDialog.hideTrigger = true
             break;
         case actionContinueMission:
+            if (!_showSlidingConfirmation) {
+                executeAction(actionCode, actionData, 0, false)
+                if (mapIndicator) { mapIndicator.actionConfirmed() }
+                return
+            }
             showImmediate = false
             confirmDialog.title = continueMissionTitle
             confirmDialog.message = continueMissionMessage
@@ -562,6 +575,11 @@ Item {
             guidedValueSlider.visible = true
             break;
         case actionGoto:
+            if (!_showSlidingConfirmation) {
+                executeAction(actionCode, actionData, 0, false)
+                if (mapIndicator) { mapIndicator.actionConfirmed() }
+                return
+            }
             confirmDialog.title = gotoTitle
             confirmDialog.message = gotoMessage
             confirmDialog.hideTrigger = Qt.binding(function() { return !showGotoLocation })
@@ -717,6 +735,11 @@ Item {
             confirmDialog.message = qsTr("Set mission to ready state")
             break
         case actionMissionStart:
+            if (!_showSlidingConfirmation) {
+                executeAction(actionCode, actionData, 0, false)
+                if (mapIndicator) { mapIndicator.actionConfirmed() }
+                return
+            }
             confirmDialog.title = startMissionTitle
             confirmDialog.message = startMissionMessage
             break
