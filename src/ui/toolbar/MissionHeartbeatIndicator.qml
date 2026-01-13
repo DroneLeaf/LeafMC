@@ -45,7 +45,7 @@ Item {
             sourceSize.width:   width
             source:             "/qmlimages/Plan.svg"
             fillMode:           Image.PreserveAspectFit
-            color:              _indicatorColor
+            color:              qgcPal.text
 
             // Pulsing animation when stale
             SequentialAnimation on opacity {
@@ -59,7 +59,7 @@ Item {
         QGCLabel {
             text:                   getMissionStateText()
             font.pointSize:         ScreenTools.mediumFontPointSize
-            color:                  _indicatorColor
+            color:                  qgcPal.text
             anchors.verticalCenter: parent.verticalCenter
 
             function getMissionStateText() {
