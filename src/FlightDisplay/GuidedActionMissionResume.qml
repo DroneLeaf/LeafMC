@@ -14,16 +14,15 @@ GuidedToolStripAction {
     property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
     property string leafStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafStatus : ""
     property string leafMissionStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMissionStatus : ""
-    property bool   _vehicleArmed: _guidedController._activeVehicle ? _guidedController._activeVehicle.armed : false
-    property bool   _missionActive: _guidedController._missionActive
+    property bool   _heartbeatStale: _guidedController._activeVehicle ? _guidedController._activeVehicle.missionHeartbeatStale : true
     
-    property bool   show_button: leafMode.startsWith(LeafConstants.modeLeafSDKMission)
-    property bool   enable_button: leafMissionStatus.startsWith(LeafConstants.missionStatusReady)
-    
-    text:       _guidedController.idleAndStartTitle
-    message:    _guidedController.idleAndStartMessage
-    iconSource: "/res/check.svg"
-    visible:    show_button
+    property bool   show_button: leafMode.startsWith(LeafConstants.modeLeafSDKMission) && !_heartbeatStale
+    property bool   enable_button: leafMissionStatus.startsWith("MISSION STATUS: PAUSED MID STEP") || leafMissionStatus.startsWith("MISSION STATUS: PAUSED BETWEEN STEPS")
+
+    text:       _guidedController.resumeTitle
+    message:    _guidedController.resumeMessage
+    iconSource: "/res/action.svg"
+    visible:    false
     enabled:    enable_button
-    actionID:   _guidedController.actionIdleAndStart
+    actionID:   _guidedController.actionMissionResume
 }

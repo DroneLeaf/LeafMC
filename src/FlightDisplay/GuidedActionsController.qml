@@ -165,6 +165,14 @@ Item {
     readonly property int actionResume:                     43
     readonly property int actionCancel:                     44
     readonly property int actionIdleAndStart:               45
+    // New mission control action IDs
+    readonly property int actionMissionPause:               46
+    readonly property int actionMissionResume:              47
+    readonly property int actionMissionAbort:               48
+    readonly property int actionMissionRTL:                 49
+    readonly property int actionMissionLand:                50
+    readonly property int actionMissionReady:               51
+    readonly property int actionMissionStart:               52
 
     property var    _activeVehicle:             QGroundControl.multiVehicleManager.activeVehicle
     property bool   _useChecklist:              QGroundControl.settingsManager.appSettings.useChecklist.rawValue && QGroundControl.corePlugin.options.preFlightChecklistUrl.toString().length
@@ -457,6 +465,9 @@ Item {
     }
 
     // Called when an action is about to be executed in order to confirm
+    // [ANTIGRAVITY] Toggle to show/hide sliding confirmation for specific actions
+    property bool _showSlidingConfirmation: false
+
     function confirmAction(actionCode, actionData, mapIndicator) {
         var showImmediate = true
         closeAll()
@@ -503,6 +514,11 @@ Item {
             guidedValueSlider.visible = true
             break;
         case actionStartMission:
+            if (!_showSlidingConfirmation) {
+                executeAction(actionCode, actionData, 0, false)
+                if (mapIndicator) { mapIndicator.actionConfirmed() }
+                return
+            }
             confirmDialog.title = startMissionTitle
             confirmDialog.message = startMissionMessage
             break;
@@ -512,6 +528,11 @@ Item {
             confirmDialog.hideTrigger = true
             break;
         case actionContinueMission:
+            if (!_showSlidingConfirmation) {
+                executeAction(actionCode, actionData, 0, false)
+                if (mapIndicator) { mapIndicator.actionConfirmed() }
+                return
+            }
             showImmediate = false
             confirmDialog.title = continueMissionTitle
             confirmDialog.message = continueMissionMessage
@@ -542,10 +563,7 @@ Item {
             confirmDialog.title = resumeTitle
             confirmDialog.message = resumeMessage
             break;
-        case actionCancel:
-            confirmDialog.title = cancelTitle
-            confirmDialog.message = cancelMessage
-            break;
+        // actionCancel removed - cancel messages are no longer used
         case actionRTL:
             confirmDialog.title = rtlTitle
             confirmDialog.message = rtlMessage
@@ -557,6 +575,11 @@ Item {
             guidedValueSlider.visible = true
             break;
         case actionGoto:
+            if (!_showSlidingConfirmation) {
+                executeAction(actionCode, actionData, 0, false)
+                if (mapIndicator) { mapIndicator.actionConfirmed() }
+                return
+            }
             confirmDialog.title = gotoTitle
             confirmDialog.message = gotoMessage
             confirmDialog.hideTrigger = Qt.binding(function() { return !showGotoLocation })
@@ -687,6 +710,39 @@ Item {
             confirmDialog.message = idleAndStartMessage
             confirmDialog.hideTrigger = true
             break
+        case actionMissionPause:
+            confirmDialog.title = pauseTitle
+            confirmDialog.message = pauseMessage
+            break
+        case actionMissionResume:
+            confirmDialog.title = resumeTitle
+            confirmDialog.message = resumeMessage
+            break
+        case actionMissionAbort:
+            confirmDialog.title = abortTitle
+            confirmDialog.message = abortMessage
+            break
+        case actionMissionRTL:
+            confirmDialog.title = rtlTitle
+            confirmDialog.message = rtlMessage
+            break
+        case actionMissionLand:
+            confirmDialog.title = landTitle
+            confirmDialog.message = landMessage
+            break
+        case actionMissionReady:
+            confirmDialog.title = qsTr("Ready")
+            confirmDialog.message = qsTr("Set mission to ready state")
+            break
+        case actionMissionStart:
+            if (!_showSlidingConfirmation) {
+                executeAction(actionCode, actionData, 0, false)
+                if (mapIndicator) { mapIndicator.actionConfirmed() }
+                return
+            }
+            confirmDialog.title = startMissionTitle
+            confirmDialog.message = startMissionMessage
+            break
 
         default:
             console.warn("Unknown actionCode", actionCode)
@@ -712,17 +768,15 @@ Item {
             _activeVehicle.guidedModeTakeoff(sliderOutputValue)
             break
         case actionAbort:
-            _activeVehicle.guidedModeAbort()
+            _activeVehicle.guidedModeMissionAbort()
             break
         case actionPause:
-            _activeVehicle.guidedModePause()
+            _activeVehicle.guidedModeMissionPause()
             break
         case actionResume:
-            _activeVehicle.guidedModeResume()
+            _activeVehicle.guidedModeMissionResume()
             break
-        case actionCancel:
-            _activeVehicle.guidedModeCancel()
-            break
+        // actionCancel removed - cancel messages are no longer used
         case actionIdleAndStart:
             // Switch to LeafSDK Mission mode if not already in it
             if (!_activeVehicle.leafMode.startsWith(LeafConstants.modeLeafSDKMission)) {
@@ -731,12 +785,33 @@ Item {
             _activeVehicle.leafArmFC()
             _idleAndStartTimer.start()
             break
+        case actionMissionPause:
+            _activeVehicle.guidedModeMissionPause()
+            break
+        case actionMissionResume:
+            _activeVehicle.guidedModeMissionResume()
+            break
+        case actionMissionAbort:
+            _activeVehicle.guidedModeMissionAbort()
+            break
+        case actionMissionRTL:
+            _activeVehicle.guidedModeMissionRTL()
+            break
+        case actionMissionLand:
+            _activeVehicle.guidedModeMissionLand()
+            break
+        case actionMissionReady:
+            _activeVehicle.guidedModeMissionReady()
+            break
+        case actionMissionStart:
+            _activeVehicle.guidedModeMissionStart()
+            break
         case actionResumeMission:
         case actionResumeMissionUploadFail:
             missionController.resumeMission(missionController.resumeMissionIndex)
             break
         case actionStartMission:
-            _activeVehicle.guidedModeStartMission()
+            _activeVehicle.guidedModeMissionStart()
             break
         case actionContinueMission:
             _activeVehicle.startMission()

@@ -70,4 +70,10 @@ Row {
         }
     }
 
+    // Mission Heartbeat Indicator
+    MissionHeartbeatIndicator {
+        anchors.top:    parent.top
+        anchors.bottom: parent.bottom
+    }
+
 }

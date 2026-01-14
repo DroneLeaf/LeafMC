@@ -14,16 +14,13 @@ GuidedToolStripAction {
     property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
     property string leafStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafStatus : ""
     property string leafMissionStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMissionStatus : ""
-    property bool   _vehicleArmed: _guidedController._activeVehicle ? _guidedController._activeVehicle.armed : false
-    property bool   _missionActive: _guidedController._missionActive
-    
     property bool   show_button: leafMode.startsWith(LeafConstants.modeLeafSDKMission)
-    property bool   enable_button: leafMissionStatus.startsWith(LeafConstants.missionStatusReady)
-    
-    text:       _guidedController.idleAndStartTitle
-    message:    _guidedController.idleAndStartMessage
-    iconSource: "/res/check.svg"
-    visible:    show_button
-    enabled:    enable_button
-    actionID:   _guidedController.actionIdleAndStart
+    property bool   is_idle: leafMissionStatus.startsWith(LeafConstants.missionStatusIdle)
+
+    text:       _guidedController.abortTitle
+    message:    _guidedController.abortMessage
+    iconSource: "/res/cancel.svg"
+    visible:    show_button && !is_idle
+    enabled:    true
+    actionID:   _guidedController.actionMissionAbort
 }

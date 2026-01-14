@@ -374,22 +374,27 @@ public:
 
     Q_INVOKABLE void virtualTabletJoystickValue(double roll, double pitch, double yaw, double thrust);
 
-    /// Command vehicle to return to launch
+    /// Command vehicle to emergency RTL (LEAF_DO_EMERGENCY_RTL placeholder - uses firmware RTL for now)
     Q_INVOKABLE void guidedModeRTL();
 
-    /// Command vehicle to land at current location
+    /// Command vehicle to land at current location (LEAF_DO_LAND)
     Q_INVOKABLE void guidedModeLand();
 
-    /// Command vehicle to abort current mission
-    Q_INVOKABLE void guidedModeAbort();
-    /// Command vehicle to pause current mission
-    Q_INVOKABLE void guidedModePause();
-    /// Command vehicle to resume current mission
-    Q_INVOKABLE void guidedModeResume();
-    /// Command vehicle to cancel current mission
-    Q_INVOKABLE void guidedModeCancel();
-    // Command vehicle to start the uploaded mission
-    Q_INVOKABLE void guidedModeStartMission();
+    // Mission control functions using LEAF_DO_QGC_MISSION_CONTROL_CMD
+    /// Command vehicle to pause mission (LEAF_MISSION_CONTROL_PAUSE)
+    Q_INVOKABLE void guidedModeMissionPause();
+    /// Command vehicle to resume mission (LEAF_MISSION_CONTROL_RESUME)
+    Q_INVOKABLE void guidedModeMissionResume();
+    /// Command vehicle to abort mission (LEAF_MISSION_CONTROL_ABORT)
+    Q_INVOKABLE void guidedModeMissionAbort();
+    /// Command vehicle to return to launch (LEAF_MISSION_CONTROL_RETURN_TO_LAUNCH)
+    Q_INVOKABLE void guidedModeMissionRTL();
+    /// Command vehicle to land in place (LEAF_MISSION_CONTROL_LAND_IN_PLACE)
+    Q_INVOKABLE void guidedModeMissionLand();
+    /// Command vehicle to set mission ready state (LEAF_MISSION_CONTROL_READY)
+    Q_INVOKABLE void guidedModeMissionReady();
+    /// Command vehicle to start mission (LEAF_MISSION_CONTROL_START)
+    Q_INVOKABLE void guidedModeMissionStart();
 
     /// Command vehicle to takeoff from current location
     Q_INVOKABLE void guidedModeTakeoff(double altitudeRelative);
@@ -584,6 +589,19 @@ public:
     void setLeafMRFTX                       (bool state);
     void setLeafMRFTY                       (bool state);
     void setLeafFCArmed                     (bool armed);
+
+    // Mission heartbeat properties
+    Q_PROPERTY(QString      missionHeartbeatState       READ missionHeartbeatState      NOTIFY missionHeartbeatStateChanged)
+    Q_PROPERTY(QString      missionHeartbeatId          READ missionHeartbeatId         NOTIFY missionHeartbeatIdChanged)
+    Q_PROPERTY(int          missionHeartbeatAge         READ missionHeartbeatAge        NOTIFY missionHeartbeatAgeChanged)
+    Q_PROPERTY(bool         missionHeartbeatStale       READ missionHeartbeatStale      NOTIFY missionHeartbeatStaleChanged)
+    Q_PROPERTY(bool         modeChangeAllowed           READ modeChangeAllowed          NOTIFY missionHeartbeatStateChanged)
+
+    QString     missionHeartbeatState   () const { return _missionHeartbeatState; }
+    QString     missionHeartbeatId      () const { return _missionHeartbeatId; }
+    bool        modeChangeAllowed       () const;
+    int         missionHeartbeatAge     () const;
+    bool        missionHeartbeatStale   () const { return _missionHeartbeatStale; }
 
     bool airship() const;
 
@@ -1057,6 +1075,10 @@ signals:
 
     void leafStatusChanged                   (QString leafStatus);
     void leafMissionStatusChanged            (QString leafMissionStatus);
+    void missionHeartbeatStateChanged        (QString state);
+    void missionHeartbeatIdChanged           (QString id);
+    void missionHeartbeatAgeChanged          (int age);
+    void missionHeartbeatStaleChanged        (bool stale);
     void leafModeChanged                     (QString leafMode);
     void leafClientNameChanged               (QString leafClientName);
     void leafMRFTRollChanged                 (bool roll);
@@ -1167,11 +1189,13 @@ private:
     void _handleVfrHud                  (mavlink_message_t& message);
     void _handleLeafStatus              (mavlink_message_t& message);
     void _handleLeafMissionStatus       (mavlink_message_t& message);
+    void _handleLeafMissionHeartbeat    (mavlink_message_t& message);
     void _handleLeafMode                (mavlink_message_t& message);
     void _handleLeafClientName          (mavlink_message_t& message);
     void _handleLeafHeartbeat           (mavlink_message_t& message);
     void _leafSay                       (mavlink_message_t& message);
     void _handleLeafMRFTStatus          (mavlink_message_t& message);
+    void _checkMissionHeartbeatStaleness();
     void _handleNavControllerOutput     (mavlink_message_t& message);
     void _handleHighLatency             (mavlink_message_t& message);
     void _handleHighLatency2            (mavlink_message_t& message);
@@ -1459,6 +1483,12 @@ private:
 
     QList<MavCommandListEntry_t>    _mavCommandList;
     QTimer                          _mavCommandResponseCheckTimer;
+    QString                         _missionHeartbeatState;
+    QString                         _missionHeartbeatId;
+    QElapsedTimer                   _missionHeartbeatTimer;
+    QTimer                          _missionHeartbeatCheckTimer;
+    bool                            _missionHeartbeatStale = true;
+    LEAF_MISSION_STATE              _currentMissionState = LEAF_MISSION_STATE_IDLE;
     static const int                _mavCommandMaxRetryCount                = 3;
     static const int                _mavCommandResponseCheckTimeoutMSecs    = 500;
     static const int                _mavCommandAckTimeoutMSecs              = 3000;
@@ -1546,7 +1576,7 @@ private:
     StandardModes*                      _standardModes              = nullptr;
     QMap<int, QString>*                 _leafModeNames              = nullptr;
     QMap<LEAF_STATUS, QString>*         _leafStatusTexts            = nullptr;
-    QMap<LEAF_MISSION_STATUS, QString>* _leafMissionStatusTexts     = nullptr;
+    QMap<LEAF_MISSION_STATE, QString>* _leafMissionStatusTexts     = nullptr;
 
     static const char* _rollFactName;
     static const char* _pitchFactName;

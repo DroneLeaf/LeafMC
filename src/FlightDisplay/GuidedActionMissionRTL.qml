@@ -14,16 +14,15 @@ GuidedToolStripAction {
     property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
     property string leafStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafStatus : ""
     property string leafMissionStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMissionStatus : ""
-    property bool   _vehicleArmed: _guidedController._activeVehicle ? _guidedController._activeVehicle.armed : false
-    property bool   _missionActive: _guidedController._missionActive
+    property bool   _heartbeatStale: _guidedController._activeVehicle ? _guidedController._activeVehicle.missionHeartbeatStale : true
     
-    property bool   show_button: leafMode.startsWith(LeafConstants.modeLeafSDKMission)
-    property bool   enable_button: leafMissionStatus.startsWith(LeafConstants.missionStatusReady)
-    
-    text:       _guidedController.idleAndStartTitle
-    message:    _guidedController.idleAndStartMessage
-    iconSource: "/res/check.svg"
+    property bool   show_button: leafMode.startsWith(LeafConstants.modeLeafSDKMission) && !_heartbeatStale
+    property bool   mission_inactive: leafMissionStatus.startsWith("MISSION STATUS: IDLE") || leafMissionStatus.startsWith("MISSION STATUS: COMPLETED") || leafMissionStatus.startsWith("MISSION STATUS: FAILED") || leafMissionStatus.startsWith("MISSION STATUS: CANCELLED")
+    property bool   enable_button: mission_inactive && leafStatus.startsWith(LeafConstants.statusFlying)
+
+    text:       _guidedController.rtlTitle
+    iconSource: "/res/rtl.svg"
     visible:    show_button
     enabled:    enable_button
-    actionID:   _guidedController.actionIdleAndStart
+    actionID:   _guidedController.actionMissionRTL
 }

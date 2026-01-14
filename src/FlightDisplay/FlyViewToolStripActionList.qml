@@ -11,20 +11,27 @@ import QtQml.Models 2.12
 
 import QGroundControl           1.0
 import QGroundControl.Controls  1.0
+import QGroundControl.Vehicle   1.0
 
 ToolStripActionList {
     id: _root
 
     signal displayPreFlightChecklist
 
+    property var _activeVehicle: QGroundControl.multiVehicleManager.activeVehicle
+    property string leafMode: _activeVehicle ? _activeVehicle.leafMode : ""
+
     model: [
         ToolStripAction {
             text:           qsTr("Plan")
             iconSource:     "/qmlimages/Plan.svg"
+            visible:        leafMode.startsWith(LeafConstants.modeLeafSDKMission)
             onTriggered:    mainWindow.showPlanView()
         },
         PreFlightCheckListShowAction { onTriggered: displayPreFlightChecklist() },
-        GuidedActionIdleAndStart { },
+        GuidedActionFCArmToggle { },
+        GuidedActionFCDisarmToggle { },
+        GuidedActionMissionIdleAndStart { },
         GuidedActionTakeoff { },
         GuidedActionLand { },
         GuidedActionExecuteCircleTraj { },
@@ -34,10 +41,10 @@ ToolStripActionList {
         GuidedActionToggleMRFTAlt { },
         GuidedActionToggleMRFTX { },
         GuidedActionToggleMRFTY { },
-        GuidedActionRTL { },
-        GuidedActionPause { },
-        GuidedActionResume { },
-        GuidedActionCancel { },
-        GuidedActionAbort { }
+        GuidedActionMissionRTL { },
+        GuidedActionMissionPause { },
+        GuidedActionMissionResume { },
+        GuidedActionMissionAbort { },
+        GuidedActionMissionLand { }
     ]
 }

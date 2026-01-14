@@ -14,7 +14,8 @@ GuidedToolStripAction {
     property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
     property string leafStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafStatus : ""
     property string leafMissionStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMissionStatus : ""
-    property bool   show_button: leafMode.startsWith(LeafConstants.modeLeafSDKMission)
+    property bool   _heartbeatStale: _guidedController._activeVehicle ? _guidedController._activeVehicle.missionHeartbeatStale : true
+    property bool   show_button: leafMode.startsWith(LeafConstants.modeLeafSDKMission) && !_heartbeatStale
     property bool   disable_button: leafMissionStatus.startsWith(LeafConstants.missionStatusIdle)
 
     text:       _guidedController.abortTitle
