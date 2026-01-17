@@ -3143,13 +3143,8 @@ void Vehicle::guidedModeLand()
     sendMessageOnLinkThreadSafe(sharedLink.get(), land_msg);
 }
 
-// Removed duplicate wrappers - use guidedModeMission* functions directly:
-// - guidedModeAbort() -> use guidedModeMissionAbort()
-// - guidedModePause() -> use guidedModeMissionPause()
-// - guidedModeResume() -> use guidedModeMissionResume()  
-// - guidedModeStartMission() -> use guidedModeMissionStart()
 
-// New mission control functions using LEAF_DO_QGC_MISSION_CONTROL_CMD message
+// Mission control functions using LEAF_DO_QGC_MISSION_CONTROL_CMD message
 
 void Vehicle::guidedModeMissionPause()
 {

@@ -204,7 +204,7 @@ Item {
                         function() {
                             // User confirmed - abort current mission then upload
                             if (_planMasterController.managerVehicle) {
-                                _planMasterController.managerVehicle.guidedModeAbort()
+                                _planMasterController.managerVehicle.guidedModeMissionAbort()
                                 // Wait a bit for abort to process, then send mission
                                 abortAndUploadTimer.start()
                             }
