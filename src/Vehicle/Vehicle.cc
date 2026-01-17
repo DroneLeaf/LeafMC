@@ -1287,7 +1287,7 @@ void Vehicle::_checkMissionHeartbeatStaleness()
 {
     if (_missionHeartbeatTimer.isValid()) {
         int age = _missionHeartbeatTimer.elapsed() / 1000;
-        bool shouldBeStale = age > 10;
+        bool shouldBeStale = age > 2;
         if (shouldBeStale != _missionHeartbeatStale) {
             _missionHeartbeatStale = shouldBeStale;
             emit missionHeartbeatStaleChanged(_missionHeartbeatStale);

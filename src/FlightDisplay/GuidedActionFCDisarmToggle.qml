@@ -17,7 +17,7 @@ GuidedToolStripAction {
 
     text:       _guidedController.disarmFCTitle
     iconSource: "/res/PowerButton.svg"
-    visible:    (isLeafArmed) && leafMode.length > 0 && (!leafMode.startsWith(LeafConstants.modeLeafSDKMission)  || leafMode.startsWith(LeafConstants.modeLeafSDKMission) && leafMissionStatus.startsWith(LeafConstants.missionStatusIDLE))
+    visible:    (isLeafArmed) && leafMode.length > 0 && (!leafMode.startsWith(LeafConstants.modeLeafSDKMission)  || leafMode.startsWith(LeafConstants.modeLeafSDKMission) && leafMissionStatus.startsWith(LeafConstants.missionStatusIdle))
     enabled:    true
     actionID:   _guidedController.actionFCDisarm
 }

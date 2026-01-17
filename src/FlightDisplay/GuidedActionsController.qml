@@ -415,10 +415,10 @@ Item {
         function onLeafArmVehicleRequested() { leafArmVehicleRequest() }
         function onLeafDisarmVehicleRequested() { leafDisarmVehicleRequest() }
         // Leaf Mission signals from joystick
-        function onLeafMissionIdleAndStartRequested() { confirmAction(actionIdleAndStart) }
-        function onLeafMissionPauseRequested() { confirmAction(actionPause) }
-        function onLeafMissionResumeRequested() { confirmAction(actionResume) }
-        function onLeafMissionAbortRequested() { confirmAction(actionAbort) }
+        function onLeafMissionIdleAndStartRequested() { executeAction(actionIdleAndStart, undefined, 0, false) }
+        function onLeafMissionPauseRequested() { executeAction(actionPause, undefined, 0, false) }
+        function onLeafMissionResumeRequested() { executeAction(actionResume, undefined, 0, false) }
+        function onLeafMissionAbortRequested() { executeAction(actionAbort, undefined, 0, false) }
         // function onLeafMissionAbortImmediateRequested() { executeAction(actionAbort, undefined, 1, false) }  // Developer mode - bypass confirmation
         // Confirmation popup trigger (hold to confirm like spacebar)
         // function onConfirmActionStarted() { confirmDialog.startConfirmSliding() }
@@ -515,8 +515,8 @@ Item {
             break;
         case actionStartMission:
             if (!_showSlidingConfirmation) {
-                executeAction(actionCode, actionData, 0, false)
-                if (mapIndicator) { mapIndicator.actionConfirmed() }
+                // Disabled - just close without executing
+                if (mapIndicator) { mapIndicator.actionCancelled() }
                 return
             }
             confirmDialog.title = startMissionTitle
@@ -529,8 +529,8 @@ Item {
             break;
         case actionContinueMission:
             if (!_showSlidingConfirmation) {
-                executeAction(actionCode, actionData, 0, false)
-                if (mapIndicator) { mapIndicator.actionConfirmed() }
+                // Disabled - just close without executing
+                if (mapIndicator) { mapIndicator.actionCancelled() }
                 return
             }
             showImmediate = false
@@ -576,8 +576,8 @@ Item {
             break;
         case actionGoto:
             if (!_showSlidingConfirmation) {
-                executeAction(actionCode, actionData, 0, false)
-                if (mapIndicator) { mapIndicator.actionConfirmed() }
+                // Disabled - just close without executing
+                if (mapIndicator) { mapIndicator.actionCancelled() }
                 return
             }
             confirmDialog.title = gotoTitle
@@ -735,11 +735,6 @@ Item {
             confirmDialog.message = qsTr("Set mission to ready state")
             break
         case actionMissionStart:
-            if (!_showSlidingConfirmation) {
-                executeAction(actionCode, actionData, 0, false)
-                if (mapIndicator) { mapIndicator.actionConfirmed() }
-                return
-            }
             confirmDialog.title = startMissionTitle
             confirmDialog.message = startMissionMessage
             break

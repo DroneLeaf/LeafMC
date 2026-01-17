@@ -86,7 +86,7 @@ const char* Joystick::_buttonActionHoldCameraStream =    QT_TR_NOOP("Hold Camera
 const char* Joystick::_buttonActionContinueCameraStream= QT_TR_NOOP("Continue Camera Stream");
 const char* Joystick::_buttonActionToggleCameraStream =  QT_TR_NOOP("Toggle Camera Stream");
 // Leaf Mission actions
-const char* Joystick::_buttonActionLeafMissionIdleAndStart = QT_TR_NOOP("LEAF Mission Idle and Start");
+const char* Joystick::_buttonActionLeafMissionIdleAndStart = QT_TR_NOOP("Start Mission");
 const char* Joystick::_buttonActionLeafMissionPause =        QT_TR_NOOP("LEAF Mission Pause");
 const char* Joystick::_buttonActionLeafMissionResume =       QT_TR_NOOP("LEAF Mission Resume");
 const char* Joystick::_buttonActionLeafMissionAbort =        QT_TR_NOOP("LEAF Mission Abort");
