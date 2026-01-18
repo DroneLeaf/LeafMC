@@ -16,7 +16,7 @@ GuidedToolStripAction {
     property string leafMissionStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMissionStatus : ""
     property bool   _heartbeatStale: _guidedController._activeVehicle ? _guidedController._activeVehicle.missionHeartbeatStale : true
 
-    property bool   hideLand: leafMode.startsWith(LeafConstants.modeRCStabilized) || leafMode.startsWith(LeafConstants.modeRCPosition) || leafMode.startsWith(LeafConstants.modeRollPitchLearning) || leafMode.startsWith(LeafConstants.modeLearningOuter) || leafMode.startsWith(LeafConstants.modeRefinedTuning)
+    property bool   hideLand: leafMode.startsWith(LeafConstants.modeRCStabilized) || leafMode.startsWith(LeafConstants.modeRollPitchLearning) || leafMode.startsWith(LeafConstants.modeLearningOuter) || leafMode.startsWith(LeafConstants.modeRefinedTuning)
     property bool   disableLand: leafStatus.startsWith(LeafConstants.statusArmed) || leafStatus.startsWith(LeafConstants.statusReadyToFly) || leafStatus.startsWith(LeafConstants.statusNotReady)
     property bool   enableLand_leafMission: leafMissionStatus.startsWith(LeafConstants.missionStatusIdle)
 

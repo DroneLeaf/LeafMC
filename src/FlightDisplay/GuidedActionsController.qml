@@ -259,7 +259,7 @@ Item {
         repeat: false
         onTriggered: {
             if (_activeVehicle) {
-                _activeVehicle.guidedModeStartMission()
+                _activeVehicle.guidedModeMissionStart()
             }
         }
     }
