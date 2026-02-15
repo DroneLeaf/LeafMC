@@ -1163,6 +1163,59 @@ void Vehicle::_handleLeafSysStatus(mavlink_message_t& message)
 
     mavlink_leaf_sys_status_t leafSysStatus;
     mavlink_msg_leaf_sys_status_decode(&message, &leafSysStatus);
+
+    mavlink_leaf_status_t leafStatus;
+
+    if (leafSysStatus.pre_idle_check_status == LEAF_PRE_IDLE_CHECK_STATUS::FAILED)
+    {
+        leafStatus.status = LEAF_STATUS::LEAF_STATUS_NOT_READY;
+        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
+        emit leafStatusChanged(_leafStatus);
+        return;
+    }
+
+    else if (leafSysStatus.learning_status == LEAF_LEARNING_STATUS::LEARNING_IN_PROGRESS)
+    {
+        leafStatus.status = LEAF_STATUS::LEAF_STATUS_LEARNING;
+        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
+        emit leafStatusChanged(_leafStatus);
+        return;
+    }
+
+    else if (leafSysStatus.landing_status == LEAF_LANDING_STATUS::LEAF_LANDING_LANDING)
+    {
+        leafStatus.status = LEAF_STATUS::LEAF_STATUS_LANDING;
+        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
+        emit leafStatusChanged(_leafStatus);
+        return;
+    }
+
+    else if (leafSysStatus.takeoff_status == LEAF_TAKEOFF_STATUS::LEAF_TAKEOFF_TAKING_OFF)
+    {
+        leafStatus.status = LEAF_STATUS::LEAF_STATUS_TAKING_OFF;
+        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
+        emit leafStatusChanged(_leafStatus);
+        return;
+    }
+
+    else if (leafSysStatus.arm_stage == LEAF_ARM_STAGE::DISARMED)
+    {
+        leafStatus.status = LEAF_STATUS::LEAF_STATUS_READY_TO_FLY;
+        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
+        emit leafStatusChanged(_leafStatus);
+        setLeafFCArmed(false);
+        emit leafFCArmedChanged(false);
+        return;
+    }
+    else if (leafSysStatus.arm_stage == LEAF_ARM_STAGE::IDLING)
+    {
+        leafStatus.status = LEAF_STATUS::LEAF_STATUS_ARMED_IDLE;
+        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
+        emit leafStatusChanged(_leafStatus);
+        setLeafFCArmed(true);
+        emit leafFCArmedChanged(true);
+        return;
+    }
 }
 
 void Vehicle::_handleLeafMode(mavlink_message_t& message)
