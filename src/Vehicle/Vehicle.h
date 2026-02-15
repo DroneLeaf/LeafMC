@@ -1189,6 +1189,7 @@ private:
     void _handleVfrHud                  (mavlink_message_t& message);
     void _handleLeafStatus              (mavlink_message_t& message);
     void _handleLeafMissionStatus       (mavlink_message_t& message);
+    void _handleLeafSysStatus           (mavlink_message_t& message);
     void _handleLeafMissionHeartbeat    (mavlink_message_t& message);
     void _handleLeafMode                (mavlink_message_t& message);
     void _handleLeafClientName          (mavlink_message_t& message);

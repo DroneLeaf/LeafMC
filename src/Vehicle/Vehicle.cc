@@ -858,6 +858,9 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     case MAVLINK_MSG_ID_LEAF_MISSION_STATUS:
         _handleLeafMissionStatus(message);
         break;
+    case MAVLINK_MSG_ID_LEAF_SYS_STATUS:
+        _handleLeafSysStatus(message);
+        break;
     case MAVLINK_MSG_ID_LEAF_MODE:
         _handleLeafMode(message);
         break;
@@ -1153,6 +1156,13 @@ void Vehicle::_handleLeafMissionStatus(mavlink_message_t& message)
         _leafMissionStatus = _leafMissionStatusTexts->find((LEAF_MISSION_STATE)leafMissionStatus.status).value();
         emit leafMissionStatusChanged(_leafMissionStatus);
     }
+}
+
+void Vehicle::_handleLeafSysStatus(mavlink_message_t& message)
+{
+
+    mavlink_leaf_sys_status_t leafSysStatus;
+    mavlink_msg_leaf_sys_status_decode(&message, &leafSysStatus);
 }
 
 void Vehicle::_handleLeafMode(mavlink_message_t& message)
