@@ -1216,6 +1216,15 @@ void Vehicle::_handleLeafSysStatus(mavlink_message_t& message)
         emit leafFCArmedChanged(true);
         return;
     }
+
+    else if (leafSysStatus.airborne_status == LEAF_AIRBORNE_STATUS::AIRBORNE)
+    {
+        leafStatus.status = LEAF_STATUS::LEAF_STATUS_FLYING;
+        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
+        qInfo() << "Leaf status:" << _leafStatus;
+        emit leafStatusChanged(_leafStatus);
+        return;
+    }
 }
 
 void Vehicle::_handleLeafMode(mavlink_message_t& message)
