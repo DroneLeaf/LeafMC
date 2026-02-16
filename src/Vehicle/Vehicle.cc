@@ -852,9 +852,6 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     case MAVLINK_MSG_ID_RESPONSE_EVENT_ERROR:
         _eventHandler(message.compid).handleEvents(message);
         break;
-    case MAVLINK_MSG_ID_LEAF_STATUS:
-        _handleLeafStatus(message);
-        break;
     case MAVLINK_MSG_ID_LEAF_MISSION_STATUS:
         _handleLeafMissionStatus(message);
         break;
@@ -1116,30 +1113,6 @@ void Vehicle::_handleStatusText(mavlink_message_t& message)
     if (statustext.id == 0 || includesNullTerminator) {
         _chunkedStatusTextTimer.stop();
         _chunkedStatusTextCompleted(message.compid);
-    }
-}
-
-
-void Vehicle::_handleLeafStatus(mavlink_message_t& message)
-{
-
-    mavlink_leaf_status_t leafStatus;
-    mavlink_msg_leaf_status_decode(&message, &leafStatus);
-
-
-    if(_leafStatusTexts->contains((LEAF_STATUS)leafStatus.status) &&
-        _leafStatus.compare(_leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value()) != 0
-        ) {
-        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
-        emit leafStatusChanged(_leafStatus);
-        if (leafStatus.status == LEAF_STATUS::LEAF_STATUS_ARMED_IDLE){
-            setLeafFCArmed(true);
-            emit leafFCArmedChanged(true);
-        }
-        else if (leafStatus.status == LEAF_STATUS::LEAF_STATUS_READY_TO_FLY){
-            setLeafFCArmed(false);
-            emit leafFCArmedChanged(false);
-        }
     }
 }
 

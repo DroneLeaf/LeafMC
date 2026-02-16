@@ -1187,7 +1187,6 @@ private:
     void _handleGlobalPositionInt       (mavlink_message_t& message);
     void _handleAltitude                (mavlink_message_t& message);
     void _handleVfrHud                  (mavlink_message_t& message);
-    void _handleLeafStatus              (mavlink_message_t& message);
     void _handleLeafMissionStatus       (mavlink_message_t& message);
     void _handleLeafSysStatus           (mavlink_message_t& message);
     void _handleLeafMissionHeartbeat    (mavlink_message_t& message);
