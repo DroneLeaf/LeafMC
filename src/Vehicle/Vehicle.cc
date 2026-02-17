@@ -1147,6 +1147,16 @@ void Vehicle::_handleLeafSysStatus(mavlink_message_t& message)
         return;
     }
 
+    else if (leafSysStatus.arm_stage == LEAF_ARM_STAGE::IDLING)
+    {
+        leafStatus.status = LEAF_STATUS::LEAF_STATUS_ARMED_IDLE;
+        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
+        emit leafStatusChanged(_leafStatus);
+        setLeafFCArmed(true);
+        emit leafFCArmedChanged(true);
+        return;
+    }
+
     else if (leafSysStatus.learning_status == LEAF_LEARNING_STATUS::LEARNING_IN_PROGRESS)
     {
         leafStatus.status = LEAF_STATUS::LEAF_STATUS_LEARNING;
@@ -1178,15 +1188,6 @@ void Vehicle::_handleLeafSysStatus(mavlink_message_t& message)
         emit leafStatusChanged(_leafStatus);
         setLeafFCArmed(false);
         emit leafFCArmedChanged(false);
-        return;
-    }
-    else if (leafSysStatus.arm_stage == LEAF_ARM_STAGE::IDLING)
-    {
-        leafStatus.status = LEAF_STATUS::LEAF_STATUS_ARMED_IDLE;
-        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
-        emit leafStatusChanged(_leafStatus);
-        setLeafFCArmed(true);
-        emit leafFCArmedChanged(true);
         return;
     }
 
