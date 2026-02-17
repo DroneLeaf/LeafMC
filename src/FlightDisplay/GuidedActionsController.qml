@@ -891,19 +891,19 @@ Item {
             _activeVehicle.guidedModeExecuteFig8Traj()
             break
         case actionMRFTPitchToggle:
-            _activeVehicle.leafMRFTPitchToggle(_fcMRFTPitchOn)
+            _activeVehicle.leafMRFTPitchToggle(!_fcMRFTPitchOn)
             break
         case actionMRFTRollToggle:
-            _activeVehicle.leafMRFTRollToggle(_fcMRFTRollOn)
+            _activeVehicle.leafMRFTRollToggle(!_fcMRFTRollOn)
             break
         case actionMRFTAltToggle:
-            _activeVehicle.leafMRFTAltToggle(_fcMRFTAltOn)
+            _activeVehicle.leafMRFTAltToggle(!_fcMRFTAltOn)
             break
         case actionMRFTXToggle:
-            _activeVehicle.leafMRFTXToggle(_fcMRFTXOn)
+            _activeVehicle.leafMRFTXToggle(!_fcMRFTXOn)
             break
         case actionMRFTYToggle:
-            _activeVehicle.leafMRFTYToggle(_fcMRFTYOn)
+            _activeVehicle.leafMRFTYToggle(!_fcMRFTYOn)
             break
         default:
             console.warn(qsTr("Internal error: unknown actionCode"), actionCode)
