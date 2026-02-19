@@ -11,7 +11,7 @@ import QGroundControl.FlightDisplay 1.0
 
 GuidedToolStripAction {
     property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
-    property bool   hideMRFTRoll: !_guidedController._fcMRFTAltOn && !_guidedController._fcMRFTPitchOn && !_guidedController._fcMRFTXOn && !_guidedController._fcMRFTYOn
+    property bool   hideMRFTRoll: !_guidedController._fcMRFTAltOn && !_guidedController._fcMRFTPitchOn && !_guidedController._fcMRFTXOn && !_guidedController._fcMRFTYOn && !_guidedController._fcMRFTYawOn
 
     text:       _guidedController._fcMRFTRollOn ? _guidedController.toggleMRFTRollOffTitle : _guidedController.toggleMRFTRollOnTitle
     iconSource: "/res/firmware/swing-arrow.png"

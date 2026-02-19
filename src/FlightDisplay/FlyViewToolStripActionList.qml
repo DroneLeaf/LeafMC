@@ -38,6 +38,7 @@ ToolStripActionList {
         GuidedActionExecuteFig8Traj { },
         GuidedActionToggleMRFTPitch { },
         GuidedActionToggleMRFTRoll { },
+        GuidedActionToggleMRFTYaw { },
         GuidedActionToggleMRFTAlt { },
         GuidedActionToggleMRFTX { },
         GuidedActionToggleMRFTY { },

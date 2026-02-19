@@ -2717,6 +2717,11 @@ void Vehicle::setLeafMRFTY(bool state){
     emit leafMRFTYChanged(_leafMRFTY);
 }
 
+void Vehicle::setLeafMRFTYaw(bool state){
+    _leafMRFTYaw = state;
+    emit leafMRFTYawChanged(_leafMRFTYaw);
+}
+
 void Vehicle::setLeafFCArmed(bool armed){
     _leafFCArmed = armed;
     emit leafFCArmedChanged(_leafFCArmed);
@@ -3470,7 +3475,25 @@ void Vehicle::leafMRFTRollToggle(bool state) {
                                       enable);
     sendMessageOnLinkThreadSafe(sharedLink.get(), mrft_roll_switch_msg);
 }
+void Vehicle::leafMRFTYawToggle(bool state) {
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedActionMRFTYawToggle: primary link gone!";
+        return;
+    }
 
+    mavlink_message_t mrft_yaw_switch_msg;
+    uint8_t enable = state;
+    mavlink_msg_leaf_do_switch_mrft_yaw_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &mrft_yaw_switch_msg,
+                                      0,
+                                      enable);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), mrft_yaw_switch_msg);
+    // Optimistically update local state so UI reflects the change immediately
+    setLeafMRFTYaw(state);
+}
 void Vehicle::leafMRFTAltToggle(bool state) {
     SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
     if (!sharedLink) {
