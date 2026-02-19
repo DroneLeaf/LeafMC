@@ -15,6 +15,7 @@
 #include <Eigen/Eigen>
 
 #include "Vehicle.h"
+#include "LeafConstants.h"
 #include "MAVLinkProtocol.h"
 #include "FirmwarePluginManager.h"
 #include "LinkManager.h"
@@ -548,16 +549,43 @@ void Vehicle::_commonInit()
 
     // leafMissionStatusTexts
     _leafMissionStatusTexts = new QMap<LEAF_MISSION_STATE, QString>();
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_IDLE, QString("MISSION STATUS: IDLE"));
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_READY, QString("MISSION STATUS: READY"));
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_RUNNING, QString("MISSION STATUS: EXECUTING"));
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_SCHEDULED_PAUSE, QString("MISSION STATUS: SCHEDULED PAUSE"));
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_PAUSED_MID_STEP, QString("MISSION STATUS: PAUSED MID STEP"));
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_PAUSED_BETWEEN_STEPS, QString("MISSION STATUS: PAUSED BETWEEN STEPS"));
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_COMPLETED, QString("MISSION STATUS: COMPLETED"));
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_FAILED, QString("MISSION STATUS: FAILED"));
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_CANCELLED, QString("MISSION STATUS: CANCELLED"));
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_SAFETY, QString("MISSION STATUS: SAFETY"));
+    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_IDLE,                 LeafConstants::missionStatusIdle());
+    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_READY,                LeafConstants::missionStatusReady());
+    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_RUNNING,              LeafConstants::missionStatusExecuting());
+    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_SCHEDULED_PAUSE,      LeafConstants::missionStatusScheduledPause());
+    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_PAUSED_MID_STEP,      LeafConstants::missionStatusPausedMidStep());
+    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_PAUSED_BETWEEN_STEPS,  LeafConstants::missionStatusPausedBetweenSteps());
+    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_COMPLETED,            LeafConstants::missionStatusCompleted());
+    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_FAILED,               LeafConstants::missionStatusFailed());
+    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_CANCELLED,            LeafConstants::missionStatusCanceled());
+    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_SAFETY,               LeafConstants::missionStatusSafety());
+
+    // joystickModeTexts
+    _joystickModeTexts = new QMap<JoystickMode, QString>();
+    _joystickModeTexts->insert(JoystickMode::DISABLED,          LeafConstants::joystickModeDisabled());
+    _joystickModeTexts->insert(JoystickMode::ENABLED_ALWAYS,    LeafConstants::joystickModeEnabledAlways());
+    _joystickModeTexts->insert(JoystickMode::ENABLED_ON_PAUSE,  LeafConstants::joystickModeEnabledOnPause());
+
+    // predefinedActionsStatusTexts
+    _predefinedActionsStatusTexts = new QMap<LEAF_PREDEFINED_ACTIONS_STATUS, QString>();
+    _predefinedActionsStatusTexts->insert(LEAF_PREDEFINED_ACTIONS_STATUS::NOT_STARTED,         LeafConstants::actionStatusNotStarted());
+    _predefinedActionsStatusTexts->insert(LEAF_PREDEFINED_ACTIONS_STATUS::TAKING_OFF,          LeafConstants::actionStatusTakingOff());
+    _predefinedActionsStatusTexts->insert(LEAF_PREDEFINED_ACTIONS_STATUS::LANDING,             LeafConstants::actionStatusLanding());
+    _predefinedActionsStatusTexts->insert(LEAF_PREDEFINED_ACTIONS_STATUS::RETURNING_TO_LAUNCH,  LeafConstants::actionStatusReturningToLaunch());
+    _predefinedActionsStatusTexts->insert(LEAF_PREDEFINED_ACTIONS_STATUS::GOTO_XYZ,            LeafConstants::actionStatusGotoXyz());
+
+    // missionStepTypeTexts
+    _missionStepTypeTexts = new QMap<LEAF_MISSION_STEP_TYPE, QString>();
+    _missionStepTypeTexts->insert(LEAF_MISSION_STEP_TYPE::IDLE,                 LeafConstants::stepTypeIdle());
+    _missionStepTypeTexts->insert(LEAF_MISSION_STEP_TYPE::GOTO_GPS_WAYPOINT,    LeafConstants::stepTypeGotoGps());
+    _missionStepTypeTexts->insert(LEAF_MISSION_STEP_TYPE::GOTO_LOCAL_POSITION,  LeafConstants::stepTypeGotoAbsolute());
+    _missionStepTypeTexts->insert(LEAF_MISSION_STEP_TYPE::GOTO_RELATIVE,        LeafConstants::stepTypeGotoRelative());
+    _missionStepTypeTexts->insert(LEAF_MISSION_STEP_TYPE::YAW_ABSOLUTE,         LeafConstants::stepTypeYawAbsolute());
+    _missionStepTypeTexts->insert(LEAF_MISSION_STEP_TYPE::YAW_RELATIVE,         LeafConstants::stepTypeYawRelative());
+    _missionStepTypeTexts->insert(LEAF_MISSION_STEP_TYPE::TAKEOFF,              LeafConstants::stepTypeTakeoff());
+    _missionStepTypeTexts->insert(LEAF_MISSION_STEP_TYPE::WAIT,                 LeafConstants::stepTypeWait());
+    _missionStepTypeTexts->insert(LEAF_MISSION_STEP_TYPE::LAND,                 LeafConstants::stepTypeLand());
+    _missionStepTypeTexts->insert(LEAF_MISSION_STEP_TYPE::RETURN_TO_LAUNCH,     LeafConstants::stepTypeRtl());
 
 
 }
@@ -679,7 +707,6 @@ void Vehicle::resetCounters()
 
 void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t message)
 {
-
     // If the link is already running at Mavlink V2 set our max proto version to it.
     unsigned mavlinkVersion = _mavlink->getCurrentVersion();
     if (_maxProtoVersion != mavlinkVersion && mavlinkVersion >= 200) {
@@ -687,10 +714,12 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         qCDebug(VehicleLog) << "_mavlinkMessageReceived Link already running Mavlink v2. Setting _maxProtoVersion" << _maxProtoVersion;
     }
     if (message.sysid == Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_SYS_ID) { //Added logic to consider messages from Petal App Manager as from PX4
+        qCDebug(VehicleLog) << "Received message from Petal App Manager (sysid 2), rewriting to vehicle ID:" << _id;
         message.sysid = _id; //accepting all type of messages
     }
 
     if (message.sysid != _id && message.sysid != 0) {
+        qCDebug(VehicleLog) << "Filtering out message: msgid=" << message.msgid << "sysid=" << message.sysid << "vehicle_id=" << _id;
         // We allow RADIO_STATUS messages which come from a link the vehicle is using to pass through and be handled
         if (!(message.msgid == MAVLINK_MSG_ID_RADIO_STATUS && _vehicleLinkManager->containsLink(link))) {
             return;
@@ -878,7 +907,7 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         _handleLeafHeartbeat(message);
         break;
 
-    case MAVLINK_MSG_ID_LEAF_MISSION_HEARTBEAT:
+    case MAVLINK_MSG_ID_LEAF_MISSION_HEARTBEAT_V2:
         _handleLeafMissionHeartbeat(message);
         break;
 
@@ -1223,29 +1252,104 @@ void Vehicle::_handleLeafMRFTStatus(mavlink_message_t& message) {
 
 void Vehicle::_handleLeafMissionHeartbeat(mavlink_message_t& message)
 {
-    mavlink_leaf_mission_heartbeat_t missionHeartbeat;
-    mavlink_msg_leaf_mission_heartbeat_decode(&message, &missionHeartbeat);
+    qCDebug(VehicleLog) << "Received LEAF_MISSION_HEARTBEAT from sysid:" << message.sysid << "compid:" << message.compid;
+    
+    mavlink_leaf_mission_heartbeat_v2_t missionHeartbeat;
+    mavlink_msg_leaf_mission_heartbeat_v2_decode(&message, &missionHeartbeat);
 
     // Store raw mission state enum value
-    _currentMissionState = (LEAF_MISSION_STATE)missionHeartbeat.mission_status;
+    _currentMissionState = (LEAF_MISSION_STATE)missionHeartbeat.LeafFC_mission_status;
 
+    // Update LeafFC state
     QString newState;
-    if (_leafMissionStatusTexts->contains((LEAF_MISSION_STATE)missionHeartbeat.mission_status)) {
-        newState = _leafMissionStatusTexts->value((LEAF_MISSION_STATE)missionHeartbeat.mission_status);
+    if (_leafMissionStatusTexts->contains((LEAF_MISSION_STATE)missionHeartbeat.LeafFC_mission_status)) {
+        newState = _leafMissionStatusTexts->value((LEAF_MISSION_STATE)missionHeartbeat.LeafFC_mission_status);
     } else {
-        newState = QString("UNKNOWN STATE: %1").arg(missionHeartbeat.mission_status);
+        newState = QString("UNKNOWN %1").arg(missionHeartbeat.LeafFC_mission_status);
     }
-
-    QString newId = QString(missionHeartbeat.mission_id);
 
     if (_missionHeartbeatState != newState) {
         _missionHeartbeatState = newState;
         emit missionHeartbeatStateChanged(_missionHeartbeatState);
     }
 
+    // Update SDK state
+    QString newSDKState;
+    if (_leafMissionStatusTexts->contains((LEAF_MISSION_STATE)missionHeartbeat.SDK_status)) {
+        newSDKState = _leafMissionStatusTexts->value((LEAF_MISSION_STATE)missionHeartbeat.SDK_status);
+    } else {
+        newSDKState = QString("UNKNOWN %1").arg(missionHeartbeat.SDK_status);
+    }
+
+    if (_missionHeartbeatSDKState != newSDKState) {
+        _missionHeartbeatSDKState = newSDKState;
+        emit missionHeartbeatSDKStateChanged(_missionHeartbeatSDKState);
+    }
+
+    // Update Mission ID
+    QString newId = QString(missionHeartbeat.mission_id);
     if (_missionHeartbeatId != newId) {
         _missionHeartbeatId = newId;
         emit missionHeartbeatIdChanged(_missionHeartbeatId);
+    }
+
+    // Update Mission Name
+    QString newName = QString(missionHeartbeat.mission_name);
+    if (_missionHeartbeatName != newName) {
+        _missionHeartbeatName = newName;
+        emit missionHeartbeatNameChanged(_missionHeartbeatName);
+    }
+
+    // Update Step Name
+    QString newStepName = QString(missionHeartbeat.step_name);
+    if (_missionHeartbeatStepName != newStepName) {
+        _missionHeartbeatStepName = newStepName;
+        emit missionHeartbeatStepNameChanged(_missionHeartbeatStepName);
+    }
+
+    // Update Step Type
+    QString newStepType;
+    if (_missionStepTypeTexts->contains((LEAF_MISSION_STEP_TYPE)missionHeartbeat.step_type)) {
+        newStepType = _missionStepTypeTexts->value((LEAF_MISSION_STEP_TYPE)missionHeartbeat.step_type);
+    } else {
+        newStepType = QString("UNKNOWN %1").arg(missionHeartbeat.step_type);
+    }
+
+    if (_missionHeartbeatStepType != newStepType) {
+        _missionHeartbeatStepType = newStepType;
+        emit missionHeartbeatStepTypeChanged(_missionHeartbeatStepType);
+    }
+
+    // Update Queue Count
+    if (_missionHeartbeatQueueCount != missionHeartbeat.queue_count) {
+        _missionHeartbeatQueueCount = missionHeartbeat.queue_count;
+        emit missionHeartbeatQueueCountChanged(_missionHeartbeatQueueCount);
+    }
+
+    // Update Joystick Mode
+    QString newJoystickMode;
+    if (_joystickModeTexts->contains((JoystickMode)missionHeartbeat.joystick_mode)) {
+        newJoystickMode = _joystickModeTexts->value((JoystickMode)missionHeartbeat.joystick_mode);
+    } else {
+        newJoystickMode = QString("UNKNOWN %1").arg(missionHeartbeat.joystick_mode);
+    }
+
+    if (_missionHeartbeatJoystickMode != newJoystickMode) {
+        _missionHeartbeatJoystickMode = newJoystickMode;
+        emit missionHeartbeatJoystickModeChanged(_missionHeartbeatJoystickMode);
+    }
+
+    // Update Predefined Status
+    QString newPredefinedStatus;
+    if (_predefinedActionsStatusTexts->contains((LEAF_PREDEFINED_ACTIONS_STATUS)missionHeartbeat.predefined_actions_status)) {
+        newPredefinedStatus = _predefinedActionsStatusTexts->value((LEAF_PREDEFINED_ACTIONS_STATUS)missionHeartbeat.predefined_actions_status);
+    } else {
+        newPredefinedStatus = QString("UNKNOWN %1").arg(missionHeartbeat.predefined_actions_status);
+    }
+
+    if (_missionHeartbeatPredefinedStatus != newPredefinedStatus) {
+        _missionHeartbeatPredefinedStatus = newPredefinedStatus;
+        emit missionHeartbeatPredefinedStatusChanged(_missionHeartbeatPredefinedStatus);
     }
 
     // Reset heartbeat timer
@@ -3217,6 +3321,29 @@ void Vehicle::guidedModeMissionAbort()
                                       Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_SYS_ID,
                                       LEAF_MISSION_CONTROL_ABORT,
                                       "");
+                                                            
+    sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+}
+
+void Vehicle::guidedModeEmergencyAbort()
+{
+    if (!guidedModeSupported()) {
+        qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedModeEmergencyAbort: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t msg;
+    mavlink_msg_leaf_do_emergency_abort_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &msg,
+                                      Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_SYS_ID);
                                                             
     sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
 }

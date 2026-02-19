@@ -54,12 +54,16 @@ public:
     // ========== MissionStatus Enum ==========
     // Maps to MAVLink LEAF_MISSION_STATUS enum (ready for future direct mapping)
     enum class MissionStatus {
-        Idle,       // LEAF_MISSION_STATUS_IDLE
-        Ready,      // LEAF_MISSION_STATUS_READY
-        Executing,  // LEAF_MISSION_STATUS_EXECUTING
-        Paused,     // LEAF_MISSION_STATUS_PAUSED
-        Canceled,   // LEAF_MISSION_STATUS_CANCELED (UI only)
-        Aborted     // LEAF_MISSION_STATUS_ABORTED (UI only)
+        Idle,               // LEAF_MISSION_STATE_IDLE
+        Ready,              // LEAF_MISSION_STATE_READY
+        Running,            // LEAF_MISSION_STATE_RUNNING
+        ScheduledPause,     // LEAF_MISSION_STATE_SCHEDULED_PAUSE
+        PausedMidStep,      // LEAF_MISSION_STATE_PAUSED_MID_STEP
+        PausedBetweenSteps, // LEAF_MISSION_STATE_PAUSED_BETWEEN_STEPS
+        Completed,          // LEAF_MISSION_STATE_COMPLETED
+        Failed,             // LEAF_MISSION_STATE_FAILED
+        Cancelled,          // LEAF_MISSION_STATE_CANCELLED
+        Safety              // LEAF_MISSION_STATE_SAFETY
     };
     Q_ENUM(MissionStatus)
 
@@ -98,13 +102,40 @@ public:
     static const QString& statusReturningToBase();
 
     // Mission status strings
-    static const QString& missionStatusPrefix();      // "MISSION STATUS: "
-    static const QString& missionStatusIdle();        // "MISSION STATUS: IDLE"
-    static const QString& missionStatusReady();       // "MISSION STATUS: READY"
-    static const QString& missionStatusExecuting();   // "MISSION STATUS: EXECUTING"
-    static const QString& missionStatusPaused();      // "MISSION STATUS: PAUSED"
-    static const QString& missionStatusCanceled();    // "MISSION STATUS: CANCELED"
-    static const QString& missionStatusAborted();     // "MISSION STATUS: ABORTED"
+    static const QString& missionStatusIdle();        // "IDLE"
+    static const QString& missionStatusReady();       // "READY"
+    static const QString& missionStatusExecuting();   // "EXECUTING" (Maps to RUNNING)
+    static const QString& missionStatusFailed();      // "FAILED"
+    static const QString& missionStatusCanceled();    // "CANCELLED"
+    static const QString& missionStatusScheduledPause();       // "SCHEDULED PAUSE"
+    static const QString& missionStatusPausedMidStep();        // "PAUSED MID STEP"
+    static const QString& missionStatusPausedBetweenSteps();   // "PAUSED BETWEEN STEPS"
+    static const QString& missionStatusCompleted();            // "COMPLETED"
+    static const QString& missionStatusSafety();               // "SAFETY"
+
+    // Joystick mode strings
+    static const QString& joystickModeDisabled();              // "DISABLED"
+    static const QString& joystickModeEnabledAlways();         // "ENABLED ALWAYS"
+    static const QString& joystickModeEnabledOnPause();        // "ENABLED ON PAUSE"
+
+    // Mission step type strings
+    static const QString& stepTypeIdle();                      // "IDLE"
+    static const QString& stepTypeGotoGps();                   // "GOTO GPS"
+    static const QString& stepTypeGotoAbsolute();              // "GOTO ABSOLUTE"
+    static const QString& stepTypeGotoRelative();              // "GOTO RELATIVE"
+    static const QString& stepTypeYawAbsolute();               // "YAW ABSOLUTE"
+    static const QString& stepTypeYawRelative();               // "YAW RELATIVE"
+    static const QString& stepTypeTakeoff();                   // "TAKEOFF"
+    static const QString& stepTypeWait();                      // "WAIT"
+    static const QString& stepTypeLand();                      // "LAND"
+    static const QString& stepTypeRtl();                       // "RTL"
+
+    // Predefined action status strings
+    static const QString& actionStatusNotStarted();            // "NOT STARTED"
+    static const QString& actionStatusTakingOff();             // "TAKING OFF"
+    static const QString& actionStatusLanding();               // "LANDING"
+    static const QString& actionStatusReturningToLaunch();      // "RETURNING TO LAUNCH"
+    static const QString& actionStatusGotoXyz();               // "GOTO XYZ"
 
     // ========== Enum-to-String Maps ==========
     static const QMap<int, QString>& modeNames();
@@ -132,13 +163,33 @@ public:
     Q_PROPERTY(QString statusNotReady READ qmlStatusNotReady CONSTANT)
 
     // Mission status strings
-    Q_PROPERTY(QString missionStatusPrefix READ qmlMissionStatusPrefix CONSTANT)
     Q_PROPERTY(QString missionStatusIdle READ qmlMissionStatusIdle CONSTANT)
     Q_PROPERTY(QString missionStatusReady READ qmlMissionStatusReady CONSTANT)
     Q_PROPERTY(QString missionStatusExecuting READ qmlMissionStatusExecuting CONSTANT)
-    Q_PROPERTY(QString missionStatusPaused READ qmlMissionStatusPaused CONSTANT)
+    Q_PROPERTY(QString missionStatusFailed READ qmlMissionStatusFailed CONSTANT)
     Q_PROPERTY(QString missionStatusCanceled READ qmlMissionStatusCanceled CONSTANT)
-    Q_PROPERTY(QString missionStatusAborted READ qmlMissionStatusAborted CONSTANT)
+    Q_PROPERTY(QString missionStatusScheduledPause READ qmlMissionStatusScheduledPause CONSTANT)
+    Q_PROPERTY(QString missionStatusPausedMidStep READ qmlMissionStatusPausedMidStep CONSTANT)
+    Q_PROPERTY(QString missionStatusPausedBetweenSteps READ qmlMissionStatusPausedBetweenSteps CONSTANT)
+    Q_PROPERTY(QString missionStatusCompleted READ qmlMissionStatusCompleted CONSTANT)
+    Q_PROPERTY(QString missionStatusSafety READ qmlMissionStatusSafety CONSTANT)
+
+    // Joystick mode strings
+    Q_PROPERTY(QString joystickModeDisabled READ qmlJoystickModeDisabled CONSTANT)
+    Q_PROPERTY(QString joystickModeEnabledAlways READ qmlJoystickModeEnabledAlways CONSTANT)
+    Q_PROPERTY(QString joystickModeEnabledOnPause READ qmlJoystickModeEnabledOnPause CONSTANT)
+
+    // Mission step type strings
+    Q_PROPERTY(QString stepTypeIdle READ qmlStepTypeIdle CONSTANT)
+    Q_PROPERTY(QString stepTypeGotoGps READ qmlStepTypeGotoGps CONSTANT)
+    Q_PROPERTY(QString stepTypeGotoAbsolute READ qmlStepTypeGotoAbsolute CONSTANT)
+    Q_PROPERTY(QString stepTypeGotoRelative READ qmlStepTypeGotoRelative CONSTANT)
+    Q_PROPERTY(QString stepTypeYawAbsolute READ qmlStepTypeYawAbsolute CONSTANT)
+    Q_PROPERTY(QString stepTypeYawRelative READ qmlStepTypeYawRelative CONSTANT)
+    Q_PROPERTY(QString stepTypeTakeoff READ qmlStepTypeTakeoff CONSTANT)
+    Q_PROPERTY(QString stepTypeWait READ qmlStepTypeWait CONSTANT)
+    Q_PROPERTY(QString stepTypeLand READ qmlStepTypeLand CONSTANT)
+    Q_PROPERTY(QString stepTypeRtl READ qmlStepTypeRtl CONSTANT)
 
 private:
     // QML property read functions
@@ -157,11 +208,29 @@ private:
     QString qmlStatusArmed() const { return statusArmed(); }
     QString qmlStatusReadyToFly() const { return statusReadyToFly(); }
     QString qmlStatusNotReady() const { return statusNotReady(); }
-    QString qmlMissionStatusPrefix() const { return missionStatusPrefix(); }
     QString qmlMissionStatusIdle() const { return missionStatusIdle(); }
     QString qmlMissionStatusReady() const { return missionStatusReady(); }
     QString qmlMissionStatusExecuting() const { return missionStatusExecuting(); }
-    QString qmlMissionStatusPaused() const { return missionStatusPaused(); }
+    QString qmlMissionStatusFailed() const { return missionStatusFailed(); }
     QString qmlMissionStatusCanceled() const { return missionStatusCanceled(); }
-    QString qmlMissionStatusAborted() const { return missionStatusAborted(); }
+    QString qmlMissionStatusScheduledPause() const { return missionStatusScheduledPause(); }
+    QString qmlMissionStatusPausedMidStep() const { return missionStatusPausedMidStep(); }
+    QString qmlMissionStatusPausedBetweenSteps() const { return missionStatusPausedBetweenSteps(); }
+    QString qmlMissionStatusCompleted() const { return missionStatusCompleted(); }
+    QString qmlMissionStatusSafety() const { return missionStatusSafety(); }
+
+    QString qmlJoystickModeDisabled() const { return joystickModeDisabled(); }
+    QString qmlJoystickModeEnabledAlways() const { return joystickModeEnabledAlways(); }
+    QString qmlJoystickModeEnabledOnPause() const { return joystickModeEnabledOnPause(); }
+
+    QString qmlStepTypeIdle() const { return stepTypeIdle(); }
+    QString qmlStepTypeGotoGps() const { return stepTypeGotoGps(); }
+    QString qmlStepTypeGotoAbsolute() const { return stepTypeGotoAbsolute(); }
+    QString qmlStepTypeGotoRelative() const { return stepTypeGotoRelative(); }
+    QString qmlStepTypeYawAbsolute() const { return stepTypeYawAbsolute(); }
+    QString qmlStepTypeYawRelative() const { return stepTypeYawRelative(); }
+    QString qmlStepTypeTakeoff() const { return stepTypeTakeoff(); }
+    QString qmlStepTypeWait() const { return stepTypeWait(); }
+    QString qmlStepTypeLand() const { return stepTypeLand(); }
+    QString qmlStepTypeRtl() const { return stepTypeRtl(); }
 };

@@ -173,6 +173,7 @@ Item {
     readonly property int actionMissionLand:                50
     readonly property int actionMissionReady:               51
     readonly property int actionMissionStart:               52
+    readonly property int actionEmergencyAbort:             53
 
     property var    _activeVehicle:             QGroundControl.multiVehicleManager.activeVehicle
     property bool   _useChecklist:              QGroundControl.settingsManager.appSettings.useChecklist.rawValue && QGroundControl.corePlugin.options.preFlightChecklistUrl.toString().length
@@ -800,6 +801,9 @@ Item {
             break
         case actionMissionStart:
             _activeVehicle.guidedModeMissionStart()
+            break
+        case actionEmergencyAbort:
+            _activeVehicle.guidedModeEmergencyAbort()
             break
         case actionResumeMission:
         case actionResumeMissionUploadFail:

@@ -17,7 +17,7 @@ GuidedToolStripAction {
     property bool   _heartbeatStale: _guidedController._activeVehicle ? _guidedController._activeVehicle.missionHeartbeatStale : true
 
     property bool   show_button: leafMode.startsWith(LeafConstants.modeLeafSDKMission) && !_heartbeatStale
-    property bool   mission_inactive: leafMissionStatus.startsWith("MISSION STATUS: IDLE") || leafMissionStatus.startsWith("MISSION STATUS: COMPLETED") || leafMissionStatus.startsWith("MISSION STATUS: FAILED") || leafMissionStatus.startsWith("MISSION STATUS: CANCELLED")
+    property bool   mission_inactive: leafMissionStatus === LeafConstants.missionStatusIdle || leafMissionStatus === LeafConstants.missionStatusCompleted || leafMissionStatus === LeafConstants.missionStatusFailed || leafMissionStatus === LeafConstants.missionStatusCanceled
     property bool   enable_button: mission_inactive && leafStatus.startsWith(LeafConstants.statusFlying)
 
     text:       _guidedController.landTitle
