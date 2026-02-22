@@ -12,12 +12,12 @@ import QGroundControl.Vehicle 1.0
 
 GuidedToolStripAction {
     property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
-    property bool leafArmOnly: leafMode.startsWith("RC Stabilized") || leafMode.startsWith("Roll/Pitch Learning")
-    property bool isLeafArmed: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafFCArmed : false
+    property bool leafArmOnly: leafMode.startsWith("RC Stabilized") || leafMode.startsWith("Roll/Pitch Learning") || leafMode.startsWith("Selective X/Y/Altitude Learning") || leafMode.startsWith("RC Stabilize Hover Thrust ID")
+    property bool _vehicleArmed: _guidedController._activeVehicle ? (_guidedController._activeVehicle.armed || _guidedController._activeVehicle.leafFCArmed) : false
 
     text:       leafArmOnly ? "Arm" : _guidedController.armFCTitle
     iconSource: "/res/PowerButton.svg"
-    visible:    (!isLeafArmed) && leafMode.length > 0 && !leafMode.startsWith(LeafConstants.modeLeafSDKMission)
+    visible:    (!_vehicleArmed) && leafMode.length > 0
     enabled:    true
     actionID:   _guidedController.actionFCArm
 }

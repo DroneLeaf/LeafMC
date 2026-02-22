@@ -23,5 +23,5 @@ GuidedToolStripAction {
     iconSource: "/res/cancel.svg"
     visible:    show_button
     enabled:    !disable_button
-    actionID:   _guidedController.actionAbort
+    actionID:   _heartbeatStale ? _guidedController.actionEmergencyAbort : _guidedController.actionAbort
 }

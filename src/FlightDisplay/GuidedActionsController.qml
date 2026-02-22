@@ -177,6 +177,7 @@ Item {
     readonly property int actionMissionLand:                50
     readonly property int actionMissionReady:               51
     readonly property int actionMissionStart:               52
+    readonly property int actionEmergencyAbort:             53
 
     readonly property int actionMRFTYawToggle:              53
 
@@ -816,6 +817,9 @@ Item {
             break
         case actionMissionStart:
             _activeVehicle.guidedModeMissionStart()
+            break
+        case actionEmergencyAbort:
+            _activeVehicle.guidedModeEmergencyAbort()
             break
         case actionResumeMission:
         case actionResumeMissionUploadFail:

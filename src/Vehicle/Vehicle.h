@@ -394,6 +394,8 @@ public:
     Q_INVOKABLE void guidedModeMissionLand();
     /// Command vehicle to set mission ready state (LEAF_MISSION_CONTROL_READY)
     Q_INVOKABLE void guidedModeMissionReady();
+    /// Command vehicle to emergency abort (LEAF_DO_EMERGENCY_ABORT)
+    Q_INVOKABLE void guidedModeEmergencyAbort();
     /// Command vehicle to start mission (LEAF_MISSION_CONTROL_START)
     Q_INVOKABLE void guidedModeMissionStart();
 
@@ -595,13 +597,27 @@ public:
 
     // Mission heartbeat properties
     Q_PROPERTY(QString      missionHeartbeatState       READ missionHeartbeatState      NOTIFY missionHeartbeatStateChanged)
+    Q_PROPERTY(QString      missionHeartbeatSDKState    READ missionHeartbeatSDKState   NOTIFY missionHeartbeatSDKStateChanged)
     Q_PROPERTY(QString      missionHeartbeatId          READ missionHeartbeatId         NOTIFY missionHeartbeatIdChanged)
+    Q_PROPERTY(QString      missionHeartbeatName        READ missionHeartbeatName       NOTIFY missionHeartbeatNameChanged)
+    Q_PROPERTY(QString      missionHeartbeatStepType    READ missionHeartbeatStepType   NOTIFY missionHeartbeatStepTypeChanged)
+    Q_PROPERTY(QString      missionHeartbeatStepName    READ missionHeartbeatStepName   NOTIFY missionHeartbeatStepNameChanged)
+    Q_PROPERTY(int          missionHeartbeatQueueCount  READ missionHeartbeatQueueCount NOTIFY missionHeartbeatQueueCountChanged)
+    Q_PROPERTY(QString      missionHeartbeatJoystickMode READ missionHeartbeatJoystickMode NOTIFY missionHeartbeatJoystickModeChanged)
+    Q_PROPERTY(QString      missionHeartbeatPredefinedStatus READ missionHeartbeatPredefinedStatus NOTIFY missionHeartbeatPredefinedStatusChanged)
     Q_PROPERTY(int          missionHeartbeatAge         READ missionHeartbeatAge        NOTIFY missionHeartbeatAgeChanged)
     Q_PROPERTY(bool         missionHeartbeatStale       READ missionHeartbeatStale      NOTIFY missionHeartbeatStaleChanged)
     Q_PROPERTY(bool         modeChangeAllowed           READ modeChangeAllowed          NOTIFY missionHeartbeatStateChanged)
 
     QString     missionHeartbeatState   () const { return _missionHeartbeatState; }
+    QString     missionHeartbeatSDKState () const { return _missionHeartbeatSDKState; }
     QString     missionHeartbeatId      () const { return _missionHeartbeatId; }
+    QString     missionHeartbeatName    () const { return _missionHeartbeatName; }
+    QString     missionHeartbeatStepType () const { return _missionHeartbeatStepType; }
+    QString     missionHeartbeatStepName () const { return _missionHeartbeatStepName; }
+    int         missionHeartbeatQueueCount () const { return _missionHeartbeatQueueCount; }
+    QString     missionHeartbeatJoystickMode () const { return _missionHeartbeatJoystickMode; }
+    QString     missionHeartbeatPredefinedStatus () const { return _missionHeartbeatPredefinedStatus; }
     bool        modeChangeAllowed       () const;
     int         missionHeartbeatAge     () const;
     bool        missionHeartbeatStale   () const { return _missionHeartbeatStale; }
@@ -1080,7 +1096,14 @@ signals:
     void leafStatusChanged                   (QString leafStatus);
     void leafMissionStatusChanged            (QString leafMissionStatus);
     void missionHeartbeatStateChanged        (QString state);
+    void missionHeartbeatSDKStateChanged       (QString state);
     void missionHeartbeatIdChanged           (QString id);
+    void missionHeartbeatNameChanged         (QString name);
+    void missionHeartbeatStepTypeChanged     (QString type);
+    void missionHeartbeatStepNameChanged     (QString name);
+    void missionHeartbeatQueueCountChanged   (int count);
+    void missionHeartbeatJoystickModeChanged (QString mode);
+    void missionHeartbeatPredefinedStatusChanged (QString status);
     void missionHeartbeatAgeChanged          (int age);
     void missionHeartbeatStaleChanged        (bool stale);
     void leafModeChanged                     (QString leafMode);
@@ -1490,7 +1513,14 @@ private:
     QList<MavCommandListEntry_t>    _mavCommandList;
     QTimer                          _mavCommandResponseCheckTimer;
     QString                         _missionHeartbeatState;
+    QString                         _missionHeartbeatSDKState;
     QString                         _missionHeartbeatId;
+    QString                         _missionHeartbeatName;
+    QString                         _missionHeartbeatStepType;
+    QString                         _missionHeartbeatStepName;
+    int                             _missionHeartbeatQueueCount = 0;
+    QString                         _missionHeartbeatJoystickMode;
+    QString                         _missionHeartbeatPredefinedStatus;
     QElapsedTimer                   _missionHeartbeatTimer;
     QTimer                          _missionHeartbeatCheckTimer;
     bool                            _missionHeartbeatStale = true;
@@ -1583,6 +1613,9 @@ private:
     QMap<int, QString>*                 _leafModeNames              = nullptr;
     QMap<LEAF_STATUS, QString>*         _leafStatusTexts            = nullptr;
     QMap<LEAF_MISSION_STATE, QString>* _leafMissionStatusTexts     = nullptr;
+    QMap<JoystickMode, QString>*    _joystickModeTexts            = nullptr;
+    QMap<LEAF_PREDEFINED_ACTIONS_STATUS, QString>* _predefinedActionsStatusTexts = nullptr;
+    QMap<LEAF_MISSION_STEP_TYPE, QString>* _missionStepTypeTexts  = nullptr;
 
     static const char* _rollFactName;
     static const char* _pitchFactName;

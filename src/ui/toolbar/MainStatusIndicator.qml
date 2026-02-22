@@ -160,11 +160,11 @@ RowLayout {
             function missionStatusColor(status) {
                 if (status === LeafConstants.missionStatusExecuting) {
                     return "blue"
-                } else if (status === LeafConstants.missionStatusPaused) {
+                } else if (status === LeafConstants.missionStatusScheduledPause || status === LeafConstants.missionStatusPausedMidStep || status === LeafConstants.missionStatusPausedBetweenSteps) {
                     return "purple"
                 } else if (status === LeafConstants.missionStatusCanceled) {
                     return "crimson"
-                } else if (status === LeafConstants.missionStatusAborted) {
+                } else if (status === LeafConstants.missionStatusFailed) {
                     return "crimson"
                 }
                 return "black"       // default color
