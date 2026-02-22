@@ -881,11 +881,11 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     case MAVLINK_MSG_ID_RESPONSE_EVENT_ERROR:
         _eventHandler(message.compid).handleEvents(message);
         break;
-    case MAVLINK_MSG_ID_LEAF_STATUS:
-        _handleLeafStatus(message);
-        break;
     case MAVLINK_MSG_ID_LEAF_MISSION_STATUS:
         _handleLeafMissionStatus(message);
+        break;
+    case MAVLINK_MSG_ID_LEAF_SYS_STATUS:
+        _handleLeafSysStatus(message);
         break;
     case MAVLINK_MSG_ID_LEAF_MODE:
         _handleLeafMode(message);
@@ -1145,30 +1145,6 @@ void Vehicle::_handleStatusText(mavlink_message_t& message)
     }
 }
 
-
-void Vehicle::_handleLeafStatus(mavlink_message_t& message)
-{
-
-    mavlink_leaf_status_t leafStatus;
-    mavlink_msg_leaf_status_decode(&message, &leafStatus);
-
-
-    if(_leafStatusTexts->contains((LEAF_STATUS)leafStatus.status) &&
-        _leafStatus.compare(_leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value()) != 0
-        ) {
-        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
-        emit leafStatusChanged(_leafStatus);
-        if (leafStatus.status == LEAF_STATUS::LEAF_STATUS_ARMED_IDLE){
-            setLeafFCArmed(true);
-            emit leafFCArmedChanged(true);
-        }
-        else if (leafStatus.status == LEAF_STATUS::LEAF_STATUS_READY_TO_FLY){
-            setLeafFCArmed(false);
-            emit leafFCArmedChanged(false);
-        }
-    }
-}
-
 void Vehicle::_handleLeafMissionStatus(mavlink_message_t& message)
 {
 
@@ -1181,6 +1157,76 @@ void Vehicle::_handleLeafMissionStatus(mavlink_message_t& message)
         QString previousStatus = _leafMissionStatus;
         _leafMissionStatus = _leafMissionStatusTexts->find((LEAF_MISSION_STATE)leafMissionStatus.status).value();
         emit leafMissionStatusChanged(_leafMissionStatus);
+    }
+}
+
+void Vehicle::_handleLeafSysStatus(mavlink_message_t& message)
+{
+
+    mavlink_leaf_sys_status_t leafSysStatus;
+    mavlink_msg_leaf_sys_status_decode(&message, &leafSysStatus);
+
+    mavlink_leaf_status_t leafStatus;
+
+    if (leafSysStatus.pre_idle_check_status == LEAF_PRE_IDLE_CHECK_STATUS::FAILED)
+    {
+        leafStatus.status = LEAF_STATUS::LEAF_STATUS_NOT_READY;
+        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
+        emit leafStatusChanged(_leafStatus);
+        return;
+    }
+
+    else if (leafSysStatus.arm_stage == LEAF_ARM_STAGE::IDLING)
+    {
+        leafStatus.status = LEAF_STATUS::LEAF_STATUS_ARMED_IDLE;
+        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
+        emit leafStatusChanged(_leafStatus);
+        setLeafFCArmed(true);
+        emit leafFCArmedChanged(true);
+        return;
+    }
+
+    else if (leafSysStatus.learning_status == LEAF_LEARNING_STATUS::LEARNING_IN_PROGRESS)
+    {
+        leafStatus.status = LEAF_STATUS::LEAF_STATUS_LEARNING;
+        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
+        emit leafStatusChanged(_leafStatus);
+        return;
+    }
+
+    else if (leafSysStatus.landing_status == LEAF_LANDING_STATUS::LEAF_LANDING_LANDING)
+    {
+        leafStatus.status = LEAF_STATUS::LEAF_STATUS_LANDING;
+        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
+        emit leafStatusChanged(_leafStatus);
+        return;
+    }
+
+    else if (leafSysStatus.takeoff_status == LEAF_TAKEOFF_STATUS::LEAF_TAKEOFF_TAKING_OFF)
+    {
+        leafStatus.status = LEAF_STATUS::LEAF_STATUS_TAKING_OFF;
+        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
+        emit leafStatusChanged(_leafStatus);
+        return;
+    }
+
+    else if (leafSysStatus.arm_stage == LEAF_ARM_STAGE::DISARMED)
+    {
+        leafStatus.status = LEAF_STATUS::LEAF_STATUS_READY_TO_FLY;
+        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
+        emit leafStatusChanged(_leafStatus);
+        setLeafFCArmed(false);
+        emit leafFCArmedChanged(false);
+        return;
+    }
+
+    else if (leafSysStatus.airborne_status == LEAF_AIRBORNE_STATUS::AIRBORNE)
+    {
+        leafStatus.status = LEAF_STATUS::LEAF_STATUS_FLYING;
+        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
+        qInfo() << "Leaf status:" << _leafStatus;
+        emit leafStatusChanged(_leafStatus);
+        return;
     }
 }
 
@@ -2775,6 +2821,11 @@ void Vehicle::setLeafMRFTY(bool state){
     emit leafMRFTYChanged(_leafMRFTY);
 }
 
+void Vehicle::setLeafMRFTYaw(bool state){
+    _leafMRFTYaw = state;
+    emit leafMRFTYawChanged(_leafMRFTYaw);
+}
+
 void Vehicle::setLeafFCArmed(bool armed){
     _leafFCArmed = armed;
     emit leafFCArmedChanged(_leafFCArmed);
@@ -3551,7 +3602,25 @@ void Vehicle::leafMRFTRollToggle(bool state) {
                                       enable);
     sendMessageOnLinkThreadSafe(sharedLink.get(), mrft_roll_switch_msg);
 }
+void Vehicle::leafMRFTYawToggle(bool state) {
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "guidedActionMRFTYawToggle: primary link gone!";
+        return;
+    }
 
+    mavlink_message_t mrft_yaw_switch_msg;
+    uint8_t enable = state;
+    mavlink_msg_leaf_do_switch_mrft_yaw_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &mrft_yaw_switch_msg,
+                                      0,
+                                      enable);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), mrft_yaw_switch_msg);
+    // Optimistically update local state so UI reflects the change immediately
+    setLeafMRFTYaw(state);
+}
 void Vehicle::leafMRFTAltToggle(bool state) {
     SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
     if (!sharedLink) {

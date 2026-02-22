@@ -344,6 +344,7 @@
         <file alias="QGroundControl/FlightDisplay/GuidedActionFCDisarmToggle.qml">src/FlightDisplay/GuidedActionFCDisarmToggle.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionToggleMRFTPitch.qml">src/FlightDisplay/GuidedActionToggleMRFTPitch.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionToggleMRFTRoll.qml">src/FlightDisplay/GuidedActionToggleMRFTRoll.qml</file>
+        <file alias="QGroundControl/FlightDisplay/GuidedActionToggleMRFTYaw.qml">src/FlightDisplay/GuidedActionToggleMRFTYaw.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionToggleMRFTAlt.qml">src/FlightDisplay/GuidedActionToggleMRFTAlt.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionToggleMRFTX.qml">src/FlightDisplay/GuidedActionToggleMRFTX.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionToggleMRFTY.qml">src/FlightDisplay/GuidedActionToggleMRFTY.qml</file>

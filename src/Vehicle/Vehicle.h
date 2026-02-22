@@ -289,6 +289,7 @@ public:
     Q_PROPERTY(QString                  leafClientName                  READ leafClientName         WRITE setLeafClientName     NOTIFY leafClientNameChanged)
     Q_PROPERTY(bool                     leafMRFTRoll                    READ leafMRFTRoll           WRITE setLeafMRFTRoll       NOTIFY leafMRFTRollChanged)
     Q_PROPERTY(bool                     leafMRFTPitch                   READ leafMRFTPitch          WRITE setLeafMRFTPitch      NOTIFY leafMRFTPitchChanged)
+    Q_PROPERTY(bool                     leafMRFTYaw                     READ leafMRFTYaw            WRITE setLeafMRFTYaw        NOTIFY leafMRFTYawChanged)
     Q_PROPERTY(bool                     leafMRFTAlt                     READ leafMRFTAlt            WRITE setLeafMRFTAlt        NOTIFY leafMRFTAltChanged)
     Q_PROPERTY(bool                     leafMRFTX                       READ leafMRFTX              WRITE setLeafMRFTX          NOTIFY leafMRFTXChanged)
     Q_PROPERTY(bool                     leafMRFTY                       READ leafMRFTY              WRITE setLeafMRFTY          NOTIFY leafMRFTYChanged)
@@ -407,6 +408,7 @@ public:
     Q_INVOKABLE void leafDisarmFC();
     Q_INVOKABLE void leafMRFTPitchToggle(bool state);
     Q_INVOKABLE void leafMRFTRollToggle(bool state);
+    Q_INVOKABLE void leafMRFTYawToggle(bool state);
     Q_INVOKABLE void leafMRFTAltToggle(bool state);
     Q_INVOKABLE void leafMRFTXToggle(bool state);
     Q_INVOKABLE void leafMRFTYToggle(bool state);
@@ -587,6 +589,7 @@ public:
     void setLeafProfile                     (const QString& leafProfile);
     void setLeafMRFTRoll                    (bool state);
     void setLeafMRFTPitch                   (bool state);
+    void setLeafMRFTYaw                     (bool state);
     void setLeafMRFTAlt                     (bool state);
     void setLeafMRFTX                       (bool state);
     void setLeafMRFTY                       (bool state);
@@ -750,6 +753,7 @@ public:
     bool            leafMRFTAlt                 () const { return _leafMRFTAlt; }
     bool            leafMRFTX                   () const { return _leafMRFTX; }
     bool            leafMRFTY                   () const { return _leafMRFTY; }
+    bool            leafMRFTYaw                 () const { return _leafMRFTYaw; }
     bool            leafFCArmed                 () const { return _leafFCArmed; }
     /// Get the maximum MAVLink protocol version supported
     /// @return the maximum version
@@ -1106,6 +1110,7 @@ signals:
     void leafClientNameChanged               (QString leafClientName);
     void leafMRFTRollChanged                 (bool roll);
     void leafMRFTPitchChanged                (bool pitch);
+    void leafMRFTYawChanged                  (bool yaw);
     void leafMRFTAltChanged                  (bool alt);
     void leafMRFTXChanged                    (bool x);
     void leafMRFTYChanged                    (bool y);
@@ -1210,8 +1215,8 @@ private:
     void _handleGlobalPositionInt       (mavlink_message_t& message);
     void _handleAltitude                (mavlink_message_t& message);
     void _handleVfrHud                  (mavlink_message_t& message);
-    void _handleLeafStatus              (mavlink_message_t& message);
     void _handleLeafMissionStatus       (mavlink_message_t& message);
+    void _handleLeafSysStatus           (mavlink_message_t& message);
     void _handleLeafMissionHeartbeat    (mavlink_message_t& message);
     void _handleLeafMode                (mavlink_message_t& message);
     void _handleLeafClientName          (mavlink_message_t& message);
@@ -1336,6 +1341,7 @@ private:
     QString         _leafProfile = "";
     bool            _leafMRFTRoll = false;
     bool            _leafMRFTPitch = false;
+    bool            _leafMRFTYaw = false;
     bool            _leafMRFTAlt = false;
     bool            _leafMRFTX = false;
     bool            _leafMRFTY = false;
