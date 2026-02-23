@@ -16,8 +16,8 @@ GuidedToolStripAction {
     property string leafMissionStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMissionStatus : ""
     
     property bool   show_button: leafMode.startsWith(LeafConstants.modeLeafSDKMission)
-    property bool   enable_pause_button: leafMissionStatus.startsWith(LeafConstants.missionStatusExecuting)
-    property bool   enable_resume_button: leafMissionStatus.startsWith(LeafConstants.missionStatusPaused)
+    property bool   enable_pause_button: leafMissionStatus === LeafConstants.missionStatusExecuting
+    property bool   enable_resume_button: leafMissionStatus.indexOf("PAUSE") !== -1
 
     text        : enable_pause_button ? _guidedController.pauseTitle
                 : enable_resume_button ? _guidedController.resumeTitle

@@ -166,45 +166,177 @@ const QString& LeafConstants::statusReturningToBase()
 
 // ========== Mission Status Strings ==========
 
-const QString& LeafConstants::missionStatusPrefix()
-{
-    static const QString s = QStringLiteral("MISSION STATUS: ");
-    return s;
-}
-
 const QString& LeafConstants::missionStatusIdle()
 {
-    static const QString s = QStringLiteral("MISSION STATUS: IDLE");
+    static const QString s = QStringLiteral("IDLE");
     return s;
 }
 
 const QString& LeafConstants::missionStatusReady()
 {
-    static const QString s = QStringLiteral("MISSION STATUS: READY");
+    static const QString s = QStringLiteral("READY");
     return s;
 }
 
 const QString& LeafConstants::missionStatusExecuting()
 {
-    static const QString s = QStringLiteral("MISSION STATUS: EXECUTING");
+    static const QString s = QStringLiteral("EXECUTING");
     return s;
 }
 
-const QString& LeafConstants::missionStatusPaused()
+const QString& LeafConstants::missionStatusFailed()
 {
-    static const QString s = QStringLiteral("MISSION STATUS: PAUSED");
+    static const QString s = QStringLiteral("FAILED");
     return s;
 }
 
 const QString& LeafConstants::missionStatusCanceled()
 {
-    static const QString s = QStringLiteral("MISSION STATUS: CANCELED");
+    static const QString s = QStringLiteral("CANCELLED");
     return s;
 }
 
-const QString& LeafConstants::missionStatusAborted()
+const QString& LeafConstants::missionStatusScheduledPause()
 {
-    static const QString s = QStringLiteral("MISSION STATUS: ABORTED");
+    static const QString s = QStringLiteral("SCHEDULED PAUSE");
+    return s;
+}
+
+const QString& LeafConstants::missionStatusPausedMidStep()
+{
+    static const QString s = QStringLiteral("PAUSED MID STEP");
+    return s;
+}
+
+const QString& LeafConstants::missionStatusPausedBetweenSteps()
+{
+    static const QString s = QStringLiteral("PAUSED BETWEEN STEPS");
+    return s;
+}
+
+const QString& LeafConstants::missionStatusCompleted()
+{
+    static const QString s = QStringLiteral("COMPLETED");
+    return s;
+}
+
+const QString& LeafConstants::missionStatusSafety()
+{
+    static const QString s = QStringLiteral("SAFETY");
+    return s;
+}
+
+// ========== Joystick Mode Strings ==========
+
+const QString& LeafConstants::joystickModeDisabled()
+{
+    static const QString s = QStringLiteral("DISABLED");
+    return s;
+}
+
+const QString& LeafConstants::joystickModeEnabledAlways()
+{
+    static const QString s = QStringLiteral("ENABLED ALWAYS");
+    return s;
+}
+
+const QString& LeafConstants::joystickModeEnabledOnPause()
+{
+    static const QString s = QStringLiteral("ENABLED ON PAUSE");
+    return s;
+}
+
+// ========== Mission Step Type Strings ==========
+
+const QString& LeafConstants::stepTypeIdle()
+{
+    static const QString s = QStringLiteral("IDLE");
+    return s;
+}
+
+const QString& LeafConstants::stepTypeGotoGps()
+{
+    static const QString s = QStringLiteral("GOTO GPS");
+    return s;
+}
+
+const QString& LeafConstants::stepTypeGotoAbsolute()
+{
+    static const QString s = QStringLiteral("GOTO ABSOLUTE");
+    return s;
+}
+
+const QString& LeafConstants::stepTypeGotoRelative()
+{
+    static const QString s = QStringLiteral("GOTO RELATIVE");
+    return s;
+}
+
+const QString& LeafConstants::stepTypeYawAbsolute()
+{
+    static const QString s = QStringLiteral("YAW ABSOLUTE");
+    return s;
+}
+
+const QString& LeafConstants::stepTypeYawRelative()
+{
+    static const QString s = QStringLiteral("YAW RELATIVE");
+    return s;
+}
+
+const QString& LeafConstants::stepTypeTakeoff()
+{
+    static const QString s = QStringLiteral("TAKEOFF");
+    return s;
+}
+
+const QString& LeafConstants::stepTypeWait()
+{
+    static const QString s = QStringLiteral("WAIT");
+    return s;
+}
+
+const QString& LeafConstants::stepTypeLand()
+{
+    static const QString s = QStringLiteral("LAND");
+    return s;
+}
+
+const QString& LeafConstants::stepTypeRtl()
+{
+    static const QString s = QStringLiteral("RTL");
+    return s;
+}
+
+// ========== Predefined Action Status Strings ==========
+
+const QString& LeafConstants::actionStatusNotStarted()
+{
+    static const QString s = QStringLiteral("NOT STARTED");
+    return s;
+}
+
+const QString& LeafConstants::actionStatusTakingOff()
+{
+    static const QString s = QStringLiteral("TAKING OFF");
+    return s;
+}
+
+const QString& LeafConstants::actionStatusLanding()
+{
+    static const QString s = QStringLiteral("LANDING");
+    return s;
+}
+
+const QString& LeafConstants::actionStatusReturningToLaunch()
+{
+    static const QString s = QStringLiteral("RTL");
+    return s;
+}
+
+const QString& LeafConstants::actionStatusGotoXyz()
+{
+    static const QString s = QStringLiteral("GOTO XYZ");
     return s;
 }
 
@@ -249,12 +381,16 @@ const QMap<int, QString>& LeafConstants::statusTexts()
 const QMap<int, QString>& LeafConstants::missionStatusTexts()
 {
     static const QMap<int, QString> map = {
-        { static_cast<int>(MissionStatus::Idle),      missionStatusIdle() },
-        { static_cast<int>(MissionStatus::Ready),     missionStatusReady() },
-        { static_cast<int>(MissionStatus::Executing), missionStatusExecuting() },
-        { static_cast<int>(MissionStatus::Paused),    missionStatusPaused() },
-        { static_cast<int>(MissionStatus::Canceled),  missionStatusCanceled() },
-        { static_cast<int>(MissionStatus::Aborted),   missionStatusAborted() }
+        { static_cast<int>(MissionStatus::Idle),               missionStatusIdle() },
+        { static_cast<int>(MissionStatus::Ready),              missionStatusReady() },
+        { static_cast<int>(MissionStatus::Running),            missionStatusExecuting() },
+        { static_cast<int>(MissionStatus::ScheduledPause),     missionStatusScheduledPause() },
+        { static_cast<int>(MissionStatus::PausedMidStep),      missionStatusPausedMidStep() },
+        { static_cast<int>(MissionStatus::PausedBetweenSteps), missionStatusPausedBetweenSteps() },
+        { static_cast<int>(MissionStatus::Completed),          missionStatusCompleted() },
+        { static_cast<int>(MissionStatus::Failed),             missionStatusFailed() },
+        { static_cast<int>(MissionStatus::Cancelled),          missionStatusCanceled() },
+        { static_cast<int>(MissionStatus::Safety),             missionStatusSafety() }
     };
     return map;
 }

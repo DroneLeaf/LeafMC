@@ -2702,9 +2702,11 @@ MissionController::SendToVehiclePreCheckState MissionController::sendToVehiclePr
     }
     
     QString leafMissionStatus = _managerVehicle->leafMissionStatus();
-    if (leafMissionStatus.startsWith(LeafConstants::missionStatusExecuting()) ||
-        leafMissionStatus.startsWith(LeafConstants::missionStatusPaused()) ||
-        leafMissionStatus.startsWith(LeafConstants::missionStatusReady())) {
+    if (leafMissionStatus == LeafConstants::missionStatusExecuting() ||
+        leafMissionStatus == LeafConstants::missionStatusScheduledPause() ||
+        leafMissionStatus == LeafConstants::missionStatusPausedMidStep() ||
+        leafMissionStatus == LeafConstants::missionStatusPausedBetweenSteps() ||
+        leafMissionStatus == LeafConstants::missionStatusReady()) {
         return SendToVehiclePreCheckStateLeafMissionActive;
     }
 

@@ -19,21 +19,15 @@ GuidedToolStripAction {
     property bool   enable_ready_button: leafMissionStatus.startsWith(LeafConstants.missionStatusIdle) && leafStatus.startsWith(LeafConstants.statusArmed)
     property bool   enable_start_button: leafMissionStatus.startsWith(LeafConstants.missionStatusReady)
 
-    text        : enable_ready_button ? qsTr("Ready")
-                : enable_start_button ? _guidedController.startMissionTitle
-                : qsTr("Ready")
+    text        : _guidedController.startMissionTitle
 
-    message     : enable_ready_button ? qsTr("Set mission to ready state")
-                : enable_start_button ? _guidedController.startMissionMessage
-                : qsTr("Set mission to ready state")
+    message     : _guidedController.startMissionMessage
 
     iconSource  : "/res/takeoff.svg"
 
-    visible     : show_button
+    visible     : true
 
-    enabled     : enable_ready_button || enable_start_button
+    enabled     : show_button && enable_start_button
 
-    actionID    : enable_ready_button ? _guidedController.actionMissionReady
-                : enable_start_button ? _guidedController.actionMissionStart
-                : _guidedController.actionMissionReady
+    actionID    : _guidedController.actionMissionStart
 }

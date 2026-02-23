@@ -17,7 +17,7 @@ GuidedToolStripAction {
     property bool   _heartbeatStale: _guidedController._activeVehicle ? _guidedController._activeVehicle.missionHeartbeatStale : true
     
     property bool   show_button: leafMode.startsWith(LeafConstants.modeLeafSDKMission) && !_heartbeatStale
-    property bool   enable_button: leafMissionStatus.startsWith("MISSION STATUS: PAUSED MID STEP") || leafMissionStatus.startsWith("MISSION STATUS: PAUSED BETWEEN STEPS")
+    property bool   enable_button: leafMissionStatus === LeafConstants.missionStatusPausedMidStep || leafMissionStatus === LeafConstants.missionStatusPausedBetweenSteps
 
     text:       _guidedController.resumeTitle
     message:    _guidedController.resumeMessage

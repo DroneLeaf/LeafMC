@@ -289,6 +289,7 @@ public:
     Q_PROPERTY(QString                  leafClientName                  READ leafClientName         WRITE setLeafClientName     NOTIFY leafClientNameChanged)
     Q_PROPERTY(bool                     leafMRFTRoll                    READ leafMRFTRoll           WRITE setLeafMRFTRoll       NOTIFY leafMRFTRollChanged)
     Q_PROPERTY(bool                     leafMRFTPitch                   READ leafMRFTPitch          WRITE setLeafMRFTPitch      NOTIFY leafMRFTPitchChanged)
+    Q_PROPERTY(bool                     leafMRFTYaw                     READ leafMRFTYaw            WRITE setLeafMRFTYaw        NOTIFY leafMRFTYawChanged)
     Q_PROPERTY(bool                     leafMRFTAlt                     READ leafMRFTAlt            WRITE setLeafMRFTAlt        NOTIFY leafMRFTAltChanged)
     Q_PROPERTY(bool                     leafMRFTX                       READ leafMRFTX              WRITE setLeafMRFTX          NOTIFY leafMRFTXChanged)
     Q_PROPERTY(bool                     leafMRFTY                       READ leafMRFTY              WRITE setLeafMRFTY          NOTIFY leafMRFTYChanged)
@@ -393,6 +394,8 @@ public:
     Q_INVOKABLE void guidedModeMissionLand();
     /// Command vehicle to set mission ready state (LEAF_MISSION_CONTROL_READY)
     Q_INVOKABLE void guidedModeMissionReady();
+    /// Command vehicle to emergency abort (LEAF_DO_EMERGENCY_ABORT)
+    Q_INVOKABLE void guidedModeEmergencyAbort();
     /// Command vehicle to start mission (LEAF_MISSION_CONTROL_START)
     Q_INVOKABLE void guidedModeMissionStart();
 
@@ -405,6 +408,7 @@ public:
     Q_INVOKABLE void leafDisarmFC();
     Q_INVOKABLE void leafMRFTPitchToggle(bool state);
     Q_INVOKABLE void leafMRFTRollToggle(bool state);
+    Q_INVOKABLE void leafMRFTYawToggle(bool state);
     Q_INVOKABLE void leafMRFTAltToggle(bool state);
     Q_INVOKABLE void leafMRFTXToggle(bool state);
     Q_INVOKABLE void leafMRFTYToggle(bool state);
@@ -585,6 +589,7 @@ public:
     void setLeafProfile                     (const QString& leafProfile);
     void setLeafMRFTRoll                    (bool state);
     void setLeafMRFTPitch                   (bool state);
+    void setLeafMRFTYaw                     (bool state);
     void setLeafMRFTAlt                     (bool state);
     void setLeafMRFTX                       (bool state);
     void setLeafMRFTY                       (bool state);
@@ -592,13 +597,27 @@ public:
 
     // Mission heartbeat properties
     Q_PROPERTY(QString      missionHeartbeatState       READ missionHeartbeatState      NOTIFY missionHeartbeatStateChanged)
+    Q_PROPERTY(QString      missionHeartbeatSDKState    READ missionHeartbeatSDKState   NOTIFY missionHeartbeatSDKStateChanged)
     Q_PROPERTY(QString      missionHeartbeatId          READ missionHeartbeatId         NOTIFY missionHeartbeatIdChanged)
+    Q_PROPERTY(QString      missionHeartbeatName        READ missionHeartbeatName       NOTIFY missionHeartbeatNameChanged)
+    Q_PROPERTY(QString      missionHeartbeatStepType    READ missionHeartbeatStepType   NOTIFY missionHeartbeatStepTypeChanged)
+    Q_PROPERTY(QString      missionHeartbeatStepName    READ missionHeartbeatStepName   NOTIFY missionHeartbeatStepNameChanged)
+    Q_PROPERTY(int          missionHeartbeatQueueCount  READ missionHeartbeatQueueCount NOTIFY missionHeartbeatQueueCountChanged)
+    Q_PROPERTY(QString      missionHeartbeatJoystickMode READ missionHeartbeatJoystickMode NOTIFY missionHeartbeatJoystickModeChanged)
+    Q_PROPERTY(QString      missionHeartbeatPredefinedStatus READ missionHeartbeatPredefinedStatus NOTIFY missionHeartbeatPredefinedStatusChanged)
     Q_PROPERTY(int          missionHeartbeatAge         READ missionHeartbeatAge        NOTIFY missionHeartbeatAgeChanged)
     Q_PROPERTY(bool         missionHeartbeatStale       READ missionHeartbeatStale      NOTIFY missionHeartbeatStaleChanged)
     Q_PROPERTY(bool         modeChangeAllowed           READ modeChangeAllowed          NOTIFY missionHeartbeatStateChanged)
 
     QString     missionHeartbeatState   () const { return _missionHeartbeatState; }
+    QString     missionHeartbeatSDKState () const { return _missionHeartbeatSDKState; }
     QString     missionHeartbeatId      () const { return _missionHeartbeatId; }
+    QString     missionHeartbeatName    () const { return _missionHeartbeatName; }
+    QString     missionHeartbeatStepType () const { return _missionHeartbeatStepType; }
+    QString     missionHeartbeatStepName () const { return _missionHeartbeatStepName; }
+    int         missionHeartbeatQueueCount () const { return _missionHeartbeatQueueCount; }
+    QString     missionHeartbeatJoystickMode () const { return _missionHeartbeatJoystickMode; }
+    QString     missionHeartbeatPredefinedStatus () const { return _missionHeartbeatPredefinedStatus; }
     bool        modeChangeAllowed       () const;
     int         missionHeartbeatAge     () const;
     bool        missionHeartbeatStale   () const { return _missionHeartbeatStale; }
@@ -734,6 +753,7 @@ public:
     bool            leafMRFTAlt                 () const { return _leafMRFTAlt; }
     bool            leafMRFTX                   () const { return _leafMRFTX; }
     bool            leafMRFTY                   () const { return _leafMRFTY; }
+    bool            leafMRFTYaw                 () const { return _leafMRFTYaw; }
     bool            leafFCArmed                 () const { return _leafFCArmed; }
     /// Get the maximum MAVLink protocol version supported
     /// @return the maximum version
@@ -1076,13 +1096,21 @@ signals:
     void leafStatusChanged                   (QString leafStatus);
     void leafMissionStatusChanged            (QString leafMissionStatus);
     void missionHeartbeatStateChanged        (QString state);
+    void missionHeartbeatSDKStateChanged       (QString state);
     void missionHeartbeatIdChanged           (QString id);
+    void missionHeartbeatNameChanged         (QString name);
+    void missionHeartbeatStepTypeChanged     (QString type);
+    void missionHeartbeatStepNameChanged     (QString name);
+    void missionHeartbeatQueueCountChanged   (int count);
+    void missionHeartbeatJoystickModeChanged (QString mode);
+    void missionHeartbeatPredefinedStatusChanged (QString status);
     void missionHeartbeatAgeChanged          (int age);
     void missionHeartbeatStaleChanged        (bool stale);
     void leafModeChanged                     (QString leafMode);
     void leafClientNameChanged               (QString leafClientName);
     void leafMRFTRollChanged                 (bool roll);
     void leafMRFTPitchChanged                (bool pitch);
+    void leafMRFTYawChanged                  (bool yaw);
     void leafMRFTAltChanged                  (bool alt);
     void leafMRFTXChanged                    (bool x);
     void leafMRFTYChanged                    (bool y);
@@ -1187,8 +1215,8 @@ private:
     void _handleGlobalPositionInt       (mavlink_message_t& message);
     void _handleAltitude                (mavlink_message_t& message);
     void _handleVfrHud                  (mavlink_message_t& message);
-    void _handleLeafStatus              (mavlink_message_t& message);
     void _handleLeafMissionStatus       (mavlink_message_t& message);
+    void _handleLeafSysStatus           (mavlink_message_t& message);
     void _handleLeafMissionHeartbeat    (mavlink_message_t& message);
     void _handleLeafMode                (mavlink_message_t& message);
     void _handleLeafClientName          (mavlink_message_t& message);
@@ -1313,6 +1341,7 @@ private:
     QString         _leafProfile = "";
     bool            _leafMRFTRoll = false;
     bool            _leafMRFTPitch = false;
+    bool            _leafMRFTYaw = false;
     bool            _leafMRFTAlt = false;
     bool            _leafMRFTX = false;
     bool            _leafMRFTY = false;
@@ -1484,7 +1513,14 @@ private:
     QList<MavCommandListEntry_t>    _mavCommandList;
     QTimer                          _mavCommandResponseCheckTimer;
     QString                         _missionHeartbeatState;
+    QString                         _missionHeartbeatSDKState;
     QString                         _missionHeartbeatId;
+    QString                         _missionHeartbeatName;
+    QString                         _missionHeartbeatStepType;
+    QString                         _missionHeartbeatStepName;
+    int                             _missionHeartbeatQueueCount = 0;
+    QString                         _missionHeartbeatJoystickMode;
+    QString                         _missionHeartbeatPredefinedStatus;
     QElapsedTimer                   _missionHeartbeatTimer;
     QTimer                          _missionHeartbeatCheckTimer;
     bool                            _missionHeartbeatStale = true;
@@ -1577,6 +1613,9 @@ private:
     QMap<int, QString>*                 _leafModeNames              = nullptr;
     QMap<LEAF_STATUS, QString>*         _leafStatusTexts            = nullptr;
     QMap<LEAF_MISSION_STATE, QString>* _leafMissionStatusTexts     = nullptr;
+    QMap<JoystickMode, QString>*    _joystickModeTexts            = nullptr;
+    QMap<LEAF_PREDEFINED_ACTIONS_STATUS, QString>* _predefinedActionsStatusTexts = nullptr;
+    QMap<LEAF_MISSION_STEP_TYPE, QString>* _missionStepTypeTexts  = nullptr;
 
     static const char* _rollFactName;
     static const char* _pitchFactName;

@@ -32,6 +32,7 @@ GuidedActionFCArmToggle         1.0 GuidedActionFCArmToggle.qml
 GuidedActionFCDisarmToggle      1.0 GuidedActionFCDisarmToggle.qml
 GuidedActionToggleMRFTPitch     1.0 GuidedActionToggleMRFTPitch.qml
 GuidedActionToggleMRFTRoll      1.0 GuidedActionToggleMRFTRoll.qml
+GuidedActionToggleMRFTYaw       1.0 GuidedActionToggleMRFTYaw.qml
 GuidedActionToggleMRFTAlt       1.0 GuidedActionToggleMRFTAlt.qml
 GuidedActionToggleMRFTX         1.0 GuidedActionToggleMRFTX.qml
 GuidedActionToggleMRFTY         1.0 GuidedActionToggleMRFTY.qml

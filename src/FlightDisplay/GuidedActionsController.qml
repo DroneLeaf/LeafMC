@@ -69,6 +69,8 @@ Item {
     readonly property string executeFig8TrajTitle:          qsTr("Figure 8")
     readonly property string toggleMRFTPitchOnTitle:        qsTr("Learn-P OFF")
     readonly property string toggleMRFTPitchOffTitle:       qsTr("Learn-P ON")
+    readonly property string toggleMRFTYawOnTitle:          qsTr("Learn-Yaw OFF")
+    readonly property string toggleMRFTYawOffTitle:         qsTr("Learn-Yaw ON")
     readonly property string toggleMRFTRollOnTitle:         qsTr("Learn-R OFF")
     readonly property string toggleMRFTRollOffTitle:        qsTr("Learn-R ON")
     readonly property string toggleMRFTAltOnTitle:          qsTr("Learn-A OFF")
@@ -115,6 +117,8 @@ Item {
     readonly property string toggleMRFTPitchOffMessage:         qsTr("Switch Pitch Learning OFF")
     readonly property string toggleMRFTRollOnMessage:           qsTr("Switch Roll Learning ON")
     readonly property string toggleMRFTRollOffMessage:          qsTr("Switch Roll Learning OFF")
+    readonly property string toggleMRFTYawOnMessage:            qsTr("Switch Yaw Learning ON")
+    readonly property string toggleMRFTYawOffMessage:           qsTr("Switch Yaw Learning OFF")
     readonly property string toggleMRFTAltOnMessage:            qsTr("Switch Alt Learning ON")
     readonly property string toggleMRFTAltOffMessage:           qsTr("Switch Alt Learning OFF")
     readonly property string toggleMRFTXOnMessage:              qsTr("Switch X Learning ON")
@@ -173,6 +177,9 @@ Item {
     readonly property int actionMissionLand:                50
     readonly property int actionMissionReady:               51
     readonly property int actionMissionStart:               52
+    readonly property int actionEmergencyAbort:             53
+
+    readonly property int actionMRFTYawToggle:              54
 
     property var    _activeVehicle:             QGroundControl.multiVehicleManager.activeVehicle
     property bool   _useChecklist:              QGroundControl.settingsManager.appSettings.useChecklist.rawValue && QGroundControl.corePlugin.options.preFlightChecklistUrl.toString().length
@@ -248,6 +255,7 @@ Item {
     property bool   _fcTookOff:             false
     property bool   _fcMRFTPitchOn:         _activeVehicle ? _activeVehicle.leafMRFTPitch : false
     property bool   _fcMRFTRollOn:          _activeVehicle ? _activeVehicle.leafMRFTRoll : false
+    property bool   _fcMRFTYawOn:           _activeVehicle ? _activeVehicle.leafMRFTYaw : false
     property bool   _fcMRFTAltOn:           _activeVehicle ? _activeVehicle.leafMRFTAlt : false
     property bool   _fcMRFTXOn:             _activeVehicle ? _activeVehicle.leafMRFTX : false
     property bool   _fcMRFTYOn:             _activeVehicle ? _activeVehicle.leafMRFTY : false
@@ -677,6 +685,15 @@ Item {
             confirmDialog.message = _fcMRFTRollOn ? toggleMRFTRollOffMessage : toggleMRFTRollOnMessage
             confirmDialog.hideTrigger = true
             break
+        case actionMRFTYawToggle:
+            if(_fcMRFTYawOn) {
+                executeAction(actionCode, _actionData, 1, false)
+                return
+            }
+            confirmDialog.title = qsTr("Switch ") + (_fcMRFTYawOn ? toggleMRFTYawOnTitle : toggleMRFTYawOffTitle)
+            confirmDialog.message = _fcMRFTYawOn ? toggleMRFTYawOffMessage : toggleMRFTYawOnMessage
+            confirmDialog.hideTrigger = true
+            break
         case actionMRFTAltToggle:
             if(_fcMRFTAltOn) {
                 executeAction(actionCode, _actionData, 1, false)
@@ -801,6 +818,9 @@ Item {
         case actionMissionStart:
             _activeVehicle.guidedModeMissionStart()
             break
+        case actionEmergencyAbort:
+            _activeVehicle.guidedModeEmergencyAbort()
+            break
         case actionResumeMission:
         case actionResumeMissionUploadFail:
             missionController.resumeMission(missionController.resumeMissionIndex)
@@ -891,19 +911,22 @@ Item {
             _activeVehicle.guidedModeExecuteFig8Traj()
             break
         case actionMRFTPitchToggle:
-            _activeVehicle.leafMRFTPitchToggle(_fcMRFTPitchOn)
+            _activeVehicle.leafMRFTPitchToggle(!_fcMRFTPitchOn)
             break
         case actionMRFTRollToggle:
-            _activeVehicle.leafMRFTRollToggle(_fcMRFTRollOn)
+            _activeVehicle.leafMRFTRollToggle(!_fcMRFTRollOn)
+            break
+        case actionMRFTYawToggle:
+            _activeVehicle.leafMRFTYawToggle(!_fcMRFTYawOn)
             break
         case actionMRFTAltToggle:
-            _activeVehicle.leafMRFTAltToggle(_fcMRFTAltOn)
+            _activeVehicle.leafMRFTAltToggle(!_fcMRFTAltOn)
             break
         case actionMRFTXToggle:
-            _activeVehicle.leafMRFTXToggle(_fcMRFTXOn)
+            _activeVehicle.leafMRFTXToggle(!_fcMRFTXOn)
             break
         case actionMRFTYToggle:
-            _activeVehicle.leafMRFTYToggle(_fcMRFTYOn)
+            _activeVehicle.leafMRFTYToggle(!_fcMRFTYOn)
             break
         default:
             console.warn(qsTr("Internal error: unknown actionCode"), actionCode)

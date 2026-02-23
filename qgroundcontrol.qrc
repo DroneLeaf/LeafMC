@@ -53,7 +53,6 @@
         <file alias="MainToolBarIndicators.qml">src/ui/toolbar/MainToolBarIndicators.qml</file>
         <file alias="MessageIndicator.qml">src/ui/toolbar/MessageIndicator.qml</file>
         <file alias="MissionHeartbeatIndicator.qml">src/ui/toolbar/MissionHeartbeatIndicator.qml</file>
-        <file alias="MissionHeartbeatPopup.qml">src/ui/toolbar/MissionHeartbeatPopup.qml</file>
         <file alias="ModeIndicator.qml">src/ui/toolbar/ModeIndicator.qml</file>
         <file alias="MultiVehicleSelector.qml">src/ui/toolbar/MultiVehicleSelector.qml</file>
         <file alias="RCRSSIIndicator.qml">src/ui/toolbar/RCRSSIIndicator.qml</file>
@@ -345,6 +344,7 @@
         <file alias="QGroundControl/FlightDisplay/GuidedActionFCDisarmToggle.qml">src/FlightDisplay/GuidedActionFCDisarmToggle.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionToggleMRFTPitch.qml">src/FlightDisplay/GuidedActionToggleMRFTPitch.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionToggleMRFTRoll.qml">src/FlightDisplay/GuidedActionToggleMRFTRoll.qml</file>
+        <file alias="QGroundControl/FlightDisplay/GuidedActionToggleMRFTYaw.qml">src/FlightDisplay/GuidedActionToggleMRFTYaw.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionToggleMRFTAlt.qml">src/FlightDisplay/GuidedActionToggleMRFTAlt.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionToggleMRFTX.qml">src/FlightDisplay/GuidedActionToggleMRFTX.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionToggleMRFTY.qml">src/FlightDisplay/GuidedActionToggleMRFTY.qml</file>
