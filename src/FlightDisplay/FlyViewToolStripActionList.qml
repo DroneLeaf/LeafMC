@@ -31,7 +31,7 @@ ToolStripActionList {
         PreFlightCheckListShowAction { onTriggered: displayPreFlightChecklist() },
         GuidedActionFCArmToggle { },
         GuidedActionFCDisarmToggle { },
-        GuidedActionMissionIdleAndStart { },
+        GuidedActionStartMission { },
         GuidedActionTakeoff { },
         GuidedActionLand { },
         GuidedActionExecuteCircleTraj { },

@@ -81,7 +81,6 @@ Item {
     readonly property string toggleMRFTYOffTitle:           qsTr("Learn-Y ON")
     readonly property string armFCTitle:                    qsTr("Idle")
     readonly property string disarmFCTitle:                 qsTr("Disarm")
-    readonly property string idleAndStartTitle:             qsTr("Idle and Start")
 
 
     readonly property string armMessage:                        qsTr("Arm the vehicle.")
@@ -127,7 +126,6 @@ Item {
     readonly property string toggleMRFTYOffMessage:             qsTr("Switch Y Learning OFF")
     readonly property string armFCMessage:                      qsTr("Idle")
     readonly property string disarmFCMessage:                   qsTr("Disarm")
-    readonly property string idleAndStartMessage:           qsTr("This will leafidle and start the leaf mission.")
 
     readonly property int actionRTL:                        1
     readonly property int actionLand:                       2
@@ -168,14 +166,12 @@ Item {
     readonly property int actionAbort:                      42
     readonly property int actionResume:                     43
     readonly property int actionCancel:                     44
-    readonly property int actionIdleAndStart:               45
     // New mission control action IDs
     readonly property int actionMissionPause:               46
     readonly property int actionMissionResume:              47
     readonly property int actionMissionAbort:               48
     readonly property int actionMissionRTL:                 49
     readonly property int actionMissionLand:                50
-    readonly property int actionMissionReady:               51
     readonly property int actionMissionStart:               52
     readonly property int actionEmergencyAbort:             53
 
@@ -259,18 +255,6 @@ Item {
     property bool   _fcMRFTAltOn:           _activeVehicle ? _activeVehicle.leafMRFTAlt : false
     property bool   _fcMRFTXOn:             _activeVehicle ? _activeVehicle.leafMRFTX : false
     property bool   _fcMRFTYOn:             _activeVehicle ? _activeVehicle.leafMRFTY : false
-
-    // Timer for idle and start sequence
-    Timer {
-        id: _idleAndStartTimer
-        interval: 2000
-        repeat: false
-        onTriggered: {
-            if (_activeVehicle) {
-                _activeVehicle.guidedModeMissionStart()
-            }
-        }
-    }
 
     function _outputState() {
         if (_corePlugin.guidedActionsControllerLogging()) {
@@ -423,7 +407,7 @@ Item {
         function onLeafArmVehicleRequested() { leafArmVehicleRequest() }
         function onLeafDisarmVehicleRequested() { leafDisarmVehicleRequest() }
         // Leaf Mission signals from joystick
-        function onLeafMissionIdleAndStartRequested() { executeAction(actionIdleAndStart, undefined, 0, false) }
+        function onLeafMissionIdleAndStartRequested() { executeAction(actionMissionStart, undefined, 0, false) }
         function onLeafMissionPauseRequested() { executeAction(actionPause, undefined, 0, false) }
         function onLeafMissionResumeRequested() { executeAction(actionResume, undefined, 0, false) }
         function onLeafMissionAbortRequested() { executeAction(actionAbort, undefined, 0, false) }
@@ -722,11 +706,6 @@ Item {
             confirmDialog.message = _fcMRFTYOn ? toggleMRFTYOffMessage : toggleMRFTYOnMessage
             confirmDialog.hideTrigger = true
             break
-        case actionIdleAndStart:
-            confirmDialog.title = idleAndStartTitle
-            confirmDialog.message = idleAndStartMessage
-            confirmDialog.hideTrigger = true
-            break
         case actionMissionPause:
             confirmDialog.title = pauseTitle
             confirmDialog.message = pauseMessage
@@ -746,10 +725,6 @@ Item {
         case actionMissionLand:
             confirmDialog.title = landTitle
             confirmDialog.message = landMessage
-            break
-        case actionMissionReady:
-            confirmDialog.title = qsTr("Ready")
-            confirmDialog.message = qsTr("Set mission to ready state")
             break
         case actionMissionStart:
             confirmDialog.title = startMissionTitle
@@ -773,60 +748,49 @@ Item {
             break
         case actionLand:
             _fcTookOff = false
-            _activeVehicle.guidedModeLand()
+            _activeVehicle.leaf_FC_do_land()
             break
         case actionTakeoff:
             _fcTookOff = true
-            _activeVehicle.guidedModeTakeoff(sliderOutputValue)
+            _activeVehicle.leaf_FC_do_takeoff(sliderOutputValue)
             break
         case actionAbort:
-            _activeVehicle.guidedModeMissionAbort()
+            _activeVehicle.leaf_SDK_do_abort()
             break
         case actionPause:
-            _activeVehicle.guidedModeMissionPause()
+            _activeVehicle.leaf_SDK_do_pause()
             break
         case actionResume:
-            _activeVehicle.guidedModeMissionResume()
+            _activeVehicle.leaf_SDK_do_resume()
             break
         // actionCancel removed - cancel messages are no longer used
-        case actionIdleAndStart:
-            // Switch to LeafSDK Mission mode if not already in it
-            if (!_activeVehicle.leafMode.startsWith(LeafConstants.modeLeafSDKMission)) {
-                _activeVehicle.setLeafMode(LeafConstants.modeLeafSDKMission)
-            }
-            _activeVehicle.leafArmFC()
-            _idleAndStartTimer.start()
-            break
         case actionMissionPause:
-            _activeVehicle.guidedModeMissionPause()
+            _activeVehicle.leaf_SDK_do_pause()
             break
         case actionMissionResume:
-            _activeVehicle.guidedModeMissionResume()
+            _activeVehicle.leaf_SDK_do_resume()
             break
         case actionMissionAbort:
-            _activeVehicle.guidedModeMissionAbort()
+            _activeVehicle.leaf_SDK_do_abort()
             break
         case actionMissionRTL:
-            _activeVehicle.guidedModeMissionRTL()
+            _activeVehicle.leaf_SDK_do_rtl()
             break
         case actionMissionLand:
-            _activeVehicle.guidedModeMissionLand()
-            break
-        case actionMissionReady:
-            _activeVehicle.guidedModeMissionReady()
+            _activeVehicle.leaf_SDK_do_land()
             break
         case actionMissionStart:
-            _activeVehicle.guidedModeMissionStart()
+            _activeVehicle.leaf_SDK_do_start()
             break
         case actionEmergencyAbort:
-            _activeVehicle.guidedModeEmergencyAbort()
+            _activeVehicle.leaf_FC_do_abort()
             break
         case actionResumeMission:
         case actionResumeMissionUploadFail:
             missionController.resumeMission(missionController.resumeMissionIndex)
             break
         case actionStartMission:
-            _activeVehicle.guidedModeMissionStart()
+            _activeVehicle.leaf_SDK_do_start()
             break
         case actionContinueMission:
             _activeVehicle.startMission()

@@ -17,26 +17,17 @@ GuidedToolStripAction {
     property bool   _heartbeatStale: _guidedController._activeVehicle ? _guidedController._activeVehicle.missionHeartbeatStale : true
     
     property bool   show_button: leafMode.startsWith(LeafConstants.modeLeafSDKMission) && !_heartbeatStale
-    property bool   enable_start_button: leafMissionStatus.startsWith(LeafConstants.missionStatusReady) && leafStatus.startsWith(LeafConstants.statusArmedIdle)
-    property bool   enable_cancel_button: !(leafMissionStatus.startsWith(LeafConstants.missionStatusIdle) || leafMissionStatus.startsWith(LeafConstants.missionStatusReady))
+    property bool   enable_start_button: leafMissionStatus.startsWith(LeafConstants.missionStatusReady)
 
-    text        : enable_start_button ? _guidedController.startMissionTitle
-                : enable_cancel_button ? _guidedController.cancelTitle
-                : _guidedController.startMissionTitle
+    text        : _guidedController.startMissionTitle
 
-    message     : enable_start_button ? _guidedController.startMissionMessage
-                : enable_cancel_button ? _guidedController.cancelMessage
-                : _guidedController.startMissionMessage
+    message     : _guidedController.startMissionMessage
 
-    iconSource  : enable_start_button ? "/res/check.svg"
-                : enable_cancel_button ? "/res/XDelete.svg"
-                : "/res/check.svg"
+    iconSource  : "/res/check.svg"
 
     visible     : show_button
 
-    enabled     : enable_cancel_button || enable_start_button
+    enabled     : enable_start_button
 
-    actionID    : enable_start_button ? _guidedController.actionStartMission
-                : enable_cancel_button ? _guidedController.actionCancel
-                : _guidedController.actionStartMission
+    actionID    : _guidedController.actionMissionStart
 }

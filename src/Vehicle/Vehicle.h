@@ -376,31 +376,29 @@ public:
     Q_INVOKABLE void virtualTabletJoystickValue(double roll, double pitch, double yaw, double thrust);
 
     /// Command vehicle to emergency RTL (LEAF_DO_EMERGENCY_RTL placeholder - uses firmware RTL for now)
-    Q_INVOKABLE void guidedModeRTL();
+    Q_INVOKABLE void leaf_FC_do_rtl();
 
     /// Command vehicle to land at current location (LEAF_DO_LAND)
-    Q_INVOKABLE void guidedModeLand();
+    Q_INVOKABLE void leaf_FC_do_land();
 
     // Mission control functions using LEAF_DO_QGC_MISSION_CONTROL_CMD
     /// Command vehicle to pause mission (LEAF_MISSION_CONTROL_PAUSE)
-    Q_INVOKABLE void guidedModeMissionPause();
+    Q_INVOKABLE void leaf_SDK_do_pause();
     /// Command vehicle to resume mission (LEAF_MISSION_CONTROL_RESUME)
-    Q_INVOKABLE void guidedModeMissionResume();
+    Q_INVOKABLE void leaf_SDK_do_resume();
     /// Command vehicle to abort mission (LEAF_MISSION_CONTROL_ABORT)
-    Q_INVOKABLE void guidedModeMissionAbort();
+    Q_INVOKABLE void leaf_SDK_do_abort();
     /// Command vehicle to return to launch (LEAF_MISSION_CONTROL_RETURN_TO_LAUNCH)
-    Q_INVOKABLE void guidedModeMissionRTL();
+    Q_INVOKABLE void leaf_SDK_do_rtl();
     /// Command vehicle to land in place (LEAF_MISSION_CONTROL_LAND_IN_PLACE)
-    Q_INVOKABLE void guidedModeMissionLand();
-    /// Command vehicle to set mission ready state (LEAF_MISSION_CONTROL_READY)
-    Q_INVOKABLE void guidedModeMissionReady();
+    Q_INVOKABLE void leaf_SDK_do_land();
     /// Command vehicle to emergency abort (LEAF_DO_EMERGENCY_ABORT)
-    Q_INVOKABLE void guidedModeEmergencyAbort();
+    Q_INVOKABLE void leaf_FC_do_abort();
     /// Command vehicle to start mission (LEAF_MISSION_CONTROL_START)
-    Q_INVOKABLE void guidedModeMissionStart();
+    Q_INVOKABLE void leaf_SDK_do_start();
 
     /// Command vehicle to takeoff from current location
-    Q_INVOKABLE void guidedModeTakeoff(double altitudeRelative);
+    Q_INVOKABLE void leaf_FC_do_takeoff(double altitudeRelative);
 
     Q_INVOKABLE void guidedModeExecuteCircleTraj();
     Q_INVOKABLE void guidedModeExecuteFig8Traj();

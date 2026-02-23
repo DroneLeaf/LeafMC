@@ -3261,21 +3261,16 @@ QString Vehicle::gotoFlightMode() const
     return _firmwarePlugin->gotoFlightMode();
 }
 
-void Vehicle::guidedModeRTL()
+void Vehicle::leaf_FC_do_rtl()
 {
-    // Emergency RTL - placeholder for future LEAF_DO_EMERGENCY_RTL implementation
-    // This is separate from guidedModeMissionRTL which uses mission control commands
     if (!guidedModeSupported()) {
         qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
         return;
     }
-
-    // TODO: Implement LEAF_DO_EMERGENCY_RTL when available
-    // For now, use standard guided mode RTL
     _firmwarePlugin->guidedModeRTL(this, false /* smartRTL */);
 }
 
-void Vehicle::guidedModeLand()
+void Vehicle::leaf_FC_do_land()
 {
     if (!guidedModeSupported()) {
         qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
@@ -3301,7 +3296,7 @@ void Vehicle::guidedModeLand()
 
 // Mission control functions using LEAF_DO_QGC_MISSION_CONTROL_CMD message
 
-void Vehicle::guidedModeMissionPause()
+void Vehicle::leaf_SDK_do_pause()
 {
     if (!guidedModeSupported()) {
         qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
@@ -3326,7 +3321,7 @@ void Vehicle::guidedModeMissionPause()
     sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
 }
 
-void Vehicle::guidedModeMissionResume()
+void Vehicle::leaf_SDK_do_resume()
 {
     if (!guidedModeSupported()) {
         qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
@@ -3351,7 +3346,7 @@ void Vehicle::guidedModeMissionResume()
     sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
 }
 
-void Vehicle::guidedModeMissionAbort()
+void Vehicle::leaf_SDK_do_abort()
 {
     if (!guidedModeSupported()) {
         qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
@@ -3376,7 +3371,7 @@ void Vehicle::guidedModeMissionAbort()
     sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
 }
 
-void Vehicle::guidedModeEmergencyAbort()
+void Vehicle::leaf_FC_do_abort()
 {
     if (!guidedModeSupported()) {
         qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
@@ -3399,7 +3394,7 @@ void Vehicle::guidedModeEmergencyAbort()
     sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
 }
 
-void Vehicle::guidedModeMissionRTL()
+void Vehicle::leaf_SDK_do_rtl()
 {
     if (!guidedModeSupported()) {
         qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
@@ -3424,7 +3419,7 @@ void Vehicle::guidedModeMissionRTL()
     sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
 }
 
-void Vehicle::guidedModeMissionLand()
+void Vehicle::leaf_SDK_do_land()
 {
     if (!guidedModeSupported()) {
         qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
@@ -3449,32 +3444,7 @@ void Vehicle::guidedModeMissionLand()
     sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
 }
 
-void Vehicle::guidedModeMissionReady()
-{
-    if (!guidedModeSupported()) {
-        qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
-        return;
-    }
-
-    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
-    if (!sharedLink) {
-        qCDebug(VehicleLog) << "guidedModeMissionReady: primary link gone!";
-        return;
-    }
-
-    mavlink_message_t msg;
-    mavlink_msg_leaf_do_qgc_mission_control_cmd_pack_chan(_mavlink->getSystemId(),
-                                      _mavlink->getComponentId(),
-                                      sharedLink->mavlinkChannel(),
-                                      &msg,
-                                      Vehicle::DRONE_LEAF_PETAL_APP_MANAGER_SYS_ID,
-                                      LEAF_MISSION_CONTROL_READY,
-                                      "");
-                                                            
-    sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
-}
-
-void Vehicle::guidedModeMissionStart()
+void Vehicle::leaf_SDK_do_start()
 {
     if (!guidedModeSupported()) {
         qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
@@ -3499,7 +3469,7 @@ void Vehicle::guidedModeMissionStart()
     sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
 }
 
-void Vehicle::guidedModeTakeoff(double altitudeRelative)
+void Vehicle::leaf_FC_do_takeoff(double altitudeRelative)
 {
     if (!guidedModeSupported()) {
         qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);

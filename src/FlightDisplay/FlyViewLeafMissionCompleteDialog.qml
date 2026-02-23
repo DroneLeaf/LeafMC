@@ -93,7 +93,7 @@ Item {
                     text:               qsTr("Abort Mission")
                     onClicked: {
                         if (activeVehicle) {
-                            activeVehicle.guidedModeMissionAbort()
+                            activeVehicle.leaf_SDK_do_abort()
                         }
                         leafMissionCompleteDialog.close()
                     }
@@ -104,7 +104,7 @@ Item {
                     text:               qsTr("Delete Mission")
                     onClicked: {
                         if (activeVehicle) {
-                            activeVehicle.guidedModeMissionAbort()
+                            activeVehicle.leaf_SDK_do_abort()
                         }
                         if (planMasterController) {
                             planMasterController.removeAllFromVehicle()

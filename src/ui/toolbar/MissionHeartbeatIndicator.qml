@@ -91,27 +91,6 @@ Item {
                     }
                 }
             }
-
-            // Heartbeat "Ping" ripple effect
-            Rectangle {
-                anchors.fill:   parent
-                radius:         width / 2
-                color:          _indicatorColor
-                visible:        !_isStale && _activeMission
-
-                SequentialAnimation on opacity {
-                    id:      pingAnim
-                    loops:   1
-                    running: false
-                    NumberAnimation { from: 0.6; to: 0.0; duration: 400; easing.type: Easing.OutQuad }
-                }
-
-                SequentialAnimation on scale {
-                    loops:   1
-                    running: pingAnim.running
-                    NumberAnimation { from: 1.0; to: 2.0; duration: 400; easing.type: Easing.OutQuad }
-                }
-            }
         }
 
         QGCLabel {
@@ -122,16 +101,6 @@ Item {
 
             Behavior on color {
                 ColorAnimation { duration: 250 }
-            }
-        }
-    }
-
-    // Trigger ping on every heartbeat
-    Connections {
-        target: _activeVehicle
-        onMissionHeartbeatAgeChanged: {
-            if (_activeVehicle.missionHeartbeatAge === 0) {
-                pingAnim.restart()
             }
         }
     }
