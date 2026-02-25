@@ -15,15 +15,16 @@ GuidedToolStripAction {
     property string leafStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafStatus : ""
     property string leafMissionStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMissionStatus : ""
     property bool   _heartbeatStale: _guidedController._activeVehicle ? _guidedController._activeVehicle.missionHeartbeatStale : true
-
-    property bool   hideLand: leafMode.startsWith(LeafConstants.modeRCStabilized) || leafMode.startsWith(LeafConstants.modeRollPitchLearning) || leafMode.startsWith(LeafConstants.modeLearningOuter) || leafMode.startsWith(LeafConstants.modeRefinedTuning)
-    property bool   disableLand: leafStatus.startsWith(LeafConstants.statusArmed) || leafStatus.startsWith(LeafConstants.statusReadyToFly) || leafStatus.startsWith(LeafConstants.statusNotReady)
-    property bool   enableLand_leafMission: leafMissionStatus.startsWith(LeafConstants.missionStatusIdle)
+    property bool   _unhealthy_SDK: leafMode.startsWith(LeafConstants.modeLeafSDKMission) && _heartbeatStale
+    property bool   _modes_without_land: leafMode.startsWith(LeafConstants.modeRCStabilized) || leafMode.startsWith(LeafConstants.modeRollPitchLearning) || leafMode.startsWith(LeafConstants.modeLearningOuter) || leafMode.startsWith(LeafConstants.modeRefinedTuning)
+    property bool   _status_without_land: leafStatus.startsWith(LeafConstants.statusArmed) || leafStatus.startsWith(LeafConstants.statusReadyToFly) || leafStatus.startsWith(LeafConstants.statusNotReady)
+    property bool   hideLand: _modes_without_land || !_unhealthy_SDK
+    property bool   disableLand: _status_without_land || !_unhealthy_SDK
 
     text:       _guidedController.landTitle
-    message:    _guidedController.landMessage
+    message:    (_unhealthy_SDK ? "FC Land": _guidedController.landMessage)
     iconSource: "/res/land.svg"
-    visible:    (!leafMode.startsWith(LeafConstants.modeLeafSDKMission) || _heartbeatStale) && !hideLand
-    enabled:    !disableLand && !hideLand && enableLand_leafMission
+    visible:    !hideLand
+    enabled:    !disableLand
     actionID:   _guidedController.actionLand
 }
