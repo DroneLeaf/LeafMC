@@ -1168,7 +1168,7 @@ void Vehicle::_handleLeafSysStatus(mavlink_message_t& message)
 
     mavlink_leaf_status_t leafStatus;
 
-    if (leafSysStatus.pre_idle_check_status == LEAF_PRE_IDLE_CHECK_STATUS::FAILED)
+    if (leafSysStatus.pre_idle_check_status == LEAF_PRE_IDLE_CHECK_STATUS::LEAF_PRE_IDLE_CHECK_STATUS_FAILED)
     {
         leafStatus.status = LEAF_STATUS::LEAF_STATUS_NOT_READY;
         _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
@@ -1176,7 +1176,7 @@ void Vehicle::_handleLeafSysStatus(mavlink_message_t& message)
         return;
     }
 
-    else if (leafSysStatus.arm_stage == LEAF_ARM_STAGE::IDLING)
+    else if (leafSysStatus.arm_stage == LEAF_ARM_STAGE::LEAF_ARM_STAGE_IDLING)
     {
         leafStatus.status = LEAF_STATUS::LEAF_STATUS_ARMED_IDLE;
         _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
@@ -1210,7 +1210,7 @@ void Vehicle::_handleLeafSysStatus(mavlink_message_t& message)
         return;
     }
 
-    else if (leafSysStatus.arm_stage == LEAF_ARM_STAGE::DISARMED)
+    else if (leafSysStatus.arm_stage == LEAF_ARM_STAGE::LEAF_ARM_STAGE_DISARMED)
     {
         leafStatus.status = LEAF_STATUS::LEAF_STATUS_READY_TO_FLY;
         _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
@@ -1220,7 +1220,7 @@ void Vehicle::_handleLeafSysStatus(mavlink_message_t& message)
         return;
     }
 
-    else if (leafSysStatus.airborne_status == LEAF_AIRBORNE_STATUS::AIRBORNE)
+    else if (leafSysStatus.airborne_status == LEAF_AIRBORNE_STATUS::LEAF_AIRBORNE_STATUS_AIRBORNE)
     {
         leafStatus.status = LEAF_STATUS::LEAF_STATUS_FLYING;
         _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();

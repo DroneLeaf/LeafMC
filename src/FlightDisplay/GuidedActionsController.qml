@@ -175,7 +175,7 @@ Item {
     readonly property int actionMissionStart:               52
     readonly property int actionEmergencyAbort:             53
 
-    readonly property int actionMRFTYawToggle:              53
+    readonly property int actionMRFTYawToggle:              54
 
     property var    _activeVehicle:             QGroundControl.multiVehicleManager.activeVehicle
     property bool   _useChecklist:              QGroundControl.settingsManager.appSettings.useChecklist.rawValue && QGroundControl.corePlugin.options.preFlightChecklistUrl.toString().length
