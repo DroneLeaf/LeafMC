@@ -530,22 +530,21 @@ void Vehicle::_commonInit()
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_REFINED_TUNING_COLLECT_DATA, QString("Refined Tuning - Collect Data"));
     _leafModeNames->insert(LEAF_MODE::LEAF_MODE_REFINED_TUNING_OUTER, QString("Refined Tuning Outer - Collect Data"));
 
-    // leafStatusTexts
-    _leafStatusTexts = new QMap<LEAF_STATUS, QString>();
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_READY_TO_LEARN, QString("READY TO LEARN"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_LEARNING, QString("LEARNING"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_READY_TO_FLY, QString("READY TO FLY"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_TAKING_OFF, QString("TAKING OFF"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_FLYING, QString("FLYING"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_LANDING, QString("LANDING"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_LANDED, QString("LANDED"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_ARMED_IDLE, QString("ARMED IDLE"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_ARMED, QString("ARMED"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_DISARMED, QString("DISARMED"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_NOT_READY, QString("NOT READY"));
-
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_MISSION_PAUSED, QString("MISSION PAUSED"));
-    _leafStatusTexts->insert(LEAF_STATUS::LEAF_STATUS_RETURNING_TO_BASE, QString("RETURNING TO BASE"));
+    // leafStatusTexts — uses LeafConstants::LeafStatus (mirrors removed LEAF_STATUS MAVLink enum)
+    _leafStatusTexts = new QMap<LeafConstants::LeafStatus, QString>();
+    _leafStatusTexts->insert(LeafConstants::LeafStatus::ReadyToLearn,    LeafConstants::statusReadyToLearn());
+    _leafStatusTexts->insert(LeafConstants::LeafStatus::Learning,        LeafConstants::statusLearning());
+    _leafStatusTexts->insert(LeafConstants::LeafStatus::ReadyToFly,      LeafConstants::statusReadyToFly());
+    _leafStatusTexts->insert(LeafConstants::LeafStatus::TakingOff,       LeafConstants::statusTakingOff());
+    _leafStatusTexts->insert(LeafConstants::LeafStatus::Flying,          LeafConstants::statusFlying());
+    _leafStatusTexts->insert(LeafConstants::LeafStatus::Landing,         LeafConstants::statusLanding());
+    _leafStatusTexts->insert(LeafConstants::LeafStatus::Landed,          LeafConstants::statusLanded());
+    _leafStatusTexts->insert(LeafConstants::LeafStatus::ArmedIdle,       LeafConstants::statusArmedIdle());
+    _leafStatusTexts->insert(LeafConstants::LeafStatus::Armed,           LeafConstants::statusArmed());
+    _leafStatusTexts->insert(LeafConstants::LeafStatus::Disarmed,        LeafConstants::statusDisarmed());
+    _leafStatusTexts->insert(LeafConstants::LeafStatus::NotReady,        LeafConstants::statusNotReady());
+    _leafStatusTexts->insert(LeafConstants::LeafStatus::MissionPaused,   LeafConstants::statusMissionPaused());
+    _leafStatusTexts->insert(LeafConstants::LeafStatus::ReturningToBase, LeafConstants::statusReturningToBase());
 
     // leafMissionStatusTexts
     _leafMissionStatusTexts = new QMap<LEAF_MISSION_STATE, QString>();
@@ -560,11 +559,11 @@ void Vehicle::_commonInit()
     _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_CANCELLED,            LeafConstants::missionStatusCanceled());
     _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_SAFETY,               LeafConstants::missionStatusSafety());
 
-    // joystickModeTexts
-    _joystickModeTexts = new QMap<JoystickMode, QString>();
-    _joystickModeTexts->insert(JoystickMode::DISABLED,          LeafConstants::joystickModeDisabled());
-    _joystickModeTexts->insert(JoystickMode::ENABLED_ALWAYS,    LeafConstants::joystickModeEnabledAlways());
-    _joystickModeTexts->insert(JoystickMode::ENABLED_ON_PAUSE,  LeafConstants::joystickModeEnabledOnPause());
+    // joystickModeTexts — uses renamed JOYSTICK_MODE enum with prefixed entry names
+    _joystickModeTexts = new QMap<JOYSTICK_MODE, QString>();
+    _joystickModeTexts->insert(JOYSTICK_MODE::JOYSTICK_MODE_DISABLED,         LeafConstants::joystickModeDisabled());
+    _joystickModeTexts->insert(JOYSTICK_MODE::JOYSTICK_MODE_ENABLED_ALWAYS,   LeafConstants::joystickModeEnabledAlways());
+    _joystickModeTexts->insert(JOYSTICK_MODE::JOYSTICK_MODE_ENABLED_ON_PAUSE, LeafConstants::joystickModeEnabledOnPause());
 
     // predefinedActionsStatusTexts
     _predefinedActionsStatusTexts = new QMap<LEAF_PREDEFINED_ACTIONS_STATUS, QString>();
@@ -907,7 +906,7 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         _handleLeafHeartbeat(message);
         break;
 
-    case MAVLINK_MSG_ID_LEAF_MISSION_HEARTBEAT_V2:
+    case MAVLINK_MSG_ID_LEAF_MISSION_HEARTBEAT:
         _handleLeafMissionHeartbeat(message);
         break;
 
@@ -1166,21 +1165,21 @@ void Vehicle::_handleLeafSysStatus(mavlink_message_t& message)
     mavlink_leaf_sys_status_t leafSysStatus;
     mavlink_msg_leaf_sys_status_decode(&message, &leafSysStatus);
 
-    mavlink_leaf_status_t leafStatus;
+    LeafConstants::LeafStatus status;
+    auto emitStatus = [this](LeafConstants::LeafStatus status) {
+        _leafStatus = _leafStatusTexts->value(status);
+        emit leafStatusChanged(_leafStatus);
+    };
 
     if (leafSysStatus.pre_idle_check_status == LEAF_PRE_IDLE_CHECK_STATUS::LEAF_PRE_IDLE_CHECK_STATUS_FAILED)
     {
-        leafStatus.status = LEAF_STATUS::LEAF_STATUS_NOT_READY;
-        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
-        emit leafStatusChanged(_leafStatus);
+        emitStatus(LeafConstants::LeafStatus::NotReady);
         return;
     }
 
     else if (leafSysStatus.arm_stage == LEAF_ARM_STAGE::LEAF_ARM_STAGE_IDLING)
     {
-        leafStatus.status = LEAF_STATUS::LEAF_STATUS_ARMED_IDLE;
-        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
-        emit leafStatusChanged(_leafStatus);
+        emitStatus(LeafConstants::LeafStatus::ArmedIdle);
         setLeafFCArmed(true);
         emit leafFCArmedChanged(true);
         return;
@@ -1188,33 +1187,25 @@ void Vehicle::_handleLeafSysStatus(mavlink_message_t& message)
 
     else if (leafSysStatus.learning_status == LEAF_LEARNING_STATUS::LEARNING_IN_PROGRESS)
     {
-        leafStatus.status = LEAF_STATUS::LEAF_STATUS_LEARNING;
-        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
-        emit leafStatusChanged(_leafStatus);
+        emitStatus(LeafConstants::LeafStatus::Learning);
         return;
     }
 
     else if (leafSysStatus.landing_status == LEAF_LANDING_STATUS::LEAF_LANDING_LANDING)
     {
-        leafStatus.status = LEAF_STATUS::LEAF_STATUS_LANDING;
-        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
-        emit leafStatusChanged(_leafStatus);
+        emitStatus(LeafConstants::LeafStatus::Landing);
         return;
     }
 
     else if (leafSysStatus.takeoff_status == LEAF_TAKEOFF_STATUS::LEAF_TAKEOFF_TAKING_OFF)
     {
-        leafStatus.status = LEAF_STATUS::LEAF_STATUS_TAKING_OFF;
-        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
-        emit leafStatusChanged(_leafStatus);
+        emitStatus(LeafConstants::LeafStatus::TakingOff);
         return;
     }
 
     else if (leafSysStatus.arm_stage == LEAF_ARM_STAGE::LEAF_ARM_STAGE_DISARMED)
     {
-        leafStatus.status = LEAF_STATUS::LEAF_STATUS_READY_TO_FLY;
-        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
-        emit leafStatusChanged(_leafStatus);
+        emitStatus(LeafConstants::LeafStatus::ReadyToFly);
         setLeafFCArmed(false);
         emit leafFCArmedChanged(false);
         return;
@@ -1222,10 +1213,8 @@ void Vehicle::_handleLeafSysStatus(mavlink_message_t& message)
 
     else if (leafSysStatus.airborne_status == LEAF_AIRBORNE_STATUS::LEAF_AIRBORNE_STATUS_AIRBORNE)
     {
-        leafStatus.status = LEAF_STATUS::LEAF_STATUS_FLYING;
-        _leafStatus = _leafStatusTexts->find((LEAF_STATUS)leafStatus.status).value();
+        emitStatus(LeafConstants::LeafStatus::Flying);
         qInfo() << "Leaf status:" << _leafStatus;
-        emit leafStatusChanged(_leafStatus);
         return;
     }
 }
@@ -1300,8 +1289,8 @@ void Vehicle::_handleLeafMissionHeartbeat(mavlink_message_t& message)
 {
     qCDebug(VehicleLog) << "Received LEAF_MISSION_HEARTBEAT from sysid:" << message.sysid << "compid:" << message.compid;
     
-    mavlink_leaf_mission_heartbeat_v2_t missionHeartbeat;
-    mavlink_msg_leaf_mission_heartbeat_v2_decode(&message, &missionHeartbeat);
+    mavlink_leaf_mission_heartbeat_t missionHeartbeat;
+    mavlink_msg_leaf_mission_heartbeat_decode(&message, &missionHeartbeat);
 
     // Store raw mission state enum value
     _currentMissionState = (LEAF_MISSION_STATE)missionHeartbeat.LeafFC_mission_status;
@@ -1374,8 +1363,8 @@ void Vehicle::_handleLeafMissionHeartbeat(mavlink_message_t& message)
 
     // Update Joystick Mode
     QString newJoystickMode;
-    if (_joystickModeTexts->contains((JoystickMode)missionHeartbeat.joystick_mode)) {
-        newJoystickMode = _joystickModeTexts->value((JoystickMode)missionHeartbeat.joystick_mode);
+    if (_joystickModeTexts->contains((JOYSTICK_MODE)missionHeartbeat.joystick_mode)) {
+        newJoystickMode = _joystickModeTexts->value((JOYSTICK_MODE)missionHeartbeat.joystick_mode);
     } else {
         newJoystickMode = QString("UNKNOWN %1").arg(missionHeartbeat.joystick_mode);
     }

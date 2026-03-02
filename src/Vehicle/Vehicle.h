@@ -48,6 +48,7 @@
 #include "ImageProtocolManager.h"
 #include "HealthAndArmingCheckReport.h"
 #include "TerrainQuery.h"
+#include "LeafConstants.h"
 #include "StandardModes.h"
 #include "VehicleGeneratorFactGroup.h"
 #include "VehicleEFIFactGroup.h"
@@ -1609,9 +1610,9 @@ private:
     RemoteIDManager*                    _remoteIDManager            = nullptr;
     StandardModes*                      _standardModes              = nullptr;
     QMap<int, QString>*                 _leafModeNames              = nullptr;
-    QMap<LEAF_STATUS, QString>*         _leafStatusTexts            = nullptr;
+    QMap<LeafConstants::LeafStatus, QString>* _leafStatusTexts        = nullptr;
     QMap<LEAF_MISSION_STATE, QString>* _leafMissionStatusTexts     = nullptr;
-    QMap<JoystickMode, QString>*    _joystickModeTexts            = nullptr;
+    QMap<JOYSTICK_MODE, QString>*      _joystickModeTexts          = nullptr;
     QMap<LEAF_PREDEFINED_ACTIONS_STATUS, QString>* _predefinedActionsStatusTexts = nullptr;
     QMap<LEAF_MISSION_STEP_TYPE, QString>* _missionStepTypeTexts  = nullptr;
 

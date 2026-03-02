@@ -33,21 +33,23 @@ public:
     Q_ENUM(LeafMode)
 
     // ========== LeafStatus Enum ==========
-    // Maps to MAVLink LEAF_STATUS enum (ready for future direct mapping)
+    // Mirrors the removed MAVLink LEAF_STATUS enum. Kept here for backward compatibility
+    // until all usages are replaced with LEAF_SYS_STATUS equivalents.
+    // Values are explicitly set to match the original MAVLink LEAF_STATUS integer values.
     enum class LeafStatus {
-        ReadyToLearn,       // LEAF_STATUS_READY_TO_LEARN
-        Learning,           // LEAF_STATUS_LEARNING
-        ReadyToFly,         // LEAF_STATUS_READY_TO_FLY
-        TakingOff,          // LEAF_STATUS_TAKING_OFF
-        Flying,             // LEAF_STATUS_FLYING
-        Landing,            // LEAF_STATUS_LANDING
-        Landed,             // LEAF_STATUS_LANDED
-        ArmedIdle,          // LEAF_STATUS_ARMED_IDLE
-        Armed,              // LEAF_STATUS_ARMED
-        Disarmed,           // LEAF_STATUS_DISARMED
-        NotReady,           // LEAF_STATUS_NOT_READY
-        MissionPaused,      // LEAF_STATUS_MISSION_PAUSED
-        ReturningToBase     // LEAF_STATUS_RETURNING_TO_BASE
+        ReadyToLearn    = 0,    // LEAF_STATUS_READY_TO_LEARN
+        Learning        = 1,    // LEAF_STATUS_LEARNING
+        ReadyToFly      = 2,    // LEAF_STATUS_READY_TO_FLY
+        TakingOff       = 3,    // LEAF_STATUS_TAKING_OFF
+        Flying          = 4,    // LEAF_STATUS_FLYING
+        Landing         = 5,    // LEAF_STATUS_LANDING
+        Landed          = 6,    // LEAF_STATUS_LANDED
+        ArmedIdle       = 7,    // LEAF_STATUS_ARMED_IDLE
+        Armed           = 8,    // LEAF_STATUS_ARMED
+        Disarmed        = 9,    // LEAF_STATUS_DISARMED
+        NotReady        = 10,   // LEAF_STATUS_NOT_READY
+        MissionPaused   = 20,   // LEAF_STATUS_MISSION_PAUSED  (gap: 11-19 unused)
+        ReturningToBase = 21    // LEAF_STATUS_RETURNING_TO_BASE
     };
     Q_ENUM(LeafStatus)
 
