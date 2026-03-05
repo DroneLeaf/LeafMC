@@ -54,18 +54,18 @@ public:
     Q_ENUM(LeafStatus)
 
     // ========== MissionStatus Enum ==========
-    // Maps to MAVLink LEAF_MISSION_STATUS enum (ready for future direct mapping)
+    // Maps to MAVLink LEAF_MISSION_MANAGER_STATUS enum (ready for future direct mapping)
     enum class MissionStatus {
-        Idle,               // LEAF_MISSION_STATE_IDLE
-        Ready,              // LEAF_MISSION_STATE_READY
-        Running,            // LEAF_MISSION_STATE_RUNNING
-        ScheduledPause,     // LEAF_MISSION_STATE_SCHEDULED_PAUSE
-        PausedMidStep,      // LEAF_MISSION_STATE_PAUSED_MID_STEP
-        PausedBetweenSteps, // LEAF_MISSION_STATE_PAUSED_BETWEEN_STEPS
-        Completed,          // LEAF_MISSION_STATE_COMPLETED
-        Failed,             // LEAF_MISSION_STATE_FAILED
-        Cancelled,          // LEAF_MISSION_STATE_CANCELLED
-        Safety              // LEAF_MISSION_STATE_SAFETY
+        Idle,               // LEAF_MISSION_MANAGER_STATE_IDLE
+        Ready,              // LEAF_MISSION_MANAGER_STATE_READY
+        Running,            // LEAF_MISSION_MANAGER_STATE_RUNNING
+        ScheduledPause,     // LEAF_MISSION_MANAGER_STATE_SCHEDULED_PAUSE
+        PausedMidStep,      // LEAF_MISSION_MANAGER_STATE_PAUSED_MID_STEP
+        PausedBetweenSteps, // LEAF_MISSION_MANAGER_STATE_PAUSED_BETWEEN_STEPS
+        Completed,          // LEAF_MISSION_MANAGER_STATE_COMPLETED
+        Failed,             // LEAF_MISSION_MANAGER_STATE_FAILED
+        Cancelled,          // LEAF_MISSION_MANAGER_STATE_CANCELLED
+        Safety              // LEAF_MISSION_MANAGER_STATE_SAFETY
     };
     Q_ENUM(MissionStatus)
 

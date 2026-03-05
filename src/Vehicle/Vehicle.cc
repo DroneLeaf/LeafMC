@@ -547,17 +547,17 @@ void Vehicle::_commonInit()
     _leafStatusTexts->insert(LeafConstants::LeafStatus::ReturningToBase, LeafConstants::statusReturningToBase());
 
     // leafMissionStatusTexts
-    _leafMissionStatusTexts = new QMap<LEAF_MISSION_STATE, QString>();
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_IDLE,                 LeafConstants::missionStatusIdle());
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_READY,                LeafConstants::missionStatusReady());
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_RUNNING,              LeafConstants::missionStatusExecuting());
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_SCHEDULED_PAUSE,      LeafConstants::missionStatusScheduledPause());
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_PAUSED_MID_STEP,      LeafConstants::missionStatusPausedMidStep());
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_PAUSED_BETWEEN_STEPS,  LeafConstants::missionStatusPausedBetweenSteps());
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_COMPLETED,            LeafConstants::missionStatusCompleted());
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_FAILED,               LeafConstants::missionStatusFailed());
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_CANCELLED,            LeafConstants::missionStatusCanceled());
-    _leafMissionStatusTexts->insert(LEAF_MISSION_STATE::LEAF_MISSION_STATE_SAFETY,               LeafConstants::missionStatusSafety());
+    _leafMissionStatusTexts = new QMap<LEAF_MISSION_MANAGER_STATE, QString>();
+    _leafMissionStatusTexts->insert(LEAF_MISSION_MANAGER_STATE::LEAF_MISSION_MANAGER_STATE_IDLE,                 LeafConstants::missionStatusIdle());
+    _leafMissionStatusTexts->insert(LEAF_MISSION_MANAGER_STATE::LEAF_MISSION_MANAGER_STATE_READY,                LeafConstants::missionStatusReady());
+    _leafMissionStatusTexts->insert(LEAF_MISSION_MANAGER_STATE::LEAF_MISSION_MANAGER_STATE_RUNNING,              LeafConstants::missionStatusExecuting());
+    _leafMissionStatusTexts->insert(LEAF_MISSION_MANAGER_STATE::LEAF_MISSION_MANAGER_STATE_SCHEDULED_PAUSE,      LeafConstants::missionStatusScheduledPause());
+    _leafMissionStatusTexts->insert(LEAF_MISSION_MANAGER_STATE::LEAF_MISSION_MANAGER_STATE_PAUSED_MID_STEP,      LeafConstants::missionStatusPausedMidStep());
+    _leafMissionStatusTexts->insert(LEAF_MISSION_MANAGER_STATE::LEAF_MISSION_MANAGER_STATE_PAUSED_BETWEEN_STEPS,  LeafConstants::missionStatusPausedBetweenSteps());
+    _leafMissionStatusTexts->insert(LEAF_MISSION_MANAGER_STATE::LEAF_MISSION_MANAGER_STATE_COMPLETED,            LeafConstants::missionStatusCompleted());
+    _leafMissionStatusTexts->insert(LEAF_MISSION_MANAGER_STATE::LEAF_MISSION_MANAGER_STATE_FAILED,               LeafConstants::missionStatusFailed());
+    _leafMissionStatusTexts->insert(LEAF_MISSION_MANAGER_STATE::LEAF_MISSION_MANAGER_STATE_CANCELLED,            LeafConstants::missionStatusCanceled());
+    _leafMissionStatusTexts->insert(LEAF_MISSION_MANAGER_STATE::LEAF_MISSION_MANAGER_STATE_SAFETY,               LeafConstants::missionStatusSafety());
 
     // joystickModeTexts — uses renamed JOYSTICK_MODE enum with prefixed entry names
     _joystickModeTexts = new QMap<JOYSTICK_MODE, QString>();
@@ -880,7 +880,7 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     case MAVLINK_MSG_ID_RESPONSE_EVENT_ERROR:
         _eventHandler(message.compid).handleEvents(message);
         break;
-    case MAVLINK_MSG_ID_LEAF_MISSION_STATUS:
+    case MAVLINK_MSG_ID_LEAF_MISSION_MANAGER_STATUS:
         _handleLeafMissionStatus(message);
         break;
     case MAVLINK_MSG_ID_LEAF_SYS_STATUS:
@@ -906,7 +906,7 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         _handleLeafHeartbeat(message);
         break;
 
-    case MAVLINK_MSG_ID_LEAF_MISSION_HEARTBEAT:
+    case MAVLINK_MSG_ID_LEAF_MISSION_MANAGER_HEARTBEAT:
         _handleLeafMissionHeartbeat(message);
         break;
 
@@ -1147,14 +1147,14 @@ void Vehicle::_handleStatusText(mavlink_message_t& message)
 void Vehicle::_handleLeafMissionStatus(mavlink_message_t& message)
 {
 
-    mavlink_leaf_mission_status_t leafMissionStatus;
-    mavlink_msg_leaf_mission_status_decode(&message, &leafMissionStatus);
+    mavlink_leaf_mission_manager_status_t leafMissionStatus;
+    mavlink_msg_leaf_mission_manager_status_decode(&message, &leafMissionStatus);
 
-    if(_leafMissionStatusTexts->contains((LEAF_MISSION_STATE)leafMissionStatus.status) &&
-        _leafMissionStatus.compare(_leafMissionStatusTexts->find((LEAF_MISSION_STATE)leafMissionStatus.status).value()) != 0
+    if(_leafMissionStatusTexts->contains((LEAF_MISSION_MANAGER_STATE)leafMissionStatus.status) &&
+        _leafMissionStatus.compare(_leafMissionStatusTexts->find((LEAF_MISSION_MANAGER_STATE)leafMissionStatus.status).value()) != 0
         ) {
         QString previousStatus = _leafMissionStatus;
-        _leafMissionStatus = _leafMissionStatusTexts->find((LEAF_MISSION_STATE)leafMissionStatus.status).value();
+        _leafMissionStatus = _leafMissionStatusTexts->find((LEAF_MISSION_MANAGER_STATE)leafMissionStatus.status).value();
         emit leafMissionStatusChanged(_leafMissionStatus);
     }
 }
@@ -1287,20 +1287,20 @@ void Vehicle::_handleLeafMRFTStatus(mavlink_message_t& message) {
 
 void Vehicle::_handleLeafMissionHeartbeat(mavlink_message_t& message)
 {
-    qCDebug(VehicleLog) << "Received LEAF_MISSION_HEARTBEAT from sysid:" << message.sysid << "compid:" << message.compid;
+    qCDebug(VehicleLog) << "Received LEAF_MISSION_MANAGER_HEARTBEAT from sysid:" << message.sysid << "compid:" << message.compid;
     
-    mavlink_leaf_mission_heartbeat_t missionHeartbeat;
-    mavlink_msg_leaf_mission_heartbeat_decode(&message, &missionHeartbeat);
+    mavlink_leaf_mission_manager_heartbeat_t missionHeartbeat;
+    mavlink_msg_leaf_mission_manager_heartbeat_decode(&message, &missionHeartbeat);
 
-    // Store raw mission state enum value
-    _currentMissionState = (LEAF_MISSION_STATE)missionHeartbeat.LeafFC_mission_status;
+    // Store raw mission state enum value   
+    _currentMissionState = (LEAF_MISSION_MANAGER_STATE)missionHeartbeat.LeafFC_mission_manager_status;
 
     // Update LeafFC state
     QString newState;
-    if (_leafMissionStatusTexts->contains((LEAF_MISSION_STATE)missionHeartbeat.LeafFC_mission_status)) {
-        newState = _leafMissionStatusTexts->value((LEAF_MISSION_STATE)missionHeartbeat.LeafFC_mission_status);
+    if (_leafMissionStatusTexts->contains((LEAF_MISSION_MANAGER_STATE)missionHeartbeat.LeafFC_mission_manager_status)) {
+        newState = _leafMissionStatusTexts->value((LEAF_MISSION_MANAGER_STATE)missionHeartbeat.LeafFC_mission_manager_status);
     } else {
-        newState = QString("UNKNOWN %1").arg(missionHeartbeat.LeafFC_mission_status);
+        newState = QString("UNKNOWN %1").arg(missionHeartbeat.LeafFC_mission_manager_status);
     }
 
     if (_missionHeartbeatState != newState) {
@@ -1310,8 +1310,8 @@ void Vehicle::_handleLeafMissionHeartbeat(mavlink_message_t& message)
 
     // Update SDK state
     QString newSDKState;
-    if (_leafMissionStatusTexts->contains((LEAF_MISSION_STATE)missionHeartbeat.SDK_status)) {
-        newSDKState = _leafMissionStatusTexts->value((LEAF_MISSION_STATE)missionHeartbeat.SDK_status);
+    if (_leafMissionStatusTexts->contains((LEAF_MISSION_MANAGER_STATE)missionHeartbeat.SDK_status)) {
+        newSDKState = _leafMissionStatusTexts->value((LEAF_MISSION_MANAGER_STATE)missionHeartbeat.SDK_status);
     } else {
         newSDKState = QString("UNKNOWN %1").arg(missionHeartbeat.SDK_status);
     }
@@ -1413,12 +1413,12 @@ bool Vehicle::modeChangeAllowed() const
     }
     
     // Allow mode change only in: IDLE, READY, COMPLETED, FAILED, or CANCELLED states
-    return (_currentMissionState == LEAF_MISSION_STATE_IDLE ||
-            _currentMissionState == LEAF_MISSION_STATE_READY ||
-            _currentMissionState == LEAF_MISSION_STATE_COMPLETED ||
-            _currentMissionState == LEAF_MISSION_STATE_FAILED ||
-            _currentMissionState == LEAF_MISSION_STATE_CANCELLED || 
-            _currentMissionState == LEAF_MISSION_STATE_SAFETY 
+    return (_currentMissionState == LEAF_MISSION_MANAGER_STATE_IDLE ||
+            _currentMissionState == LEAF_MISSION_MANAGER_STATE_READY ||
+            _currentMissionState == LEAF_MISSION_MANAGER_STATE_COMPLETED ||
+            _currentMissionState == LEAF_MISSION_MANAGER_STATE_FAILED ||
+            _currentMissionState == LEAF_MISSION_MANAGER_STATE_CANCELLED || 
+            _currentMissionState == LEAF_MISSION_MANAGER_STATE_SAFETY 
         );
 }
 

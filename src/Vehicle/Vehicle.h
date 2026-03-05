@@ -1523,7 +1523,7 @@ private:
     QElapsedTimer                   _missionHeartbeatTimer;
     QTimer                          _missionHeartbeatCheckTimer;
     bool                            _missionHeartbeatStale = true;
-    LEAF_MISSION_STATE              _currentMissionState = LEAF_MISSION_STATE_IDLE;
+    LEAF_MISSION_MANAGER_STATE              _currentMissionState = LEAF_MISSION_MANAGER_STATE_IDLE;
     static const int                _mavCommandMaxRetryCount                = 3;
     static const int                _mavCommandResponseCheckTimeoutMSecs    = 500;
     static const int                _mavCommandAckTimeoutMSecs              = 3000;
@@ -1611,7 +1611,7 @@ private:
     StandardModes*                      _standardModes              = nullptr;
     QMap<int, QString>*                 _leafModeNames              = nullptr;
     QMap<LeafConstants::LeafStatus, QString>* _leafStatusTexts        = nullptr;
-    QMap<LEAF_MISSION_STATE, QString>* _leafMissionStatusTexts     = nullptr;
+    QMap<LEAF_MISSION_MANAGER_STATE, QString>* _leafMissionStatusTexts     = nullptr;
     QMap<JOYSTICK_MODE, QString>*      _joystickModeTexts          = nullptr;
     QMap<LEAF_PREDEFINED_ACTIONS_STATUS, QString>* _predefinedActionsStatusTexts = nullptr;
     QMap<LEAF_MISSION_STEP_TYPE, QString>* _missionStepTypeTexts  = nullptr;
