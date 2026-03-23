@@ -3477,6 +3477,37 @@ void Vehicle::leafMRFTYToggle(bool state) {
     sendMessageOnLinkThreadSafe(sharedLink.get(), mrft_y_switch_msg);
 }
 
+void Vehicle::leafSendVideoTarget(double x, double y, double w, double h) {
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "leafSendVideoTarget: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t msg;
+    mavlink_msg_leaf_qgc_video_target_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &msg,
+                                      (float)x, (float)y, (float)w, (float)h);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+}
+
+void Vehicle::leafSendVideoClear() {
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "leafSendVideoClear: primary link gone!";
+        return;
+    }
+
+    mavlink_message_t msg;
+    mavlink_msg_leaf_qgc_video_clear_pack_chan(_mavlink->getSystemId(),
+                                      _mavlink->getComponentId(),
+                                      sharedLink->mavlinkChannel(),
+                                      &msg,
+                                      1);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+}
 
 void Vehicle::guidedModeExecuteCircleTraj()
 {

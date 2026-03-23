@@ -408,6 +408,8 @@ public:
     Q_INVOKABLE void leafMRFTAltToggle(bool state);
     Q_INVOKABLE void leafMRFTXToggle(bool state);
     Q_INVOKABLE void leafMRFTYToggle(bool state);
+    Q_INVOKABLE void leafSendVideoTarget(double x, double y, double w, double h);
+    Q_INVOKABLE void leafSendVideoClear();
 
     /// @return The minimum takeoff altitude (relative) for guided takeoff.
     Q_INVOKABLE double minimumTakeoffAltitude();

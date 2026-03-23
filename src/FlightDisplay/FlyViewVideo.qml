@@ -34,6 +34,13 @@ Item {
             console.log("[FlyViewVideo] Key H pressed - toggling video paused")
             QGroundControl.videoManager.toggleVideoPaused()
             event.accepted = true;
+        } else if (event.key === Qt.Key_C) {
+            console.log("[FlyViewVideo] Key C pressed - clearing video tracker")
+            var vehicle = QGroundControl.multiVehicleManager.activeVehicle
+            if (vehicle) {
+                vehicle.leafSendVideoClear()
+            }
+            event.accepted = true;
         }
     }
 
@@ -167,15 +174,11 @@ Item {
             _track_rec_x = mouse.x
             _track_rec_y = mouse.y
 
-            //create a new rectangle at the wanted position
-            if(videoStreaming._camera) {
-                if (videoStreaming._camera.trackingEnabled) {
-                    trackingROI = trackingROIComponent.createObject(flyViewVideoMouseArea, {
-                        "x": mouse.x,
-                        "y": mouse.y
-                    });
-                }
-            }
+            //create a new rectangle at the wanted position (always, for visual feedback)
+            trackingROI = trackingROIComponent.createObject(flyViewVideoMouseArea, {
+                "x": mouse.x,
+                "y": mouse.y
+            });
         }
 
         onPositionChanged: {
@@ -204,6 +207,61 @@ Item {
                 trackingROI.destroy();
             }
 
+            // === Always send via MAVLink (independent of camera tracking) ===
+            var vehicle = QGroundControl.multiVehicleManager.activeVehicle
+            if (vehicle && videoStreaming) {
+                // getWidth()/getHeight() may exceed the container (video is
+                // cropped by clip:true).  Compute the visible video rect.
+                var rawVW = videoStreaming.getWidth()
+                var rawVH = videoStreaming.getHeight()
+
+                if (rawVW > 0 && rawVH > 0) {
+                    console.log("[FlyViewVideo] DEBUG: parent=", parent.width, "x", parent.height,
+                                "rawVideo=", rawVW, "x", rawVH,
+                                "offX=", (parent.width - rawVW)/2, "offY=", (parent.height - rawVH)/2)
+                    // Offset of the full (possibly cropped) video from the container
+                    var fullOffX = (parent.width  - rawVW) / 2
+                    var fullOffY = (parent.height - rawVH) / 2
+
+                    // Visible video rect within the container
+                    var visLeft   = Math.max(fullOffX, 0)
+                    var visTop    = Math.max(fullOffY, 0)
+                    var visRight  = Math.min(fullOffX + rawVW, parent.width)
+                    var visBottom = Math.min(fullOffY + rawVH, parent.height)
+                    var visW = visRight - visLeft
+                    var visH = visBottom - visTop
+
+                    // Where the visible region starts in the full video's coord space
+                    var cropLeft = visLeft - fullOffX   // pixels cropped on left
+                    var cropTop  = visTop  - fullOffY   // pixels cropped on top
+
+                    if (visW > 0 && visH > 0) {
+                        // Map mouse position to the full video coordinate space
+                        var mx0 = Math.min(_track_rec_x, mouse.x) - fullOffX
+                        var my0 = Math.min(_track_rec_y, mouse.y) - fullOffY
+                        var mx1 = Math.max(_track_rec_x, mouse.x) - fullOffX
+                        var my1 = Math.max(_track_rec_y, mouse.y) - fullOffY
+
+                        // Normalize against the full video dimensions
+                        var nx0 = Math.max(Math.min(mx0 / rawVW, 1.0), 0.0)
+                        var ny0 = Math.max(Math.min(my0 / rawVH, 1.0), 0.0)
+                        var nx1 = Math.max(Math.min(mx1 / rawVW, 1.0), 0.0)
+                        var ny1 = Math.max(Math.min(my1 / rawVH, 1.0), 0.0)
+
+                        if (Math.abs(_track_rec_x - mouse.x) < 10 && Math.abs(_track_rec_y - mouse.y) < 10) {
+                            // Click
+                            console.log("[FlyViewVideo] MAVLink video click: x=", nx0, "y=", ny0)
+                            vehicle.leafSendVideoTarget(nx0, ny0, 0, 0)
+                        } else {
+                            // ROI rectangle
+                            console.log("[FlyViewVideo] MAVLink video ROI: x=", nx0, "y=", ny0, "w=", nx1 - nx0, "h=", ny1 - ny0)
+                            vehicle.leafSendVideoTarget(nx0, ny0, nx1 - nx0, ny1 - ny0)
+                        }
+                    }
+                }
+            }
+
+            // === Existing camera tracking code ===
             if(videoStreaming._camera) {
                 if (videoStreaming._camera.trackingEnabled) {
                     // order coordinates --> top/left and bottom/right
