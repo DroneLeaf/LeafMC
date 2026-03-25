@@ -177,6 +177,7 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
         qCDebug(VideoManagerLog) << "Video 0 resized. New resolution: " << size.width() << "x" << size.height();
         _videoSize = ((quint32)size.width() << 16) | (quint32)size.height();
         emit videoSizeChanged();
+        emit aspectRatioChanged();
     });
 
     //connect(_videoReceiver, &VideoReceiver::onTakeScreenshotComplete, this, [this](VideoReceiver::STATUS status){
@@ -405,14 +406,21 @@ VideoManager::grabImage(const QString& imageFile)
 //-----------------------------------------------------------------------------
 double VideoManager::aspectRatio()
 {
+    const QSize size = videoSize();
+    if (size.width() > 0 && size.height() > 0) {
+        const double decodedAr = static_cast<double>(size.width()) / static_cast<double>(size.height());
+        qCDebug(VideoManagerLog) << "Primary AR from decoded size:" << decodedAr << "size:" << size;
+        return decodedAr;
+    }
+
     if(_activeVehicle && _activeVehicle->cameraManager()) {
         QGCVideoStreamInfo* pInfo = _activeVehicle->cameraManager()->currentStreamInstance();
-        if(pInfo) {
-            qCDebug(VideoManagerLog) << "Primary AR: " << pInfo->aspectRatio();
+        if(pInfo && pInfo->aspectRatio() > 0.0) {
+            qCDebug(VideoManagerLog) << "Primary AR from stream info: " << pInfo->aspectRatio();
             return pInfo->aspectRatio();
         }
     }
-    // FIXME: AV: use _videoReceiver->videoSize() to calculate AR (if AR is not specified in the settings?)
+
     return _videoSettings->aspectRatio()->rawValue().toDouble();
 }
 

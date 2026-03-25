@@ -37,10 +37,22 @@ Item {
     property int    _fitMode:           QGroundControl.settingsManager.videoSettings.videoFit.rawValue
 
     function getWidth() {
-        return videoBackground.getWidth()
+        return videoContentLoader.width > 0 ? videoContentLoader.width : videoBackground.getWidth()
     }
     function getHeight() {
-        return videoBackground.getHeight()
+        return videoContentLoader.height > 0 ? videoContentLoader.height : videoBackground.getHeight()
+    }
+    function getContentRect() {
+        if (videoContentLoader.width <= 0 || videoContentLoader.height <= 0) {
+            return null
+        }
+
+        return {
+            x: videoContentLoader.x,
+            y: videoContentLoader.y,
+            width: videoContentLoader.width,
+            height: videoContentLoader.height
+        }
     }
 
     property double _thermalHeightFactor: 0.85 //-- TODO
@@ -139,6 +151,7 @@ Item {
             }
         }
         Loader {
+            id:                 videoContentLoader
             // GStreamer is causing crashes on Lenovo laptop OpenGL Intel drivers. In order to workaround this
             // we don't load a QGCVideoBackground object when video is disabled. This prevents any video rendering
             // code from running. Setting QGCVideoBackground.receiver = null does not work to prevent any

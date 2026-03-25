@@ -164,6 +164,129 @@ Item {
         property var trackingROI:   null
         property var trackingStatus: trackingStatusComponent.createObject(flyViewVideoMouseArea, {})
 
+        function clampToRange(value, minValue, maxValue) {
+            return Math.max(minValue, Math.min(maxValue, value))
+        }
+
+        function videoMapping() {
+            var sourceSize = QGroundControl.videoManager.videoSize
+            var sourceW = sourceSize.width
+            var sourceH = sourceSize.height
+
+            if (sourceW <= 0 || sourceH <= 0) {
+                sourceW = videoStreaming ? videoStreaming.getWidth() : 0
+                sourceH = videoStreaming ? videoStreaming.getHeight() : 0
+            }
+
+            var contentRect = videoStreaming ? videoStreaming.getContentRect() : null
+            if (!contentRect || sourceW <= 0 || sourceH <= 0) {
+                return null
+            }
+
+            var fullLeft = contentRect.x
+            var fullTop = contentRect.y
+            var fullW = contentRect.width
+            var fullH = contentRect.height
+            var visLeft = Math.max(fullLeft, 0)
+            var visTop = Math.max(fullTop, 0)
+            var visRight = Math.min(fullLeft + fullW, width)
+            var visBottom = Math.min(fullTop + fullH, height)
+            var visW = visRight - visLeft
+            var visH = visBottom - visTop
+
+            if (fullW <= 0 || fullH <= 0 || visW <= 0 || visH <= 0) {
+                return null
+            }
+
+            return {
+                sourceW: sourceW,
+                sourceH: sourceH,
+                fullLeft: fullLeft,
+                fullTop: fullTop,
+                fullW: fullW,
+                fullH: fullH,
+                visLeft: visLeft,
+                visTop: visTop,
+                visRight: visRight,
+                visBottom: visBottom,
+                cropLeft: visLeft - fullLeft,
+                cropTop: visTop - fullTop,
+                fitMode: videoStreaming ? videoStreaming._fitMode : 0
+            }
+        }
+
+        function pointInsideVisibleVideo(mouseX, mouseY, mapping) {
+            return mapping &&
+                   mouseX >= mapping.visLeft && mouseX <= mapping.visRight &&
+                   mouseY >= mapping.visTop && mouseY <= mapping.visBottom
+        }
+
+        function normalizePointToVideo(mouseX, mouseY, mapping) {
+            if (!mapping) {
+                return null
+            }
+
+            var clampedX = clampToRange(mouseX, mapping.visLeft, mapping.visRight)
+            var clampedY = clampToRange(mouseY, mapping.visTop, mapping.visBottom)
+            var fullX = mapping.cropLeft + (clampedX - mapping.visLeft)
+            var fullY = mapping.cropTop + (clampedY - mapping.visTop)
+
+            return {
+                normalizedX: clampToRange(fullX / mapping.fullW, 0.0, 1.0),
+                normalizedY: clampToRange(fullY / mapping.fullH, 0.0, 1.0),
+                clampedX: clampedX,
+                clampedY: clampedY,
+                insideVisible: pointInsideVisibleVideo(mouseX, mouseY, mapping)
+            }
+        }
+
+        function normalizedSelection(releaseX, releaseY) {
+            var mapping = videoMapping()
+            if (!mapping) {
+                return null
+            }
+
+            var start = normalizePointToVideo(_track_rec_x, _track_rec_y, mapping)
+            var end = normalizePointToVideo(releaseX, releaseY, mapping)
+            if (!start || !end) {
+                return null
+            }
+
+            if (!start.insideVisible && !end.insideVisible) {
+                console.log('[FlyViewVideo] Ignoring selection outside visible video rect:',
+                            'press=', _track_rec_x, _track_rec_y,
+                            'release=', releaseX, releaseY,
+                            'visibleRect=', mapping.visLeft, mapping.visTop, mapping.visRight, mapping.visBottom)
+                return null
+            }
+
+            var x0 = Math.min(start.normalizedX, end.normalizedX)
+            var y0 = Math.min(start.normalizedY, end.normalizedY)
+            var x1 = Math.max(start.normalizedX, end.normalizedX)
+            var y1 = Math.max(start.normalizedY, end.normalizedY)
+            var deltaX = Math.abs(start.clampedX - end.clampedX)
+            var deltaY = Math.abs(start.clampedY - end.clampedY)
+
+            console.log('[FlyViewVideo] Video selection mapping:',
+                        'source=', mapping.sourceW, mapping.sourceH,
+                        'fitMode=', mapping.fitMode,
+                        'visibleRect=', mapping.visLeft, mapping.visTop, mapping.visRight, mapping.visBottom,
+                        'fullRect=', mapping.fullLeft, mapping.fullTop, mapping.fullW, mapping.fullH,
+                        'crop=', mapping.cropLeft, mapping.cropTop,
+                        'press=', _track_rec_x, _track_rec_y,
+                        'release=', releaseX, releaseY,
+                        'norm=', x0, y0, x1, y1)
+
+            return {
+                mapping: mapping,
+                x0: x0,
+                y0: y0,
+                x1: x1,
+                y1: y1,
+                isClick: deltaX < 10 && deltaY < 10
+            }
+        }
+
         onClicked:       onScreenGimbalController.clickControl()
         onDoubleClicked: QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
 
@@ -207,97 +330,30 @@ Item {
                 trackingROI.destroy();
             }
 
+            var selection = normalizedSelection(mouse.x, mouse.y)
+            if (!selection) {
+                _track_rec_x = 0
+                _track_rec_y = 0
+                return
+            }
+
             // === Always send via MAVLink (independent of camera tracking) ===
             var vehicle = QGroundControl.multiVehicleManager.activeVehicle
-            if (vehicle && videoStreaming) {
-                // getWidth()/getHeight() may exceed the container (video is
-                // cropped by clip:true).  Compute the visible video rect.
-                var rawVW = videoStreaming.getWidth()
-                var rawVH = videoStreaming.getHeight()
-
-                if (rawVW > 0 && rawVH > 0) {
-                    console.log("[FlyViewVideo] DEBUG: parent=", parent.width, "x", parent.height,
-                                "rawVideo=", rawVW, "x", rawVH,
-                                "offX=", (parent.width - rawVW)/2, "offY=", (parent.height - rawVH)/2)
-                    // Offset of the full (possibly cropped) video from the container
-                    var fullOffX = (parent.width  - rawVW) / 2
-                    var fullOffY = (parent.height - rawVH) / 2
-
-                    // Visible video rect within the container
-                    var visLeft   = Math.max(fullOffX, 0)
-                    var visTop    = Math.max(fullOffY, 0)
-                    var visRight  = Math.min(fullOffX + rawVW, parent.width)
-                    var visBottom = Math.min(fullOffY + rawVH, parent.height)
-                    var visW = visRight - visLeft
-                    var visH = visBottom - visTop
-
-                    // Where the visible region starts in the full video's coord space
-                    var cropLeft = visLeft - fullOffX   // pixels cropped on left
-                    var cropTop  = visTop  - fullOffY   // pixels cropped on top
-
-                    if (visW > 0 && visH > 0) {
-                        // Map mouse position to the full video coordinate space
-                        var mx0 = Math.min(_track_rec_x, mouse.x) - fullOffX
-                        var my0 = Math.min(_track_rec_y, mouse.y) - fullOffY
-                        var mx1 = Math.max(_track_rec_x, mouse.x) - fullOffX
-                        var my1 = Math.max(_track_rec_y, mouse.y) - fullOffY
-
-                        // Normalize against the full video dimensions
-                        var nx0 = Math.max(Math.min(mx0 / rawVW, 1.0), 0.0)
-                        var ny0 = Math.max(Math.min(my0 / rawVH, 1.0), 0.0)
-                        var nx1 = Math.max(Math.min(mx1 / rawVW, 1.0), 0.0)
-                        var ny1 = Math.max(Math.min(my1 / rawVH, 1.0), 0.0)
-
-                        if (Math.abs(_track_rec_x - mouse.x) < 10 && Math.abs(_track_rec_y - mouse.y) < 10) {
-                            // Click
-                            console.log("[FlyViewVideo] MAVLink video click: x=", nx0, "y=", ny0)
-                            vehicle.leafSendVideoTarget(nx0, ny0, 0, 0)
-                        } else {
-                            // ROI rectangle
-                            console.log("[FlyViewVideo] MAVLink video ROI: x=", nx0, "y=", ny0, "w=", nx1 - nx0, "h=", ny1 - ny0)
-                            vehicle.leafSendVideoTarget(nx0, ny0, nx1 - nx0, ny1 - ny0)
-                        }
-                    }
+            if (vehicle) {
+                if (selection.isClick) {
+                    console.log('[FlyViewVideo] MAVLink video click:', selection.x0, selection.y0)
+                    vehicle.leafSendVideoTarget(selection.x0, selection.y0, 0, 0)
+                } else {
+                    console.log('[FlyViewVideo] MAVLink video ROI:',
+                                selection.x0, selection.y0,
+                                selection.x1 - selection.x0, selection.y1 - selection.y0)
+                    vehicle.leafSendVideoTarget(selection.x0, selection.y0,
+                                                selection.x1 - selection.x0, selection.y1 - selection.y0)
                 }
             }
 
-            // === Existing camera tracking code ===
-            if(videoStreaming._camera) {
-                if (videoStreaming._camera.trackingEnabled) {
-                    // order coordinates --> top/left and bottom/right
-                    x0 = Math.min(_track_rec_x, mouse.x)
-                    x1 = Math.max(_track_rec_x, mouse.x)
-                    y0 = Math.min(_track_rec_y, mouse.y)
-                    y1 = Math.max(_track_rec_y, mouse.y)
-
-                    //calculate offset between video stream rect and background (black stripes)
-                    offset_x = (parent.width - videoStreaming.getWidth()) / 2
-                    offset_y = (parent.height - videoStreaming.getHeight()) / 2
-
-                    //convert absolute coords in background to absolute video stream coords
-                    x0 = x0 - offset_x
-                    x1 = x1 - offset_x
-                    y0 = y0 - offset_y
-                    y1 = y1 - offset_y
-
-                    //convert absolute to relative coordinates and limit range to 0...1
-                    x0 = Math.max(Math.min(x0 / videoStreaming.getWidth(), 1.0), 0.0)
-                    x1 = Math.max(Math.min(x1 / videoStreaming.getWidth(), 1.0), 0.0)
-                    y0 = Math.max(Math.min(y0 / videoStreaming.getHeight(), 1.0), 0.0)
-                    y1 = Math.max(Math.min(y1 / videoStreaming.getHeight(), 1.0), 0.0)
-
-                    //use point message if rectangle is very small
-                    if (Math.abs(_track_rec_x - mouse.x) < 10 && Math.abs(_track_rec_y - mouse.y) < 10) {
-                        var pt  = Qt.point(x0, y0)
-                        videoStreaming._camera.startTracking(pt, radius / videoStreaming.getWidth())
-                    } else {
-                        var rec = Qt.rect(x0, y0, x1 - x0, y1 - y0)
-                        videoStreaming._camera.startTracking(rec)
-                    }
-                    _track_rec_x = 0
-                    _track_rec_y = 0
-                }
-            }
+            _track_rec_x = 0
+            _track_rec_y = 0
         }
 
         Component {
