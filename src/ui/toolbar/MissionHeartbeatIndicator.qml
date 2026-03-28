@@ -27,13 +27,60 @@ Item {
     visible:        _activeVehicle
 
     property var    _activeVehicle:     QGroundControl.multiVehicleManager.activeVehicle
-    property bool   _isStale:           _activeVehicle ? _activeVehicle.missionHeartbeatStale : true
+    property bool   _leafSDKHealthy:    _activeVehicle ? _activeVehicle.leafSDKHealthy : false
     property int    _heartbeatAge:      _activeVehicle ? _activeVehicle.missionHeartbeatAge : -1
-    property color  _indicatorColor:    _isStale ? qgcPal.colorRed : (_heartbeatAge > 5 ? qgcPal.colorRed : (_heartbeatAge > 2 ? qgcPal.colorOrange : (_activeMission ? qgcPal.colorGreen : qgcPal.text)))
-    property bool   _activeMission: {
-        if (!_activeVehicle || _activeVehicle.missionHeartbeatState === "") return false
-        var state = _activeVehicle.missionHeartbeatState
-        return state !== LeafConstants.missionStatusIdle 
+    property bool   _isStale:           _activeVehicle ? _activeVehicle.missionHeartbeatStale : true
+    property bool   _isUnhealthyState:  _activeVehicle ? _activeVehicle.missionHeartbeatSDKState === "UNHEALTHY" : true
+    property string _rawState:          _activeVehicle ? _activeVehicle.missionHeartbeatState : ""
+    property string _indicatorText: {
+        if (!_activeVehicle || _isStale || _isUnhealthyState || !_leafSDKHealthy) return "⚠️"
+        switch (_rawState) {
+        case "Waiting":          return "⏳"
+        case "PausedScheduled":  return "⏸️🕒"
+        case "PausedBetween":    return "⏸️↔️"
+        case "PausedMidStep":    return "⏸️"
+        case "Running":          return "▶️"
+        case "Completed":        return "✅"
+        case "Failed":           return "❌"
+        case "Aborted":          return "🛑"
+        case "Ready":            return "🟢"
+        case "Unhealthy":        return "⚠️"
+        default:                  return _rawState !== "" ? _rawState : "⏳"
+        }
+    }
+    property color  _indicatorColor: {
+        if (_indicatorText === "⚠️") return qgcPal.colorRed
+        if (_heartbeatAge > 5) return qgcPal.colorRed
+        if (_heartbeatAge > 2) return qgcPal.colorOrange
+        if (_indicatorText === "⏸️🕒" || _indicatorText === "⏸️↔️" || _indicatorText === "⏸️") return qgcPal.colorOrange
+        if (_indicatorText === "▶️" || _indicatorText === "✅") return qgcPal.colorGreen
+        if (_indicatorText === "🟢") return qgcPal.colorBlue
+        if (_indicatorText === "❌" || _indicatorText === "🛑") return qgcPal.colorRed
+        return qgcPal.text
+    }
+    property string _stateLabelText: {
+        if (!_activeVehicle || _isStale || _isUnhealthyState || !_leafSDKHealthy) return "⚠️ Unhealthy"
+        if (_rawState === "PausedScheduled")  return "⏸️🕒 Paused \u00b7 Scheduled"
+        if (_rawState === "PausedBetween")    return "⏸️↔️ Paused \u00b7 Between Steps"
+        if (_rawState === "PausedMidStep")    return "⏸️ Paused \u00b7 Mid-Step"
+        if (_rawState === "Ready")            return "🟢 Ready to Start"
+        if (_rawState === "Waiting")          return "⏳ Waiting"
+        if (_rawState === "Running")          return "▶️ Running"
+        if (_rawState === "Completed")        return "✅ Completed"
+        if (_rawState === "Failed")           return "❌ Failed"
+        if (_rawState === "Aborted")          return "🛑 Aborted"
+        if (_rawState === "Unhealthy")        return "⚠️ Unhealthy"
+        return _rawState !== "" ? _rawState : "⏳ Waiting"
+    }
+    property bool   _activeMission: _activeVehicle ? _activeVehicle.leafMissionInProgress : false
+    property bool   _hasMissionDetails: {
+        if (!_activeVehicle) {
+            return false
+        }
+        return (_activeVehicle.missionHeartbeatName !== "") ||
+               (_activeVehicle.missionHeartbeatStepName !== "") ||
+               (_activeVehicle.missionHeartbeatStepType !== "") ||
+               (_rawState !== "")
     }
     
     QGCPalette { id: qgcPal; colorGroupEnabled: enabled }
@@ -68,35 +115,13 @@ Item {
                     xScale:         1.0
                     yScale:         1.0
                 }
-
-                // Pulsing animation when stale
-                SequentialAnimation on opacity {
-                    running: _isStale
-                    loops:   Animation.Infinite
-                    NumberAnimation { from: 1.0; to: 0.3; duration: 500 }
-                    NumberAnimation { from: 0.3; to: 1.0; duration: 500 }
-                }
-
-                // Scaling pulse when stale
-                SequentialAnimation {
-                    running: _isStale
-                    loops:   Animation.Infinite
-                    ParallelAnimation {
-                        NumberAnimation { target: iconScale; property: "xScale"; from: 1.0; to: 0.8; duration: 500; easing.type: Easing.InOutQuad }
-                        NumberAnimation { target: iconScale; property: "yScale"; from: 1.0; to: 0.8; duration: 500; easing.type: Easing.InOutQuad }
-                    }
-                    ParallelAnimation {
-                        NumberAnimation { target: iconScale; property: "xScale"; from: 0.8; to: 1.0; duration: 500; easing.type: Easing.InOutQuad }
-                        NumberAnimation { target: iconScale; property: "yScale"; from: 0.8; to: 1.0; duration: 500; easing.type: Easing.InOutQuad }
-                    }
-                }
             }
         }
 
         QGCLabel {
-            text:                   _activeVehicle && _activeVehicle.missionHeartbeatState !== "" ? _activeVehicle.missionHeartbeatState : "N/A"
+            text:                   !_activeVehicle ? "N/A" : _indicatorText
             font.pointSize:         ScreenTools.mediumFontPointSize
-            color:                  _isStale ? qgcPal.colorRed : qgcPal.text
+            color:                  _indicatorColor
             anchors.verticalCenter: parent.verticalCenter
 
             Behavior on color {
@@ -125,16 +150,19 @@ Item {
             opacity:        0.95
 
             property var    _activeVehicle:     QGroundControl.multiVehicleManager.activeVehicle
-            property bool   _isStale:           _activeVehicle ? _activeVehicle.missionHeartbeatStale : true
+            property bool   _leafSDKHealthy:    _activeVehicle ? _activeVehicle.leafSDKHealthy : false
             property int    _heartbeatAge:      _activeVehicle ? _activeVehicle.missionHeartbeatAge : -1
-            property color  _stateColor:        _isStale ? qgcPal.colorRed : (_heartbeatAge > 5 ? qgcPal.colorRed : (_heartbeatAge > 2 ? qgcPal.colorOrange : qgcPal.colorGreen))
+            property bool   _isStale:           _activeVehicle ? _activeVehicle.missionHeartbeatStale : true
+            property bool   _isUnhealthyState:  _activeVehicle ? _activeVehicle.missionHeartbeatSDKState === "UNHEALTHY" : true
+            property string _rawState:          _activeVehicle ? _activeVehicle.missionHeartbeatState : ""
+            property string _indicatorText:     _root._indicatorText
+            property color  _stateColor:        !_leafSDKHealthy ? qgcPal.colorRed : (_heartbeatAge > 5 ? qgcPal.colorRed : (_heartbeatAge > 2 ? qgcPal.colorOrange : qgcPal.colorGreen))
             property color  _statusColor: {
-                if (!_activeVehicle || _activeVehicle.missionHeartbeatState === "" || _activeVehicle.missionHeartbeatState === LeafConstants.missionStatusIdle || _isStale) return qgcPal.text
-                var state = _activeVehicle.missionHeartbeatState
-                if (state === LeafConstants.missionStatusExecuting || state === LeafConstants.missionStatusCompleted) return qgcPal.colorGreen
-                if (state === LeafConstants.missionStatusReady)                               return qgcPal.colorBlue
-                if (state.indexOf("PAUSE") !== -1)                  return qgcPal.colorOrange
-                if (state === LeafConstants.missionStatusFailed || state === LeafConstants.missionStatusCanceled || state === LeafConstants.missionStatusSafety) return qgcPal.colorRed
+                if (!_activeVehicle) return qgcPal.text
+                if (_indicatorText === "▶️" || _indicatorText === "✅") return qgcPal.colorGreen
+                if (_indicatorText === "🟢") return qgcPal.colorBlue
+                if (_indicatorText === "⏸️🕒" || _indicatorText === "⏸️↔️" || _indicatorText === "⏸️") return qgcPal.colorOrange
+                if (_indicatorText === "❌" || _indicatorText === "🛑" || _indicatorText === "⚠️") return qgcPal.colorRed
                 return qgcPal.text
             }
 
@@ -158,7 +186,7 @@ Item {
 
                 QGCLabel {
                     Layout.alignment:   Qt.AlignCenter
-                    visible:            _isStale
+                    visible:            !_leafSDKHealthy
                     text:               qsTr("⚠ Check Petal-LeafSDK connection.")
                     color:              qgcPal.colorRed
                     wrapMode:           Text.WordWrap
@@ -172,14 +200,9 @@ Item {
 
                     QGCLabel { text: qsTr("Status"); Layout.fillWidth: false }
                     QGCLabel {
-                        text:           _isStale ? qsTr("UNHEALTHY") : qsTr("HEALTHY")
+                        text:           !_leafSDKHealthy ? qsTr("UNHEALTHY") : qsTr("HEALTHY")
                         color:          _stateColor
                         Behavior on color { ColorAnimation { duration: 250 } }
-                    }
-
-                    QGCLabel { text: qsTr("SDK State"); Layout.fillWidth: false }
-                    QGCLabel {
-                        text:           _activeVehicle ? _activeVehicle.missionHeartbeatSDKState : "N/A"
                     }
 
                     QGCLabel { text: qsTr("Heartbeat Age"); Layout.fillWidth: false }
@@ -188,7 +211,7 @@ Item {
                         color:          _heartbeatAge > 5 ? qgcPal.colorRed : (_heartbeatAge > 2 ? qgcPal.colorOrange : qgcPal.text)
                     }
 
-                    QGCLabel { text: qsTr("Queue Count"); Layout.fillWidth: false }
+                    QGCLabel { text: qsTr("Mission Queue Count"); Layout.fillWidth: false }
                     QGCLabel {
                         text:           _activeVehicle ? _activeVehicle.missionHeartbeatQueueCount : "0"
                     }
@@ -203,18 +226,18 @@ Item {
                     Layout.fillWidth:   true
                     height:             1
                     color:              qgcPal.windowShadeDark
-                    visible:            _activeMission
+                    visible:            _root._hasMissionDetails
                 }
 
                 GridLayout {
-                    visible:            _activeMission
+                    visible:            _root._hasMissionDetails
                     columns:            2
                     columnSpacing:      ScreenTools.defaultFontPixelWidth
                     rowSpacing:         ScreenTools.defaultFontPixelHeight * 0.2
 
                     QGCLabel { text: qsTr("Mission State"); Layout.fillWidth: false }
                     QGCLabel {
-                        text:           _activeVehicle ? _activeVehicle.missionHeartbeatState : "N/A"
+                        text:           _activeVehicle ? _root._stateLabelText : "N/A"
                         color:          _statusColor
                     }
 
@@ -223,6 +246,19 @@ Item {
                         text:           _activeVehicle ? _activeVehicle.missionHeartbeatName : "None"
                         wrapMode:       Text.WordWrap
                         Layout.maximumWidth: ScreenTools.defaultFontPixelWidth * 20
+                    }
+
+                    QGCLabel { text: qsTr("Mission Mode"); Layout.fillWidth: false }
+                    QGCLabel {
+                        text: {
+                            if (!_activeVehicle) return "N/A"
+                            return _activeVehicle.missionHeartbeatMissionMode === 0 ? qsTr("Predefined") : qsTr("Interactive")
+                        }
+                    }
+
+                    QGCLabel { text: qsTr("Mission Type"); Layout.fillWidth: false }
+                    QGCLabel {
+                        text:           _activeVehicle ? (_activeVehicle.missionHeartbeatMissionType !== "" ? _activeVehicle.missionHeartbeatMissionType : "N/A") : "N/A"
                     }
 
                     QGCLabel { text: qsTr("Current Step"); Layout.fillWidth: false }

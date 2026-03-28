@@ -69,6 +69,9 @@ public:
     };
     Q_ENUM(MissionStatus)
 
+    // Mission heartbeat stale age (seconds)
+    static constexpr int missionHeartbeatStaleAge = 2;
+
     // ========== Singleton Access ==========
     static LeafConstants* instance();
 
@@ -114,6 +117,11 @@ public:
     static const QString& missionStatusPausedBetweenSteps();   // "PAUSED BETWEEN STEPS"
     static const QString& missionStatusCompleted();            // "COMPLETED"
     static const QString& missionStatusSafety();               // "SAFETY"
+
+    // Arm stage integer constants (mirror LEAF_ARM_STAGE enum values)
+    static int armStageDisarmed()   { return 0; }  // LEAF_ARM_STAGE_DISARMED
+    static int armStageIdling()     { return 1; }  // LEAF_ARM_STAGE_IDLING
+    static int armStageArmed()      { return 2; }  // LEAF_ARM_STAGE_ARMED
 
     // Joystick mode strings
     static const QString& joystickModeDisabled();              // "DISABLED"
@@ -180,6 +188,11 @@ public:
     Q_PROPERTY(QString joystickModeDisabled READ qmlJoystickModeDisabled CONSTANT)
     Q_PROPERTY(QString joystickModeEnabledAlways READ qmlJoystickModeEnabledAlways CONSTANT)
     Q_PROPERTY(QString joystickModeEnabledOnPause READ qmlJoystickModeEnabledOnPause CONSTANT)
+
+    // Arm stage integer constants
+    Q_PROPERTY(int armStageDisarmed READ armStageDisarmed CONSTANT)
+    Q_PROPERTY(int armStageIdling   READ armStageIdling   CONSTANT)
+    Q_PROPERTY(int armStageArmed    READ armStageArmed    CONSTANT)
 
     // Mission step type strings
     Q_PROPERTY(QString stepTypeIdle READ qmlStepTypeIdle CONSTANT)

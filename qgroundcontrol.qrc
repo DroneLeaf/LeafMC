@@ -267,10 +267,8 @@
         <file alias="QGroundControl/FlightDisplay/GuidedActionTakeoff.qml">src/FlightDisplay/GuidedActionTakeoff.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionGripper.qml">src/FlightDisplay/GuidedActionGripper.qml</file>
         <file alias="QGroundControl/FlightDisplay/GripperMenu.qml">src/FlightDisplay/GripperMenu.qml</file>
-        <file alias="QGroundControl/FlightDisplay/GuidedActionPause.qml">src/FlightDisplay/GuidedActionPause.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionRTL.qml">src/FlightDisplay/GuidedActionRTL.qml</file>
-        <file alias="QGroundControl/FlightDisplay/GuidedActionMissionPause.qml">src/FlightDisplay/GuidedActionMissionPause.qml</file>
-        <file alias="QGroundControl/FlightDisplay/GuidedActionMissionResume.qml">src/FlightDisplay/GuidedActionMissionResume.qml</file>
+        <file alias="QGroundControl/FlightDisplay/GuidedActionMissionPauseResume.qml">src/FlightDisplay/GuidedActionMissionPauseResume.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionMissionAbort.qml">src/FlightDisplay/GuidedActionMissionAbort.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionMissionRTL.qml">src/FlightDisplay/GuidedActionMissionRTL.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionMissionLand.qml">src/FlightDisplay/GuidedActionMissionLand.qml</file>
@@ -350,8 +348,6 @@
         <file alias="QGroundControl/FlightDisplay/FlyViewVideoSiYiController.qml">src/FlightDisplay/FlyViewVideoSiYiController.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewVideoSiYiControllerAiSettings.qml">src/FlightDisplay/FlyViewVideoSiYiControllerAiSettings.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionAbort.qml">src/FlightDisplay/GuidedActionAbort.qml</file>
-        <file alias="QGroundControl/FlightDisplay/GuidedActionCancel.qml">src/FlightDisplay/GuidedActionCancel.qml</file>
-        <file alias="QGroundControl/FlightDisplay/GuidedActionResume.qml">src/FlightDisplay/GuidedActionResume.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionStartMission.qml">src/FlightDisplay/GuidedActionStartMission.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewLeafMissionCompleteDialog.qml">src/FlightDisplay/FlyViewLeafMissionCompleteDialog.qml</file>
     </qresource>

@@ -46,7 +46,7 @@ Item {
                 contentWidth: mainLayout.width
 
                 property real _fullWindowHeight: mainWindow.contentItem.height - (indicatorPopup.padding * 2) - (ScreenTools.defaultFontPixelWidth * 2)
-                property bool _modeChangeAllowed: activeVehicle ? activeVehicle.modeChangeAllowed : true
+                property bool _leafMissionInProgress: activeVehicle ? activeVehicle.leafMissionInProgress : false
                 ColumnLayout {
                     id: mainLayout
                     spacing: ScreenTools.defaultFontPixelWidth / 2
@@ -57,7 +57,7 @@ Item {
                         QGCButton {
                             text: modelData
                             Layout.fillWidth: true
-                            enabled: flickable._modeChangeAllowed
+                            enabled: !flickable._leafMissionInProgress
                             opacity: enabled ? 1.0 : 0.5
                             onClicked: {
                                 activeVehicle.leafMode = text

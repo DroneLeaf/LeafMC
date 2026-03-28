@@ -18,9 +18,6 @@ GuidedActionsController         1.0 GuidedActionsController.qml
 GuidedActionLand                1.0 GuidedActionLand.qml
 GuidedActionAbort               1.0 GuidedActionAbort.qml
 GuidedActionList                1.0 GuidedActionList.qml
-GuidedActionPause               1.0 GuidedActionPause.qml
-GuidedActionResume              1.0 GuidedActionResume.qml
-GuidedActionCancel              1.0 GuidedActionCancel.qml
 GuidedActionStartMission        1.0 GuidedActionStartMission.qml
 GuidedActionRTL                 1.0 GuidedActionRTL.qml
 GuidedValueSlider               1.0 GuidedValueSlider.qml

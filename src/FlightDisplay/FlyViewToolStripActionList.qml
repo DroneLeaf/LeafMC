@@ -43,8 +43,7 @@ ToolStripActionList {
         GuidedActionToggleMRFTX { },
         GuidedActionToggleMRFTY { },
         GuidedActionMissionRTL { },
-        GuidedActionMissionPause { },
-        GuidedActionMissionResume { },
+        GuidedActionMissionPauseResume { },
         GuidedActionMissionAbort { },
         GuidedActionMissionLand { }
     ]

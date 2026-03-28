@@ -297,6 +297,14 @@ public:
     Q_PROPERTY(QString                  leafProfile                     READ leafProfile            WRITE setLeafProfile        NOTIFY leafProfileChanged)
     Q_PROPERTY(bool                     leafFCArmed                     READ leafFCArmed            WRITE setLeafFCArmed        NOTIFY leafFCArmedChanged)
 
+    // DroneLeaf LEAF_SYS_STATUS direct field properties
+    Q_PROPERTY(bool     leafIsAirborne      READ leafIsAirborne     NOTIFY leafSysStatusChanged)  ///< airborne_status == AIRBORNE
+    Q_PROPERTY(int      leafArmStage        READ leafArmStage       NOTIFY leafSysStatusChanged)  ///< arm_stage enum value (LEAF_ARM_STAGE: 0=DISARMED, 1=IDLING, 2=ARMED)
+    Q_PROPERTY(bool     leafIsTakingOff     READ leafIsTakingOff    NOTIFY leafSysStatusChanged)  ///< takeoff_status == TAKING_OFF
+    Q_PROPERTY(bool     leafIsLanding       READ leafIsLanding      NOTIFY leafSysStatusChanged)  ///< landing_status == LANDING
+    Q_PROPERTY(bool     leafIsLearning      READ leafIsLearning     NOTIFY leafSysStatusChanged)  ///< learning_status == IN_PROGRESS
+    Q_PROPERTY(bool     leafIsNotReady      READ leafIsNotReady     NOTIFY leafSysStatusChanged)  ///< pre_idle_check_status == FAILED
+
 
     Q_PROPERTY(ParameterManager*        parameterManager    READ parameterManager   CONSTANT)
     Q_PROPERTY(VehicleLinkManager*      vehicleLinkManager  READ vehicleLinkManager CONSTANT)
@@ -601,12 +609,16 @@ public:
     Q_PROPERTY(QString      missionHeartbeatName        READ missionHeartbeatName       NOTIFY missionHeartbeatNameChanged)
     Q_PROPERTY(QString      missionHeartbeatStepType    READ missionHeartbeatStepType   NOTIFY missionHeartbeatStepTypeChanged)
     Q_PROPERTY(QString      missionHeartbeatStepName    READ missionHeartbeatStepName   NOTIFY missionHeartbeatStepNameChanged)
+    Q_PROPERTY(int          missionHeartbeatPauseStage  READ missionHeartbeatPauseStage NOTIFY missionHeartbeatPauseStageChanged)
     Q_PROPERTY(int          missionHeartbeatQueueCount  READ missionHeartbeatQueueCount NOTIFY missionHeartbeatQueueCountChanged)
     Q_PROPERTY(QString      missionHeartbeatJoystickMode READ missionHeartbeatJoystickMode NOTIFY missionHeartbeatJoystickModeChanged)
     Q_PROPERTY(QString      missionHeartbeatPredefinedStatus READ missionHeartbeatPredefinedStatus NOTIFY missionHeartbeatPredefinedStatusChanged)
     Q_PROPERTY(int          missionHeartbeatAge         READ missionHeartbeatAge        NOTIFY missionHeartbeatAgeChanged)
     Q_PROPERTY(bool         missionHeartbeatStale       READ missionHeartbeatStale      NOTIFY missionHeartbeatStaleChanged)
-    Q_PROPERTY(bool         modeChangeAllowed           READ modeChangeAllowed          NOTIFY missionHeartbeatStateChanged)
+    Q_PROPERTY(int          missionHeartbeatMissionMode READ missionHeartbeatMissionMode NOTIFY missionHeartbeatMissionModeChanged)
+    Q_PROPERTY(QString      missionHeartbeatMissionType READ missionHeartbeatMissionType NOTIFY missionHeartbeatMissionTypeChanged)
+    Q_PROPERTY(bool         leafMissionInProgress       READ leafMissionInProgress      NOTIFY leafMissionInProgressChanged)
+    Q_PROPERTY(bool         leafSDKHealthy              READ leafSDKHealthy             NOTIFY leafSDKHealthyChanged)
 
     QString     missionHeartbeatState   () const { return _missionHeartbeatState; }
     QString     missionHeartbeatSDKState () const { return _missionHeartbeatSDKState; }
@@ -614,12 +626,16 @@ public:
     QString     missionHeartbeatName    () const { return _missionHeartbeatName; }
     QString     missionHeartbeatStepType () const { return _missionHeartbeatStepType; }
     QString     missionHeartbeatStepName () const { return _missionHeartbeatStepName; }
+    int         missionHeartbeatPauseStage () const { return _missionHeartbeatPauseStage; }
     int         missionHeartbeatQueueCount () const { return _missionHeartbeatQueueCount; }
     QString     missionHeartbeatJoystickMode () const { return _missionHeartbeatJoystickMode; }
     QString     missionHeartbeatPredefinedStatus () const { return _missionHeartbeatPredefinedStatus; }
-    bool        modeChangeAllowed       () const;
+    bool        leafMissionInProgress   () const;
+    bool        leafSDKHealthy          () const;
     int         missionHeartbeatAge     () const;
     bool        missionHeartbeatStale   () const { return _missionHeartbeatStale; }
+    int         missionHeartbeatMissionMode () const { return _missionHeartbeatMissionMode; }
+    QString     missionHeartbeatMissionType () const { return _missionHeartbeatMissionType; }
 
     bool airship() const;
 
@@ -754,6 +770,12 @@ public:
     bool            leafMRFTY                   () const { return _leafMRFTY; }
     bool            leafMRFTYaw                 () const { return _leafMRFTYaw; }
     bool            leafFCArmed                 () const { return _leafFCArmed; }
+    bool            leafIsAirborne              () const { return _leafIsAirborne; }
+    int             leafArmStage                () const { return _leafArmStage; }
+    bool            leafIsTakingOff             () const { return _leafIsTakingOff; }
+    bool            leafIsLanding               () const { return _leafIsLanding; }
+    bool            leafIsLearning              () const { return _leafIsLearning; }
+    bool            leafIsNotReady              () const { return _leafIsNotReady; }
     /// Get the maximum MAVLink protocol version supported
     /// @return the maximum version
     unsigned        maxProtoVersion         () const { return _maxProtoVersion; }
@@ -1093,6 +1115,7 @@ signals:
     void haveFWSpeedLimChanged          ();
 
     void leafStatusChanged                   (QString leafStatus);
+    void leafSysStatusChanged                ();
     void leafMissionStatusChanged            (QString leafMissionStatus);
     void missionHeartbeatStateChanged        (QString state);
     void missionHeartbeatSDKStateChanged       (QString state);
@@ -1100,11 +1123,16 @@ signals:
     void missionHeartbeatNameChanged         (QString name);
     void missionHeartbeatStepTypeChanged     (QString type);
     void missionHeartbeatStepNameChanged     (QString name);
+    void missionHeartbeatPauseStageChanged   (int stage);
     void missionHeartbeatQueueCountChanged   (int count);
     void missionHeartbeatJoystickModeChanged (QString mode);
     void missionHeartbeatPredefinedStatusChanged (QString status);
     void missionHeartbeatAgeChanged          (int age);
     void missionHeartbeatStaleChanged        (bool stale);
+    void missionHeartbeatMissionModeChanged  (int mode);
+    void missionHeartbeatMissionTypeChanged  (QString type);
+    void leafMissionInProgressChanged        (bool inProgress);
+    void leafSDKHealthyChanged               (bool healthy);
     void leafModeChanged                     (QString leafMode);
     void leafClientNameChanged               (QString leafClientName);
     void leafMRFTRollChanged                 (bool roll);
@@ -1217,6 +1245,8 @@ private:
     void _handleLeafMissionStatus       (mavlink_message_t& message);
     void _handleLeafSysStatus           (mavlink_message_t& message);
     void _handleLeafMissionHeartbeat    (mavlink_message_t& message);
+    void _handleLeafMissionInfo         (mavlink_message_t& message);
+    void _handleLeafMissionExecutionStepInfo(mavlink_message_t& message);
     void _handleLeafMode                (mavlink_message_t& message);
     void _handleLeafClientName          (mavlink_message_t& message);
     void _handleLeafHeartbeat           (mavlink_message_t& message);
@@ -1336,6 +1366,14 @@ private:
     QString         _leafStatus = "";
     QString         _leafMissionStatus = "";
     QString         _leafMode = "";
+
+    // LEAF_SYS_STATUS direct field properties
+    bool            _leafIsAirborne  = false;
+    int             _leafArmStage    = LEAF_ARM_STAGE_DISARMED;
+    bool            _leafIsTakingOff = false;
+    bool            _leafIsLanding   = false;
+    bool            _leafIsLearning  = false;
+    bool            _leafIsNotReady  = false;
     QString         _leafClientName = "";
     QString         _leafProfile = "";
     bool            _leafMRFTRoll = false;
@@ -1517,13 +1555,17 @@ private:
     QString                         _missionHeartbeatName;
     QString                         _missionHeartbeatStepType;
     QString                         _missionHeartbeatStepName;
+    int                             _missionHeartbeatPauseStage = LEAF_MISSION_PAUSE_STAGE_NONE;
     int                             _missionHeartbeatQueueCount = 0;
     QString                         _missionHeartbeatJoystickMode;
     QString                         _missionHeartbeatPredefinedStatus;
+    bool                            _missionHeartbeatIsHealthy = false;
+    bool                            _missionHeartbeatMissionInProgress = false;
     QElapsedTimer                   _missionHeartbeatTimer;
     QTimer                          _missionHeartbeatCheckTimer;
     bool                            _missionHeartbeatStale = true;
-    LEAF_MISSION_MANAGER_STATE              _currentMissionState = LEAF_MISSION_MANAGER_STATE_IDLE;
+    int                             _missionHeartbeatMissionMode = 0; // LEAF_MISSION_MODE_PREDEFINED
+    QString                         _missionHeartbeatMissionType;
     static const int                _mavCommandMaxRetryCount                = 3;
     static const int                _mavCommandResponseCheckTimeoutMSecs    = 500;
     static const int                _mavCommandAckTimeoutMSecs              = 3000;
@@ -1611,9 +1653,7 @@ private:
     StandardModes*                      _standardModes              = nullptr;
     QMap<int, QString>*                 _leafModeNames              = nullptr;
     QMap<LeafConstants::LeafStatus, QString>* _leafStatusTexts        = nullptr;
-    QMap<LEAF_MISSION_MANAGER_STATE, QString>* _leafMissionStatusTexts     = nullptr;
     QMap<JOYSTICK_MODE, QString>*      _joystickModeTexts          = nullptr;
-    QMap<LEAF_PREDEFINED_ACTIONS_STATUS, QString>* _predefinedActionsStatusTexts = nullptr;
     QMap<LEAF_MISSION_STEP_TYPE, QString>* _missionStepTypeTexts  = nullptr;
 
     static const char* _rollFactName;

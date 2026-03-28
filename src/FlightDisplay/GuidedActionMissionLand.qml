@@ -11,19 +11,12 @@ import QGroundControl.FlightDisplay 1.0
 import QGroundControl.Vehicle 1.0
 
 GuidedToolStripAction {
-    property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
-    property string leafStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafStatus : ""
-    property string leafMissionStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMissionStatus : ""
-    property bool   _heartbeatStale: _guidedController._activeVehicle ? _guidedController._activeVehicle.missionHeartbeatStale : true
-
-    property bool   show_button: leafMode.startsWith(LeafConstants.modeLeafSDKMission) && !_heartbeatStale
-    property bool   mission_inactive: leafMissionStatus === LeafConstants.missionStatusIdle || leafMissionStatus === LeafConstants.missionStatusCompleted || leafMissionStatus === LeafConstants.missionStatusFailed || leafMissionStatus === LeafConstants.missionStatusCanceled
-    property bool   enable_button: mission_inactive && leafStatus.startsWith(LeafConstants.statusFlying)
+    property bool   isAirborne:     _guidedController._activeVehicle ? _guidedController._activeVehicle.leafIsAirborne : false
 
     text:       _guidedController.landTitle
-    message:    _guidedController.landMessage
+    message:    _guidedController.is_unhealthy ? "FC Land" : _guidedController.landMessage
     iconSource: "/res/land.svg"
-    visible:    show_button
-    enabled:    enable_button
+    visible:    _guidedController.inSDKMission && _guidedController.leafMissionCanRtlLand
+    enabled:    !_guidedController.leafMissionInProgress && isAirborne
     actionID:   _guidedController.actionMissionLand
 }

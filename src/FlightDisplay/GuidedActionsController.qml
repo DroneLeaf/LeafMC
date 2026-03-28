@@ -239,6 +239,22 @@ Item {
     property bool  _speedLimitsAvailable:   _activeVehicle && ((_fixedWing && _activeVehicle.haveFWSpeedLimits) || (!_fixedWing && _activeVehicle.haveMRSpeedLimits))
     property var   _gripperFunction:        undefined
 
+    // Leaf mission action state centralized here for maintainability.
+    property string leafMode:               _activeVehicle ? _activeVehicle.leafMode : ""
+    property bool   stale:                  _activeVehicle ? _activeVehicle.missionHeartbeatStale : true
+    property bool   unhealthy_state:        _activeVehicle ? _activeVehicle.missionHeartbeatSDKState === "UNHEALTHY" : true
+    property bool   is_unhealthy:           stale || unhealthy_state
+    property bool   inSDKMission:           leafMode.startsWith(LeafConstants.modeLeafSDKMission)
+    property bool   leafMissionInProgress:  _activeVehicle ? _activeVehicle.leafMissionInProgress : false
+    property int    leafMissionPauseStage:  _activeVehicle ? _activeVehicle.missionHeartbeatPauseStage : 0
+    property int    leafMissionQueueCount:  _activeVehicle ? _activeVehicle.missionHeartbeatQueueCount : 0
+    property bool   leafMissionCanPause:    !is_unhealthy && leafMissionInProgress && leafMissionPauseStage === 0
+    property bool   leafMissionCanResume:   !is_unhealthy && leafMissionPauseStage !== 0
+    property bool   leafMissionCanStart:    !is_unhealthy && !leafMissionInProgress && leafMissionQueueCount > 0
+    property bool   leafMissionCanRtlLand:  !is_unhealthy
+    property int    leafAbortActionId:      is_unhealthy ? actionEmergencyAbort : actionAbort
+    property int    leafMissionAbortActionId: is_unhealthy ? actionEmergencyAbort : actionMissionAbort
+
     // You can turn on log output for GuidedActionsController by turning on GuidedActionsControllerLog category
     property bool __guidedModeSupported:    _activeVehicle ? _activeVehicle.guidedModeSupported : false
     property bool __pauseVehicleSupported:  _activeVehicle ? _activeVehicle.pauseVehicleSupported : false

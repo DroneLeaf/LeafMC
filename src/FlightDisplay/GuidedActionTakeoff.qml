@@ -11,15 +11,15 @@ import QGroundControl.FlightDisplay 1.0
 import QGroundControl.Vehicle 1.0
 
 GuidedToolStripAction {
-    property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
-    property string leafStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafStatus : ""
-    property bool   show_button: !leafMode.startsWith(LeafConstants.modeLeafSDKMission)
-    property bool   hideTakeoff: leafMode.startsWith(LeafConstants.modeRCStabilized) || leafMode.startsWith(LeafConstants.modeRollPitchLearning) || leafMode.startsWith(LeafConstants.modeLearningOuter) || leafMode.startsWith(LeafConstants.modeRefinedTuning)
-    property bool   isLeafArmed: leafStatus.startsWith(LeafConstants.statusArmed)
+    property string leafMode:    _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode    : ""
+    property bool   inSDKMission:    leafMode.startsWith(LeafConstants.modeLeafSDKMission)
+    property bool   _modes_without_takeoff:    leafMode.startsWith(LeafConstants.modeRCStabilized) || leafMode.startsWith(LeafConstants.modeRollPitchLearning) || leafMode.startsWith(LeafConstants.modeLearningOuter) || leafMode.startsWith(LeafConstants.modeRefinedTuning)
+    property bool   isArmed: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafArmStage !== LeafConstants.armStageDisarmed : false
+    property bool   isAirborne: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafIsAirborne : false
 
     text:       _guidedController.takeoffTitle
     iconSource: "/res/takeoff.svg"
-    visible:    show_button && !hideTakeoff
-    enabled:    !hideTakeoff && isLeafArmed
+    visible:    !inSDKMission && !_modes_without_takeoff
+    enabled:    !isAirborne && isArmed
     actionID:   _guidedController.actionTakeoff
 }

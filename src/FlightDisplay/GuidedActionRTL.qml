@@ -12,16 +12,13 @@ import QGroundControl.Vehicle 1.0
 
 GuidedToolStripAction {
     property string leafMode: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMode : ""
-    property string leafStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafStatus : ""
-    property string leafMissionStatus: _guidedController._activeVehicle ? _guidedController._activeVehicle.leafMissionStatus : ""
-    property bool   _heartbeatStale: _guidedController._activeVehicle ? _guidedController._activeVehicle.missionHeartbeatStale : true
-    
-    property bool   show_button: !leafMode.startsWith(LeafConstants.modeLeafSDKMission) || _heartbeatStale
-    property bool   enable_button: leafMissionStatus.startsWith(LeafConstants.missionStatusIdle) && leafStatus.startsWith(LeafConstants.statusFlying)
+    property bool   rtlSupportedMode: leafMode.startsWith(LeafConstants.RCPositionMode)
+    property bool   inSDKMission:   leafMode.startsWith(LeafConstants.modeLeafSDKMission)
+    property bool   isAirborne:     _guidedController._activeVehicle ? _guidedController._activeVehicle.leafIsAirborne : false
 
     text:       _guidedController.rtlTitle
     iconSource: "/res/rtl.svg"
-    visible:    show_button
-    enabled:    enable_button
+    visible:    rtlSupportedMode || (inSDKMission && _guidedController.is_unhealthy)
+    enabled:    isAirborne
     actionID:   _guidedController.actionRTL
 }
